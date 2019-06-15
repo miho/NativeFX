@@ -1,0 +1,119 @@
+plugins {
+
+    id 'java'
+
+    id 'org.openjfx.javafxplugin' version '0.0.7'
+    id "de.undercouch.download" version "3.4.3"
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+boolean runsOn(String osName) {
+    return System.properties['os.name'].toLowerCase().contains(osName.toLowerCase())
+} 
+ext.isWindows = runsOn('windows')
+ext.isLinux = runsOn('linux')
+ext.isMacOs = runsOn('darwin')
+
+wrapper {
+    gradleVersion = '5.4'
+}
+
+sourceCompatibility = '1.11'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+compileJava {
+    options.warnings = true
+    options.deprecation = true
+    options.compilerArgs += ["-Xdoclint:none", "-Xlint:none", "-h", file("$projectDir/src/main/native/src/main/headers/")]
+}
+
+dependencies {
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'   
+}
+
+javafx {
+    modules = [ 'javafx.controls']
+}
+
+task downloadBoostHeaders(type: Download) {
+    
+    src 'http://deps.mihosoft.eu/boost/1.58.0/headers/boost.zip'
+    dest "$projectDir/src/main/native/ext/headers/boost.zip"
+    
+    onlyIfNewer true   
+}
+
+task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
+    
+    from zipTree(downloadBoostHeaders.dest)
+    into "$projectDir/src/main/native/ext/headers/"
+    
+}
+
+task cmakeNative(dependsOn: downloadBoostHeaders, type:Exec) {
+
+    errorOutput = new ByteArrayOutputStream()
+
+    doFirst {
+        mkdir "$projectDir/build/native/"
+    }
+
+    workingDir "$projectDir/build/native/"
+
+    if(isWindows) {
+        commandLine 'cmd', '/c', 'cmake.exe', "$projectDir/src/main/native/", "-DCMAKE_GENERATOR_PLATFORM=x64"
+    } else {
+        commandLine 'cmake', "$projectDir/src/main/native/"
+    }
+
+    doLast {
+        println errorOutput.toString()
+    }
+}
+
+task compileNative(dependsOn: cmakeNative, type:Exec) {
+
+    errorOutput = new ByteArrayOutputStream()
+
+    workingDir "$projectDir/build/native/"
+
+    if(isWindows) {
+        commandLine 'cmd', '/c', 'msbuild.exe', 'nativefx.sln', '/property:Configuration=Release', '/property:Platform=x64'
+    } else {
+        commandLine 'make'
+    }
+
+    doLast {
+        println errorOutput.toString()
+    }
+}
+
+task copyNativeToResources(dependsOn: compileNative, type:Copy) {
+
+    if(isWindows) {
+        from "$projectDir/build/native/Release/"
+        into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
+    } else if(isLinux) {
+        from "$projectDir/build/native/Release/"
+        into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
+    } else if(isMacOs) {
+        from "$projectDir/build/native/Release/"
+        into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
+    }
+
+} 
+
+jar {
+   include '**/*.dylib'
+   include '**/*.so'
+   include '**/*.dll'
+}
+
+jar.dependsOn += "copyNativeToResources"
+
+
