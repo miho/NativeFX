@@ -18,7 +18,7 @@ boolean runsOn(String osName) {
 } 
 ext.isWindows = runsOn('windows')
 ext.isLinux = runsOn('linux')
-ext.isMacOs = runsOn('darwin') || runsOn('mac os') || runsOn('macos')
+ext.isMacOs = runsOn('mac')
 
 wrapper {
     gradleVersion = '5.4'
@@ -57,7 +57,12 @@ task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
     
 }
 
-task cmakeNative(dependsOn: downloadBoostHeaders, type:Exec) {
+task setupEnv(type: Exec) {
+    if(isWindows) {
+         commandLine 'cmd', '/c', 'cmake.exe', "$projectDir/src/main/native/", "-DCMAKE_GENERATOR_PLATFORM=x64"
+}
+
+task cmakeNative(dependsOn: [downloadBoostHeaders, setupEnv], type:Exec) {
     doFirst {
         mkdir "$projectDir/build/native/"
     }
@@ -133,7 +138,7 @@ task lsDir(dependsOn: compileNative, type:Exec) {
     }
 }
 
-task lsDirRes(dependsOn: compileNative, type:Exec) {
+task lsDirRes(dependsOn: copyNativeToResources, type:Exec) {
 
     errorOutput = new ByteArrayOutputStream()
 
@@ -142,10 +147,10 @@ task lsDirRes(dependsOn: compileNative, type:Exec) {
         commandLine 'cmd', '/c', 'dir'
     } else if(isMacOs) {
         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
-        commandLine 'ls'
+        commandLine 'ls', "-lR"
     } else if(isLinux) {
         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
-        commandLine 'ls'
+        commandLine 'ls', "-lR"
     } else {
         // unsupported os
     }
