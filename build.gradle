@@ -58,9 +58,6 @@ task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
 }
 
 task cmakeNative(dependsOn: downloadBoostHeaders, type:Exec) {
-
-    errorOutput = new ByteArrayOutputStream()
-
     doFirst {
         mkdir "$projectDir/build/native/"
     }
@@ -72,16 +69,9 @@ task cmakeNative(dependsOn: downloadBoostHeaders, type:Exec) {
     } else {
         commandLine 'cmake', "$projectDir/src/main/native/"
     }
-
-    doLast {
-        println errorOutput.toString()
-    }
 }
 
 task compileNative(dependsOn: cmakeNative, type:Exec) {
-
-    errorOutput = new ByteArrayOutputStream()
-
     workingDir "$projectDir/build/native/"
 
     if(isWindows) {
@@ -89,16 +79,12 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     } else {
         commandLine 'make'
     }
-
-    doLast {
-        println errorOutput.toString()
-    }
 }
 
 task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 
     if(isWindows) {
-        println("!!! copying on windows")
+        println("!!! copying on windows: $projectDir/build/native/Release/")
         copy {
             from "$projectDir/build/native/Release/"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
@@ -111,13 +97,13 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
         // }
 
     } else if(isLinux) {
-        println("!!! copying on linux")
+        println("!!! copying on linux: $projectDir/build/native/libnativefx.so")
         copy {
             from "$projectDir/build/native/libnativefx.so"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
         }
     } else if(isMacOs) {
-        println("!!! copying on macos")
+        println("!!! copying on macos: $projectDir/build/native/libnativefx.dylib")
         copy {
             from "$projectDir/build/native/libnativefx.dylib"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
