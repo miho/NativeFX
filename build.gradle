@@ -125,9 +125,9 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 
 task lsDir(dependsOn: compileNative, type:Exec) {
 
-    doFirst {
-        println("!!! OS: "+System.properties['os.name'].toLowerCase().contains(osName.toLowerCase()))
-    }
+
+    println("!!! OS: "+System.properties['os.name'].toLowerCase().contains(osName.toLowerCase()))
+    
 
     errorOutput = new ByteArrayOutputStream()
 
