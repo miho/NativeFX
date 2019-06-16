@@ -5,7 +5,7 @@ parameters:
   jdkVersion: '1.11'
   gradleWrapperFile: 'gradlew.bat'
   workingDirectory: ''
-  tasks: 'clean build'
+  tasks: 'clean assemble test'
 
 jobs:
 - job: '__${{ parameters.name }}__'
@@ -20,4 +20,4 @@ jobs:
         jdkArchitectureOption: 'x64'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
-        tasks: 'clean build'
+        tasks: 'clean assemble test'

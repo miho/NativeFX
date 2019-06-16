@@ -108,6 +108,8 @@ public final class NativeBinding {
 
             resourceToFile(path, Paths.get(libPath.toFile().getAbsolutePath(), libName));
 
+            System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/"+libName);
+
             System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
@@ -116,6 +118,9 @@ public final class NativeBinding {
 
     private static void resourceToFile(String resource, Path destination) throws IOException{
         try (InputStream is = NativeBinding.class.getResourceAsStream(resource)) {
+
+            System.out.println("> unpacking '" + resource+"' to '"+destination + "'");
+
             Files.copy(is, destination,
                         StandardCopyOption.REPLACE_EXISTING);
         } catch (NullPointerException e) {
