@@ -57,12 +57,8 @@ task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
     
 }
 
-task setupEnv(type: Exec) {
-    if(isWindows) {
-         commandLine 'cmd', '/c', 'cmake.exe', "$projectDir/src/main/native/", "-DCMAKE_GENERATOR_PLATFORM=x64"
-}
 
-task cmakeNative(dependsOn: [downloadBoostHeaders, setupEnv], type:Exec) {
+task cmakeNative(dependsOn: [downloadBoostHeaders], type:Exec) {
     doFirst {
         mkdir "$projectDir/build/native/"
     }
@@ -78,9 +74,22 @@ task cmakeNative(dependsOn: [downloadBoostHeaders, setupEnv], type:Exec) {
 
 task compileNative(dependsOn: cmakeNative, type:Exec) {
     workingDir "$projectDir/build/native/"
+    
+    String msbuildCmd
+
+    if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/msbuild.exe").exists()) {
+        // path to msbuild for azure pipelines
+        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/msbuild.exe";
+    } else if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/msbuild.exe").exists()) {
+        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/msbuild.exe"
+    } else {
+        // we didn't find msbuild in default paths
+        // if it's on the path this will work
+        msbuildCmd = "msbuild.exe"
+    }
 
     if(isWindows) {
-        commandLine 'cmd', '/c', 'msbuild.exe', 'nativefx.sln', '/property:Configuration=Release', '/property:Platform=x64'
+        commandLine 'cmd', '/c', msbuildCmd, 'nativefx.sln', '/property:Configuration=Release', '/property:Platform=x64'
     } else {
         commandLine 'make'
     }
