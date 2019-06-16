@@ -77,7 +77,7 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     
     String msbuildCmd
 
-    // search msbuild in default locations
+    // search msbuild in default locations for visual studio 2017
     if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe").exists()) {
         // path to msbuild for azure pipelines
         msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe";

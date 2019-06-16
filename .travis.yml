@@ -1,0 +1,34 @@
+sudo: false
+
+env:
+  - TERM=dumb
+  
+matrix:
+    include:
+    - os: linux
+      language: java
+      jdk:  openjdk11
+      install: true
+    - os: linux
+      language: java
+      jdk:  openjdk12
+      install: true
+    - os: macos
+      language: java
+      jdk:  openjdk11
+      install: true
+    - os: macos
+      language: java
+      jdk:  openjdk12
+      install: true
+
+#cache:
+#  ccache: true
+#  directories:
+#   - /Users/travis/build/miho/
+
+#before_script:
+  
+script:
+    - export CWD=$(pwd)
+    - sh ./gradlew clean assemble test
