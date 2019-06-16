@@ -96,7 +96,7 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     }
 }
 
-task copyNativeToResources(dependsOn: compileNative, type:Copy) {
+task copyNativeToResources(dependsOn: compileNative) {
 
     if(isWindows) {
         println("!!! copying on windows: $projectDir/build/native/Release/")
