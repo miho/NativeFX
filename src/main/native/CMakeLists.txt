@@ -9,7 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # library sources
-set(SOURCES		src/main/cpp/nativefx.cpp)
+set(SOURCES		
+    src/main/cpp/nativefx.cpp
+    src/main/cpp/jnitypeconverter.cpp
+)
 
 set(CMAKE_BUILD_TYPE Release)
 find_package(JNI REQUIRED)

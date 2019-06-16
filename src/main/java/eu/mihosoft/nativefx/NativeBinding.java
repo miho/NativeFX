@@ -24,7 +24,7 @@ public final class NativeBinding {
     static String archName() {
         String osArch = System.getProperty("os.arch");
 
-        if(osArch.toLowerCase().contains("x64")) {
+        if(osArch.toLowerCase().contains("x64") || osArch.toLowerCase().contains("amd64")) {
             return "x64";
         } else if(osArch.toLowerCase().contains("x86")) {
             return "x86";
@@ -50,10 +50,10 @@ public final class NativeBinding {
     }
 
     static boolean isOS(String os) {
-        return "os".equals(osName());
+        return os.equals(osName());
     }
 
-    void init() {
+    static void init() {
 
         String path = "/eu/mihosoft/nativefx/nativelibs/";
         String libName = "nativefx"+libEnding();
@@ -68,12 +68,17 @@ public final class NativeBinding {
 
         try {
             Path libPath = Files.createTempDirectory("nativefx-libs");
+
+            String libpath = System.getProperty("java.library.path");
+            libpath = libpath + ";"+libPath;
+            System.setProperty("java.library.path",libpath);
+
             try (InputStream is = NativeBinding.class.getResourceAsStream(path)) {
                 Files.copy(is, libPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (NullPointerException e) {
                 throw new FileNotFoundException("Resource " + path + " was not found.");
             }
-            System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
+            System.load(libPath.toFile().getAbsolutePath()+"\\"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }

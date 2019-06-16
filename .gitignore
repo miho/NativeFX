@@ -13,3 +13,5 @@ build
 /bin/
 /src/main/native/ext/
 /src/main/native/src/main/headers/eu_mihosoft_nativefx_NativeBinding.h
+
+/src/main/resources/eu/mihosoft/nativefx/nativelibs/
