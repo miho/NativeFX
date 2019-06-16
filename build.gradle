@@ -147,27 +147,27 @@ task lsDir(dependsOn: compileNative, type:Exec) {
     }
 }
 
-task lsDirRes(dependsOn: copyNativeToResources, type:Exec) {
+// task lsDirRes(dependsOn: copyNativeToResources, type:Exec) {
 
-    errorOutput = new ByteArrayOutputStream()
+//     errorOutput = new ByteArrayOutputStream()
 
-    if(isWindows) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//windows/x64/"
-        commandLine 'cmd', '/c', 'dir'
-    } else if(isMacOs) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//macos/x64/"
-        commandLine 'ls', "-lR"
-    } else if(isLinux) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//linux/x64/"
-        commandLine 'ls', "-lR"
-    } else {
-        // unsupported os
-    }
+//     if(isWindows) {
+//         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//windows/x64/"
+//         commandLine 'cmd', '/c', 'dir'
+//     } else if(isMacOs) {
+//         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//macos/x64/"
+//         commandLine 'ls', "-lR"
+//     } else if(isLinux) {
+//         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//linux/x64/"
+//         commandLine 'ls', "-lR"
+//     } else {
+//         // unsupported os
+//     }
 
-    doLast {
-        println errorOutput.toString()
-    }
-}
+//     doLast {
+//         println errorOutput.toString()
+//     }
+// }
 
 jar {
 //    include '**/*.dylib'
@@ -177,7 +177,7 @@ jar {
 
 jar.dependsOn += "copyNativeToResources"
 jar.dependsOn += "lsDir"
-jar.dependsOn += "lsDirRes"
+// jar.dependsOn += "lsDirRes"
 
 license {
     header = rootProject.file('config/HEADER')
