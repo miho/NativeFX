@@ -126,7 +126,7 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 task lsDir(dependsOn: compileNative, type:Exec) {
 
 
-    println("!!! OS: "+System.properties['os.name'].toLowerCase().contains(osName.toLowerCase()))
+    println("!!! OS: "+System.properties['os.name'].toLowerCase())
     
 
     errorOutput = new ByteArrayOutputStream()
@@ -154,9 +154,11 @@ task lsDirRes(dependsOn: compileNative, type:Exec) {
     } else if(isMacOs) {
         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
         commandLine 'ls'
-    } else {
+    } else if(isLinux) {
         workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
         commandLine 'ls'
+    } else {
+        // unsupported os
     }
 
     doLast {
