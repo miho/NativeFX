@@ -140,6 +140,26 @@ task lsDir(dependsOn: compileNative, type:Exec) {
     }
 }
 
+task lsDirRes(dependsOn: compileNative, type:Exec) {
+
+    errorOutput = new ByteArrayOutputStream()
+
+    if(isWindows) {
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
+        commandLine 'cmd', '/c', 'dir'
+    } else if(isMacOs) {
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
+        commandLine 'ls'
+    } else {
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
+        commandLine 'ls'
+    }
+
+    doLast {
+        println errorOutput.toString()
+    }
+}
+
 jar {
 //    include '**/*.dylib'
 //    include '**/*.so'
@@ -148,6 +168,7 @@ jar {
 
 jar.dependsOn += "copyNativeToResources"
 jar.dependsOn += "lsDir"
+jar.dependsOn += "lsDirRes"
 
 license {
     header = rootProject.file('config/HEADER')
