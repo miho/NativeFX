@@ -77,15 +77,16 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     
     String msbuildCmd
 
-    if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/msbuild.exe").exists()) {
+    // search msbuild in default locations
+    if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe").exists()) {
         // path to msbuild for azure pipelines
-        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/msbuild.exe";
-    } else if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/msbuild.exe").exists()) {
-        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/msbuild.exe"
+        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe";
+    } else if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe").exists()) {
+        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe"
     } else {
         // we didn't find msbuild in default paths
         // if it's on the path this will work
-        msbuildCmd = "msbuild.exe"
+        msbuildCmd = "MSBuild.exe"
     }
 
     if(isWindows) {
