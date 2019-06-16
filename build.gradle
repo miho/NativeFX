@@ -18,7 +18,7 @@ boolean runsOn(String osName) {
 } 
 ext.isWindows = runsOn('windows')
 ext.isLinux = runsOn('linux')
-ext.isMacOs = runsOn('darwin')
+ext.isMacOs = runsOn('darwin') || runsOn('mac os') || runsOn('macos')
 
 wrapper {
     gradleVersion = '5.4'
