@@ -11,10 +11,15 @@ jobs:
 - job: '__${{ parameters.name }}__'
   pool: ${{ parameters.pool }}
   steps:
-
-    - task: BatchScript@1
+    - task: Gradle@2
       inputs:
-        filename: ./gradlew.bat clean assemble test
-        failOnStandardError: false
+        gradleWrapperFile: './gradlew'
+        workingDirectory: './'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: ${{ parameters.jdkVersion }}
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/TEST-*.xml'
+        tasks: 'clean build'
 
   

@@ -11,5 +11,13 @@ jobs:
 - job: '__${{ parameters.name }}__'
   pool: ${{ parameters.pool }}
   steps:
-
-    - bash: ./gradlew clean assemble test
+    - task: Gradle@2
+      inputs:
+        gradleWrapperFile: './gradlew'
+        workingDirectory: './'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: ${{ parameters.jdkVersion }}
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/TEST-*.xml'
+        tasks: 'clean build'
