@@ -95,23 +95,23 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
 
 task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 
-    if(isWindows) {
+    // if(isWindows) {
         from "$projectDir/build/native/Release/"
         into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
-    } else if(isLinux) {
-        from "$projectDir/build/native/Release/"
+    // } else if(isLinux) {
+        from "$projectDir/build/native/libnativefx.so"
         into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
-    } else if(isMacOs) {
-        from "$projectDir/build/native/Release/"
+    // } else if(isMacOs) {
+        from "$projectDir/build/native/libnativefx.dylib"
         into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
-    }
+    // }
 
 } 
 
 jar {
-   include '**/*.dylib'
-   include '**/*.so'
-   include '**/*.dll'
+//    include '**/*.dylib'
+//    include '**/*.so'
+//    include '**/*.dll'
 }
 
 jar.dependsOn += "copyNativeToResources"

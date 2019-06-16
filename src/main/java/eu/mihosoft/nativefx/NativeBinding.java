@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 
 public final class NativeBinding {
 
@@ -17,14 +18,16 @@ public final class NativeBinding {
     static String libEnding() {
         if(isOS("windows")) return ".dll";
         if(isOS("linux")) return ".so";
-        if(isOS("mac")) return ".dylib";
+        if(isOS("macos")) return ".dylib";
         return ".so";
     }
 
     static String archName() {
         String osArch = System.getProperty("os.arch");
 
-        if(osArch.toLowerCase().contains("x64") || osArch.toLowerCase().contains("amd64")) {
+        if(osArch.toLowerCase().contains("x64") 
+        || osArch.toLowerCase().contains("amd64")
+        || osArch.toLowerCase().contains("x86_64")) {
             return "x64";
         } else if(osArch.toLowerCase().contains("x86")) {
             return "x86";
@@ -42,7 +45,8 @@ public final class NativeBinding {
             return "windows";
         } else if(osName.toLowerCase().contains("linux")) {
             return "linux";
-        } else if(osName.toLowerCase().contains("mac")) {
+        } else if(osName.toLowerCase().contains("mac") 
+        || osName.toLowerCase().contains("darwin")) {
             return "macos";
         }
 
@@ -61,24 +65,22 @@ public final class NativeBinding {
         if(isOS("windows")) {
             path+="windows/"+ archName()+ "/"+libName;
         } else if(isOS("linux")) {
+            libName="lib"+libName;
             path+="linux/"+ archName()+ "/"+libName;
-        } else if(isOS("mac")) {
+        } else if(isOS("macos")) {
+            libName="lib"+libName;
             path+="macos/"+ archName()+ "/"+libName;
         }
 
         try {
             Path libPath = Files.createTempDirectory("nativefx-libs");
 
-            String libpath = System.getProperty("java.library.path");
-            libpath = libpath + ";"+libPath;
-            System.setProperty("java.library.path",libpath);
-
             try (InputStream is = NativeBinding.class.getResourceAsStream(path)) {
                 Files.copy(is, libPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (NullPointerException e) {
                 throw new FileNotFoundException("Resource " + path + " was not found.");
             }
-            System.load(libPath.toFile().getAbsolutePath()+"\\"+libName);
+            System.load(libPath.toFile().getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
