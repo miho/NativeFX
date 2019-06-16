@@ -97,7 +97,7 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
 
 task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 
-    // if(isWindows) {
+    if(isWindows) {
         copy {
             from "$projectDir/build/native/Release/"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
@@ -109,17 +109,17 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
         //     into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
         // }
 
-    // } else if(isLinux) {
+    } else if(isLinux) {
         copy {
             from "$projectDir/build/native/libnativefx.so"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
         }
-    // } else if(isMacOs) {
+    } else if(isMacOs) {
         copy {
             from "$projectDir/build/native/libnativefx.dylib"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
         }
-    // }
+    }
 
 } 
 

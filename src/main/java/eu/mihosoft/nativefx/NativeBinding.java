@@ -104,12 +104,14 @@ public final class NativeBinding {
             if(isOS("windows")) {
                 resourceToFile(vcredistPath1, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"));
                 resourceToFile(vcredistPath2, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"));
+
+                System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
+                System.load(libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
             }
 
             resourceToFile(path, Paths.get(libPath.toFile().getAbsolutePath(), libName));
 
             System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/"+libName);
-
             System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
