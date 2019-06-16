@@ -21,5 +21,6 @@ include_directories("src/main/headers/")
 
 # create a shared library from the sources and link it against libs.
 add_library(nativefx SHARED ${SOURCES})
-target_link_libraries(nativefx ${JNI_LIBRARIES})
+message("!!!  ${JNI_LIBRARIES}")
+#target_link_libraries(nativefx ${JNI_LIBRARIES})
 #target_link_libraries (nativefx libname)

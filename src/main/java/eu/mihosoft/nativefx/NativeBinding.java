@@ -60,10 +60,14 @@ public final class NativeBinding {
     static void init() {
 
         String path = "/eu/mihosoft/nativefx/nativelibs/";
+        String vcredistPath1 = path;
+        String vcredistPath2 = path;
         String libName = "nativefx"+libEnding();
 
         if(isOS("windows")) {
             path+="windows/"+ archName()+ "/"+libName;
+            vcredistPath1+="windows/"+ archName()+ "/vcruntime140.dll";
+            vcredistPath2+="windows/"+ archName()+ "/msvcp140.dll";
         } else if(isOS("linux")) {
             libName="lib"+libName;
             path+="linux/"+ archName()+ "/"+libName;
@@ -75,12 +79,29 @@ public final class NativeBinding {
         try {
             Path libPath = Files.createTempDirectory("nativefx-libs");
 
+            if(isOS("windows")) {
+                try (InputStream is = NativeBinding.class.getResourceAsStream(vcredistPath1)) {
+                    Files.copy(is, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"),
+                                StandardCopyOption.REPLACE_EXISTING);
+                } catch (NullPointerException e) {
+                    throw new FileNotFoundException("Resource " + vcredistPath1 + " was not found.");
+                }
+
+                try (InputStream is = NativeBinding.class.getResourceAsStream(vcredistPath2)) {
+                    Files.copy(is, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"),
+                                StandardCopyOption.REPLACE_EXISTING);
+                } catch (NullPointerException e) {
+                    throw new FileNotFoundException("Resource " + vcredistPath2 + " was not found.");
+                }
+            }
+
             try (InputStream is = NativeBinding.class.getResourceAsStream(path)) {
-                Files.copy(is, libPath, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(is,  Paths.get(libPath.toFile().getAbsolutePath(), libName), StandardCopyOption.REPLACE_EXISTING);
             } catch (NullPointerException e) {
                 throw new FileNotFoundException("Resource " + path + " was not found.");
             }
-            System.load(libPath.toFile().getAbsolutePath());
+
+            System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
