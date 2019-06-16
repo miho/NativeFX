@@ -121,12 +121,12 @@ public final class NativeBinding {
     private static void resourceToFile(String resource, Path destination) throws IOException{
         try (InputStream is = NativeBinding.class.getResourceAsStream(resource)) {
 
-            System.out.println("> unpacking '" + resource+"' to '"+destination + "'");
+            System.out.println("> unpacking resource '" + resource+"' to file '"+destination + "'");
 
             Files.copy(is, destination,
                         StandardCopyOption.REPLACE_EXISTING);
         } catch (NullPointerException e) {
-            throw new FileNotFoundException("Resource " + resource + " was not found.");
+            throw new FileNotFoundException("Resource '" + resource + "' was not found.");
         }
     }
 

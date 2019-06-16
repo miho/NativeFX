@@ -123,6 +123,23 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
 
 } 
 
+task lsDir(dependsOn: compileNative, type:Exec) {
+
+    errorOutput = new ByteArrayOutputStream()
+
+    workingDir "$projectDir/build/native/"
+
+    if(isWindows) {
+        commandLine 'cmd', '/c', 'dir'
+    } else {
+        commandLine 'ls'
+    }
+
+    doLast {
+        println errorOutput.toString()
+    }
+}
+
 jar {
 //    include '**/*.dylib'
 //    include '**/*.so'
@@ -130,6 +147,7 @@ jar {
 }
 
 jar.dependsOn += "copyNativeToResources"
+jar.dependsOn += "lsDir"
 
 license {
     header = rootProject.file('config/HEADER')
