@@ -1,0 +1,20 @@
+parameters:
+  name: ''
+  pool: ''
+  platform: ''
+  jdkVersion: '1.11'
+  gradleWrapperFile: 'gradlew.bat'
+  workingDirectory: ''
+  tasks: 'clean build'
+
+jobs:
+- job: '__${{ parameters.name }}__'
+  pool: ${{ parameters.pool }}
+  steps:
+
+    - task: BatchScript@1
+      inputs:
+        filename: ./gradlew.bat clean assemble test
+        failOnStandardError: false
+
+  
