@@ -1,5 +1,12 @@
 sudo: false
 
+addons:
+    apt:
+      packages:
+       - make
+       - cmake-data
+       - cmake
+
 env:
   - TERM=dumb
   
@@ -13,11 +20,11 @@ matrix:
       language: java
       jdk:  openjdk12
       install: true
-    - os: macos
+    - os: osx
       language: java
       jdk:  openjdk11
       install: true
-    - os: macos
+    - os: osx
       language: java
       jdk:  openjdk12
       install: true
