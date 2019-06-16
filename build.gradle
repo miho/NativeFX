@@ -152,13 +152,13 @@ task lsDirRes(dependsOn: copyNativeToResources, type:Exec) {
     errorOutput = new ByteArrayOutputStream()
 
     if(isWindows) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//windows/x64/"
         commandLine 'cmd', '/c', 'dir'
     } else if(isMacOs) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//macos/x64/"
         commandLine 'ls', "-lR"
     } else if(isLinux) {
-        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
+        workingDir "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/"//linux/x64/"
         commandLine 'ls', "-lR"
     } else {
         // unsupported os
