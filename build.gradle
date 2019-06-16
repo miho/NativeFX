@@ -96,6 +96,27 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     }
 }
 
+// task copyNativeToResources(dependsOn: compileNative) {
+//     doFirst {
+//         if(isWindows) {
+//             def src = java.nio.file.Paths.get("$projectDir/build/native/Release/nativefx.dll")
+//             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/")
+//             java.nio.file.Files.createDirectories(dest);
+//             java.nio.file.Files.copy(src, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+//         } else if(isLinux) {
+//             def src = java.nio.file.Paths.get("$projectDir/build/native/libnativefx.so")
+//             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/")
+//             java.nio.file.Files.createDirectories(dest);
+//             java.nio.file.Files.copy(src, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+//         } else if(isMacOs) {
+//             def src = java.nio.file.Paths.get("$projectDir/build/native/libnativefx.dylib")
+//             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/")
+//             java.nio.file.Files.createDirectories(dest);
+//             java.nio.file.Files.copy(src, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+//         }
+//     }
+// }
+
 task copyNativeToResources(dependsOn: compileNative) {
 
     if(isWindows) {
