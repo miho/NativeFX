@@ -4,6 +4,8 @@ plugins {
 
     id 'org.openjfx.javafxplugin' version '0.0.7'
     id "de.undercouch.download" version "3.4.3"
+
+    id 'com.github.hierynomus.license' version '0.14.0'
 }
 
 repositories {
@@ -101,10 +103,11 @@ task copyNativeToResources(dependsOn: compileNative, type:Copy) {
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
         }
 
-        copy {
-            from "$projectDir/resources/native/windows/x64/"
-            into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
-        }
+        // TODO check whether we needto ship redist libraries on windows
+        // copy {
+        //     from "$projectDir/resources/native/windows/x64/"
+        //     into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/"
+        // }
 
     // } else if(isLinux) {
         copy {
@@ -127,5 +130,27 @@ jar {
 }
 
 jar.dependsOn += "copyNativeToResources"
+
+license {
+    header = rootProject.file('config/HEADER')
+    strictCheck = true
+    ignoreFailures = true
+    mapping {
+        java   = 'SLASHSTAR_STYLE'
+        groovy = 'SLASHSTAR_STYLE'
+        fxml   = 'XML_STYLE'
+    }
+
+    ext.yearCurrent  = new java.text.SimpleDateFormat("yyyy").format(new Date())
+    ext.yearSince1   = '2019'
+    ext.author1 = 'Michael Hoffer <info@michaelhoffer.de>'
+
+    exclude '**/*.svg'
+    exclude '**/*.dll'
+    exclude '**/*.exp'
+    exclude '**/*.lib'
+    exclude '**/*.so'
+    exclude '**/*.dylib'
+}
 
 

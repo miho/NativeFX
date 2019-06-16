@@ -1,3 +1,25 @@
+/*
+ * Copyright 2019-2019 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * If you use this software for scientific research then please cite the following publication(s):
+ *
+ * M. Hoffer, C. Poliwoda, & G. Wittum. (2013). Visual reflection library:
+ * a framework for declarative GUI programming on the Java platform.
+ * Computing and Visualization in Science, 2013, 16(4),
+ * 181–192. http://doi.org/10.1007/s00791-014-0230-y
+ */
 package eu.mihosoft.nativefx;
 
 import java.io.FileNotFoundException;
@@ -80,30 +102,24 @@ public final class NativeBinding {
             Path libPath = Files.createTempDirectory("nativefx-libs");
 
             if(isOS("windows")) {
-                try (InputStream is = NativeBinding.class.getResourceAsStream(vcredistPath1)) {
-                    Files.copy(is, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"),
-                                StandardCopyOption.REPLACE_EXISTING);
-                } catch (NullPointerException e) {
-                    throw new FileNotFoundException("Resource " + vcredistPath1 + " was not found.");
-                }
-
-                try (InputStream is = NativeBinding.class.getResourceAsStream(vcredistPath2)) {
-                    Files.copy(is, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"),
-                                StandardCopyOption.REPLACE_EXISTING);
-                } catch (NullPointerException e) {
-                    throw new FileNotFoundException("Resource " + vcredistPath2 + " was not found.");
-                }
+                resourceToFile(vcredistPath1, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"));
+                resourceToFile(vcredistPath2, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"));
             }
 
-            try (InputStream is = NativeBinding.class.getResourceAsStream(path)) {
-                Files.copy(is,  Paths.get(libPath.toFile().getAbsolutePath(), libName), StandardCopyOption.REPLACE_EXISTING);
-            } catch (NullPointerException e) {
-                throw new FileNotFoundException("Resource " + path + " was not found.");
-            }
+            resourceToFile(path, Paths.get(libPath.toFile().getAbsolutePath(), libName));
 
             System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
+        }
+    }
+
+    private static void resourceToFile(String resource, Path destination) throws IOException{
+        try (InputStream is = NativeBinding.class.getResourceAsStream(resource)) {
+            Files.copy(is, destination,
+                        StandardCopyOption.REPLACE_EXISTING);
+        } catch (NullPointerException e) {
+            throw new FileNotFoundException("Resource " + resource + " was not found.");
         }
     }
 
