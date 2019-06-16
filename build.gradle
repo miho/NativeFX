@@ -151,7 +151,7 @@ task copyNativeToResources(dependsOn: compileNative) {
 
 // } 
 
-task lsDir(dependsOn: compileNative, type:Exec) {
+task lsDir(dependsOn: copyNativeToResources, type:Exec) {
 
 
     println("!!! OS: "+System.properties['os.name'].toLowerCase())
