@@ -57,9 +57,58 @@ task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
     
 }
 
-
 task cmakeNative(dependsOn: [downloadBoostHeaders], type:Exec) {
     doFirst {
+        String version;
+        def cmdAndArgs = [];
+        if(isWindows) {
+            cmdAndArgs = ["cmd", "/c", "cmake.exe", "--version"]
+        } else {
+            cmdAndArgs = ["cmake", "--version"]
+        }
+
+        def stdout = new ByteArrayOutputStream()
+        def result = exec {
+            commandLine = cmdAndArgs
+            standardOutput = stdout
+        }
+        if(result.exitValue != 0) {
+            throw new RuntimeException("Cannot run 'cmake' executable!"+
+                " Make sure it's installed and added to the executable PATH."
+            )
+        }
+        version = stdout.toString()
+        def lines = version.split('\n')
+
+        if(lines.size() < 1) {
+            throw new RuntimeException("Cannot determin cmake version: $version")
+        }
+
+        version = lines[0]
+        def words = version.split(' ');
+        if(words.size() < 3) {
+            throw new RuntimeException("Cannot determin cmake version: $version")
+        }
+
+        try {
+            version = words[2]
+            def numbers = version.split('\\.')
+
+            if(numbers.size() < 2) {
+                throw new RuntimeException("Cannot determin cmake version: $version")
+            }
+
+            if((numbers[0] as Integer) < 3) {
+                throw new RuntimeException("Cmake version '$version' is too old!")
+            }
+
+            if((numbers[0] as Integer) == 3 && (numbers[1] as Integer) < 9) {
+                throw new RuntimeException("Cmake version '$version' is too old!")
+            }
+        } catch (NumberFormatException ex) {
+            throw new RuntimeException("Cannot determin cmake version: $version")
+        }
+
         mkdir "$projectDir/build/native/"
     }
 
@@ -153,9 +202,7 @@ task copyNativeToResources(dependsOn: compileNative) {
 
 task lsDir(dependsOn: copyNativeToResources, type:Exec) {
 
-
-    println("!!! OS: "+System.properties['os.name'].toLowerCase())
-    
+    println("> OS: "+System.properties['os.name'].toLowerCase())
 
     errorOutput = new ByteArrayOutputStream()
 
