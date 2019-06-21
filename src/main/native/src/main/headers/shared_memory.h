@@ -33,6 +33,7 @@ enum MODIFIER {
 };
 
 enum EVENT_TYPE {
+   NO_EVENT       = 0,
    MOUSE_MOVED    = 1,
    MOUSE_PRESSED  = 2,
    MOUSE_RELEASED = 4,
@@ -41,10 +42,16 @@ enum EVENT_TYPE {
 
    KEY_PRESSED    = 16,
    KEY_RELEASED   = 32,
-   KEY_TYPED      = 64
+   KEY_TYPED      = 64,
+
+   REDRAW         = 128
 };
 
 struct mouse_event {
+
+   mouse_event() : type(NO_EVENT), buttons(NO_BTN), modifiers(NO_KEY),
+                   x(0),y(0),timestamp(0) {}
+
    int type;
    int buttons;
    int modifiers;
@@ -54,6 +61,8 @@ struct mouse_event {
 };
 
 struct mouse_wheel_event {
+   mouse_wheel_event() : type(NO_EVENT), buttons(NO_BTN), modifiers(NO_KEY),
+                   amount(0),timestamp(0) {}
    int type;
    int buttons;
    int modifiers;
@@ -62,6 +71,8 @@ struct mouse_wheel_event {
 };
 
 struct key_event {
+   key_event() : type(NO_EVENT), modifiers(NO_KEY),
+                   chars(""),timestamp(0) {}
    int type;
    int modifiers;
    char chars[128];
@@ -69,6 +80,9 @@ struct key_event {
 };
 
 struct redraw_event {
+   redraw_event() : type(NO_EVENT),
+                   x(0),y(0),w(0),h(0),timestamp(0) {}
+   int type;
    double x;
    double y;
    double w;
@@ -79,13 +93,14 @@ struct redraw_event {
 struct shared_memory_info {
    shared_memory_info()
       : img_buffer_size(0),
-        w(0), h(0), dirty(false), msg("") {
+        w(0), h(0), dirty(false), msg(""){//,
+        //r_event(), m_event(), m_wheel_event(), k_event() {
 
    }
 
    //Mutex to protect access
    boost::interprocess::interprocess_mutex mutex;
-
+   boost::interprocess::interprocess_mutex evt_mutex;
    boost::interprocess::interprocess_mutex buffer_mutex;
 
    int img_buffer_size;
@@ -97,6 +112,11 @@ struct shared_memory_info {
    char msg[4096];
    
    //shared_string msg;
+
+   redraw_event r_event;
+   mouse_event  m_event;
+   mouse_wheel_event m_wheel_event;
+   key_event k_event;
    
 };
 
