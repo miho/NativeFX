@@ -1,0 +1,17 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+/.gradle
+/.vscode
+/.project
+/.classpath
+/.settings/
+
+/bin/
+/src/main/native/ext/
+/src/main/native/src/main/headers/eu_mihosoft_nativefx_NativeBinding.h
+
+/src/main/resources/eu/mihosoft/nativefx/nativelibs/

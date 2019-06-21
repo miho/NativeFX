@@ -1,10 +1,15 @@
+#ifndef SHARED_MEMORY_H
+#define SHARED_MEMORY_H
+
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/containers/string.hpp>
 
-#ifndef SHARED_MEMORY_HPP
-#define SHARED_MEMORY_HPP
+// instead of Qt stuff, we use plain c++ & boost
+// for the client lib
+// therefore, we need to declare uchar (was provided by qt before)
+typedef unsigned char uchar;
 
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
@@ -18,8 +23,7 @@ struct shared_memory_info
 
    shared_memory_info()
       : img_buffer_size(0),
-        w(0), h(0),
-        dirty(true), new_url(true)
+        w(0), h(0), msg("")
    {}
 
    //Mutex to protect access
@@ -30,11 +34,9 @@ struct shared_memory_info
    int w;
    int h;
 
-   bool dirty;
-
-   bool new_url;
+   char msg[4096];
    
-   shared_string url;
+   //shared_string msg;
    
 };
 
@@ -44,4 +46,4 @@ struct shared_memory_buffer
 
 };
 
-#endif // SHARED_MEMORY_HPP
+#endif // SHARED_MEMORY_H

@@ -19,11 +19,36 @@ std::vector<boost::interprocess::shared_memory_object*> shm_buffers;
 std::vector<boost::interprocess::mapped_region*> buffer_regions;
 
 JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
-  (JNIEnv *env, jclass cls, jint key, jstring msg) {
+  (JNIEnv *env, jclass cls, jint key, jstring jmsg) {
 
-      // TODO implement msg sending via shared memory
+      shared_memory_info* info_data = NULL;
 
-      return stringC2J(env, "hello from native!");
+      if(key >= connections.size()) {
+        return stringC2J(env, "ERROR: key not available");
+      }
+
+      info_data = connections[key];
+
+      if(key >= connections.size()) {
+        return stringC2J(env, "ERROR: key not available");
+      }
+
+      info_data->mutex.lock();
+
+      std::string msg = stringJ2C(env, jmsg);
+
+      // copy msg
+      for(size_t idx = 0; idx < msg.size();++idx) {
+        info_data->msg[idx] = msg[idx];
+      }
+      for(size_t idx = msg.size(); idx < 4;++idx) {
+        info_data->msg[idx] = '\0';
+      }
+
+      // info_data->msg = stringJ2C(env, msg).c_str();
+      info_data->mutex.unlock();
+      
+      return stringC2J(env, "hello from native");
 }
 
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_nextKey
@@ -40,7 +65,9 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
       // setup key and names for new connection
       int key = connections.size();
       std::string info_name = name + "_info_" + std::to_string(key);
-      std::string buffer_name = name + "_buffer_" + std::to_string(key);
+      std::string buffer_name = name + "_buff_" + std::to_string(key);
+
+      names.push_back(name);
 
       try {
 

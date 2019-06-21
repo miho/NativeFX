@@ -9,15 +9,20 @@ import static org.junit.Assert.*;
 public class NativeBindingTest {
     @Test public void testNativeMethodsSendMsg() {
         NativeBinding.init();
-        String response = NativeBinding.sendMsg(0, "hello native");
-        assertTrue("sendMsg should return 'hello from native'", "hello from native!".equals(response));
+
+        int key = NativeBinding.connectTo("_mem");
+        String response = NativeBinding.sendMsg(key, "abcde");
+
+        System.out.println("Response: " + response);
+
+        // assertTrue("sendMsg should return 'hello from native'", "hello from native!".equals(response));
     }
 
     @Test public void testNativeMethodsConnectTo() {
         NativeBinding.init();
         // TODO implement
-        //int key = NativeBinding.connectTo("mem_");
-        //assertTrue("connectTo should return 0", 0==key);
+        // int key = NativeBinding.connectTo("_mem");
+        // assertTrue("connectTo should return 0", 0==key);
     }
 
     @Test public void testNativeMethodsNextKey() {
