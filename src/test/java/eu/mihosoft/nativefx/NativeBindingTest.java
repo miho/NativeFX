@@ -12,4 +12,17 @@ public class NativeBindingTest {
         String response = NativeBinding.sendMsg(0, "hello native");
         assertTrue("sendMsg should return 'hello from native'", "hello from native!".equals(response));
     }
+
+    @Test public void testNativeMethodsConnectTo() {
+        NativeBinding.init();
+        // TODO implement
+        //int key = NativeBinding.connectTo("mem_");
+        //assertTrue("connectTo should return 0", 0==key);
+    }
+
+    @Test public void testNativeMethodsNextKey() {
+        NativeBinding.init();
+        int key = NativeBinding.nextKey();
+        assertTrue("nextKey should return 0", 0==key);
+    }
 }

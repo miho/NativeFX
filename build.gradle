@@ -57,7 +57,7 @@ task downloadAndUnzipBoostHeaders(dependsOn: downloadBoostHeaders, type: Copy) {
     
 }
 
-task cmakeNative(dependsOn: [downloadBoostHeaders], type:Exec) {
+task cmakeNative(dependsOn: [downloadAndUnzipBoostHeaders], type:Exec) {
     doFirst {
         String version;
         def cmdAndArgs = [];
@@ -145,6 +145,24 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     }
 }
 
+task cleanNativeResources() {
+    doFirst{
+        if(isWindows) {
+            def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/windows/x64/")
+            def destFile = java.nio.file.Paths.get(dest.toString()+"/nativefx.dll")
+            java.nio.file.Files.deleteIfExists(destFile);
+        } else if(isLinux) {
+            def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/")
+            def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.so")
+            java.nio.file.Files.deleteIfExists(destFile);
+        } else if(isMacOs) {
+            def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/")
+            def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.dylib")
+            java.nio.file.Files.deleteIfExists(destFile);
+        }
+    }
+}
+
 task copyNativeToResources(dependsOn: compileNative) {
     doFirst {
         if(isWindows) {
@@ -156,13 +174,13 @@ task copyNativeToResources(dependsOn: compileNative) {
         } else if(isLinux) {
             def src = java.nio.file.Paths.get("$projectDir/build/native/libnativefx.so")
             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/")
-            def destFile = java.nio.file.Paths.get(dest.toString()+"/nativefx.so")
+            def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.so")
             if(!dest.toFile().exists()) java.nio.file.Files.createDirectories(dest);
             java.nio.file.Files.copy(src, destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } else if(isMacOs) {
             def src = java.nio.file.Paths.get("$projectDir/build/native/libnativefx.dylib")
             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/")
-            def destFile = java.nio.file.Paths.get(dest.toString()+"/nativefx.dylib")
+            def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.dylib")
             if(!dest.toFile().exists()) java.nio.file.Files.createDirectories(dest);
             java.nio.file.Files.copy(src, destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }
@@ -247,7 +265,9 @@ jar {
 //    include '**/*.dll'
 }
 
-jar.dependsOn += "copyNativeToResources"
+clean.dependsOn += "cleanNativeResources"
+
+assemble.dependsOn += "copyNativeToResources"
 jar.dependsOn += "lsDir"
 jar.dependsOn += "lsDirRes"
 

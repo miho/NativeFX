@@ -14,10 +14,11 @@ set(SOURCES
     src/main/cpp/jnitypeconverter.cpp
 )
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE RELEASE)
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories("src/main/headers/")
+include_directories("ext/headers/")
 
 # create a shared library from the sources and link it against libs.
 add_library(nativefx SHARED ${SOURCES})

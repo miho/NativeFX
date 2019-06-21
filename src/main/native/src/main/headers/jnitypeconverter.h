@@ -32,6 +32,14 @@ inline jboolean boolC2J(bool b) {
 jstring stringC2J(JNIEnv *env, const char* s);
 
 /**
+ * Converts a native string to a Java string.
+ * @param env JVM environment to operate on
+ * @param s string to convert
+ * @return a java string
+ */
+jstring stringC2J(JNIEnv *env, std::string const& s);
+
+/**
  * <p>
  * Converts a Java string to a native string.
  * </p>

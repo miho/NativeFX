@@ -33,6 +33,12 @@ import java.nio.file.Paths;
 
 public final class NativeBinding {
 
+    private static boolean initialized;
+
+    // {
+    //     init();
+    // }
+
     private NativeBinding() {
         throw new AssertionError("Dont instantiate me!");
     }
@@ -79,7 +85,15 @@ public final class NativeBinding {
         return os.equals(osName());
     }
 
-    static void init() {
+    static final void init() {
+
+        if(initialized) {
+            // throw new RuntimeException("Already initialized.");
+
+            return;
+        }
+
+        initialized = true;
 
         String path = "/eu/mihosoft/nativefx/nativelibs/";
         String vcredistPath1 = path;
@@ -129,6 +143,8 @@ public final class NativeBinding {
             throw new FileNotFoundException("Resource '" + resource + "' was not found.");
         }
     }
+
+    static native int     nextKey  ();
 
     static native int     connectTo  (String name);
     static native void    terminate  (int key);
