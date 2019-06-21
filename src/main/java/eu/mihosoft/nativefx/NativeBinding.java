@@ -152,17 +152,15 @@ public final class NativeBinding {
 
     static native String  sendMsg(int key, String msg);
 
-
-
     // native void addEventListener   (int key, NativeEventListener l);
     // native void removeEventListener(int key, NativeEventListener l);
 
-    // native void    resize   (int key, int w, int h);
-    // native boolean isDirty  (int key);
-    // native void    redraw   (int key, int x1, int y1, int w, int h);
-    // native void    setDirty (int key, boolean value);
-    // native int     getW     (int key);
-    // native int     getH     (int key);
+    native void    resize   (int key, int w, int h);
+    native boolean isDirty  (int key);
+    native void    redraw   (int key, int x, int y, int w, int h);
+    native void    setDirty (int key, boolean value);
+    native int     getW     (int key);
+    native int     getH     (int key);
 
     // native void fireMousePressedEvent (int key, double x, double y,                int buttons, int modifiers, long timestamp);
     // native void fireMouseReleasedEvent(int key, double x, double y,                int buttons, int modifiers, long timestamp);
@@ -173,8 +171,13 @@ public final class NativeBinding {
     // native void fireKeyReleasedEvent(int key, String characters, int modifiers, long timestamp);
     // native void fireKeyTypedEvent   (int key, String characters, int modifiers, long timestamp);
 
-    // native ByteBuffer getBuffer(int key);
-    // native void       lock     (int key);
-    // native void       unlock   (int key);
+    native ByteBuffer getBuffer(int key);
+
+    native void       lock     (int key);
+    native void       unlock   (int key);
+    
+    native void       lockBuffer     (int key);
+    native void       unlockBuffer   (int key);
+
 
 }
