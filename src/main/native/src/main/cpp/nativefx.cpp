@@ -29,26 +29,15 @@ JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
 
       info_data = connections[key];
 
-      if(key >= connections.size()) {
-        return stringC2J(env, "ERROR: key not available");
-      }
-
-      info_data->mutex.lock();
-
       std::string msg = stringJ2C(env, jmsg);
 
-      // copy msg
-      for(size_t idx = 0; idx < msg.size();++idx) {
-        info_data->msg[idx] = msg[idx];
-      }
-      for(size_t idx = msg.size(); idx < 4;++idx) {
-        info_data->msg[idx] = '\0';
-      }
+      // send a message to server
+      store_shared_string(msg, info_data->client_to_server_msg);
+      info_data->client_to_server_msg_semaphore.post();
 
-      // info_data->msg = stringJ2C(env, msg).c_str();
-      info_data->mutex.unlock();
-      
-      return stringC2J(env, "hello from native");
+      // return result from server
+      info_data->client_to_server_res_semaphore.wait();
+      return stringC2J(env, info_data->client_to_server_res);
 }
 
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_nextKey
@@ -64,9 +53,8 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
 
       // setup key and names for new connection
       int key = connections.size();
-      std::string info_name = name + "_info_" + std::to_string(key);
-      std::string buffer_name = name + "_buff_" + std::to_string(key);
-
+      std::string info_name = get_info_name(key, name);
+      std::string buffer_name = get_buffer_name(key,name);
       names.push_back(name);
 
       try {
@@ -130,6 +118,62 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
       }
 
       return key;
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isConnected
+  (JNIEnv *env, jclass cls, jint key) {
+
+    namespace ipc = boost::interprocess;
+    // try
+    // {
+    //     if(key >= connections.size()) {
+    //       return false;
+    //     }
+
+    //     ipc::shared_memory_object shm_info(ipc::open_only, get_info_name(key, names[key]).c_str(),
+    //        ipc::read_only
+    //     );
+
+    //     return true;
+    // } 
+    // catch (const std::exception &ex) {
+    //     //
+    // }
+    // return false;
+
+    return key < connections.size() && connections[key] != NULL;
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
+  (JNIEnv *env, jclass cls, jint key) {
+
+    namespace ipc = boost::interprocess;
+
+    if(key >= connections.size()) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return false;
+    }
+
+    ipc::shared_memory_object::remove(get_info_name  (key, names[key]).c_str());
+    ipc::shared_memory_object::remove(get_buffer_name(key, names[key]).c_str());
+
+    names[key]          = ""; // NULL?
+
+    delete connections[key];
+    delete buffers[key];
+    delete shm_infos[key];
+    delete info_regions[key];
+    delete shm_buffers[key];
+    delete buffer_regions[key];
+
+    connections[key]    = NULL;
+    buffers[key]        = NULL;
+    shm_infos[key]      = NULL;
+    info_regions[key]   = NULL;
+    shm_buffers[key]    = NULL;
+    buffer_regions[key] = NULL;
+
+    return true;
 }
 
 

@@ -13,7 +13,7 @@ set(SOURCES
     src/main/cpp/main.cpp
 )
 
-set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_BUILD_TYPE DEBUG)
 
 include_directories("../src/main/headers/")
 include_directories("../ext/headers/")

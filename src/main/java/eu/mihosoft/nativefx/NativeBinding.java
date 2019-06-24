@@ -147,7 +147,7 @@ public final class NativeBinding {
     static native int     nextKey  ();
 
     static native int     connectTo  (String name);
-    static native void    terminate  (int key);
+    static native boolean terminate  (int key);
     static native boolean isConnected(int key);
 
     static native String  sendMsg(int key, String msg);

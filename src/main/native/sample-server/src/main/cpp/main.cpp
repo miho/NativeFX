@@ -59,12 +59,35 @@ int main(int argc, char *argv[])
     std::cout << "  -> info:   " << infoName<<std::endl;
     std::cout << "  -> buffer: " << bufferName<<std::endl;
 
-    // create the shared memory info object.
-    ipc::shared_memory_object shm_info(
-                ipc::create_only,
-                infoName.c_str(),
-                ipc::read_write
-    );
+    ipc::shared_memory_object shm_info;
+
+    try {
+        // create the shared memory info object.
+        shm_info = ipc::shared_memory_object(
+                    ipc::create_only,
+                    infoName.c_str(),
+                    ipc::read_write
+        );
+    } catch(ipc::interprocess_exception & ex) {
+            // remove shared memory objects
+            ipc::shared_memory_object::remove(infoName.c_str());
+            ipc::shared_memory_object::remove(bufferName.c_str());
+
+            std::cout << "> deleted pre-existing shared-mem" <<std::endl;
+            std::cout << "  -> info:   " << infoName<<std::endl;
+            std::cout << "  -> buffer: " << bufferName<<std::endl;
+
+            // create the shared memory info object.
+            shm_info = ipc::shared_memory_object(
+                        ipc::create_only,
+                        infoName.c_str(),
+                        ipc::read_write
+            );
+
+            std::cout << "> created shared-mem" <<std::endl;
+            std::cout << "  -> info:   " << infoName<<std::endl;
+            std::cout << "  -> buffer: " << bufferName<<std::endl;
+    }
 
     // set the shm size
     shm_info.truncate(sizeof(struct shared_memory_info));
@@ -77,7 +100,6 @@ int main(int argc, char *argv[])
 
     // construct the shared structure in memory
     shared_memory_info* info_data = new (info_addr) shared_memory_info;
-
 
     // create the shared memory buffer object.
     ipc::shared_memory_object shm_buffer(
@@ -111,15 +133,15 @@ int main(int argc, char *argv[])
 
         std::string msg = "";
 
-        info_data->mutex.lock();
-        msg = info_data->msg;
-        std::cout << "received: " << std::endl;
-        info_data->mutex.unlock();
+        // receive msg from client
+        info_data->client_to_server_msg_semaphore.wait();
+        msg = info_data->client_to_server_msg;
 
-        if("" != msg) {
-            std::cout << "done! " << msg << std::endl;
-            break;
-        }
+        // send response from server to client
+        store_shared_string("sharing works 123!", info_data->client_to_server_res);
+        info_data->client_to_server_res_semaphore.post();
+
+        std::cout << "received: " << msg << std::endl;
     }
 
     // remove shared memory objects
