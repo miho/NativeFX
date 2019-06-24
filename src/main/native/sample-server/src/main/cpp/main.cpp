@@ -144,7 +144,12 @@ int main(int argc, char *argv[])
     int counter = 0;
     while(true) {
 
-    usleep(1000*30);
+        info_data->mutex.lock();
+        bool is_dirty = info_data->dirty;
+        info_data->mutex.unlock();
+        if(is_dirty) continue;
+
+    usleep(1000*1);
 
         for(int y = 0; y < H; ++y) {
             for(int x = 0; x < W;++x) {
@@ -192,25 +197,27 @@ int main(int argc, char *argv[])
         );
     }
 
+    info_data->dirty = true;
+
     // publish buffer changes
-    info_data->buffer_semaphore.post();
+    //info_data->mutex.unlock();
     info_data->buffer_semaphore.post();
 
     // process messages
 
         // receive msg from client
-        bool has_msg = info_data->client_to_server_msg_semaphore.try_wait();
+        // bool has_msg = info_data->client_to_server_msg_semaphore.try_wait();
         
-        if(has_msg) {
-            std::string msg = "";
-            msg = info_data->client_to_server_msg;
+        // if(has_msg) {
+        //     std::string msg = "";
+        //     msg = info_data->client_to_server_msg;
 
-            // send response from server to client
-            store_shared_string("sharing works 123!", info_data->client_to_server_res);
-            info_data->client_to_server_res_semaphore.post();
+        //     // send response from server to client
+        //     store_shared_string("sharing works 123!", info_data->client_to_server_res);
+        //     info_data->client_to_server_res_semaphore.post();
 
-            std::cout << "received: " << msg << std::endl;
-        }
+        //     std::cout << "received: " << msg << std::endl;
+        // }
 
     } // end while
 

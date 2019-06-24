@@ -177,6 +177,7 @@ public final class NativeBinding {
     static native void       unlock   (int key);
 
     static native void waitForBufferChanges(int key);
+    static native boolean hasBufferChanges(int key);
     
     static native void       lockBuffer     (int key);
     static native void       unlockBuffer   (int key);

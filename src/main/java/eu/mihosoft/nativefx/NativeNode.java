@@ -31,6 +31,7 @@ import java.nio.IntBuffer;
 import java.util.Date;
 
 import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
@@ -49,6 +50,7 @@ public final class NativeNode extends Region {
     private WritableImage img;
     private ImageView view;
 
+
     public NativeNode(int key) {
 
         view = new ImageView();
@@ -59,20 +61,38 @@ public final class NativeNode extends Region {
 
         Runnable r = () -> {
 
-            while(NativeBinding.isConnected(key)) {
+            //NativeBinding.lock(key);
+
+
+        //    while(NativeBinding.isConnected(key)) {
 
                 // System.out.print("> waiting for redraw command: ");
 
+                 //if(!NativeBinding.hasBufferChanges(key)) return;
+
+                 NativeBinding.lock(key);
+                boolean dirty = NativeBinding.isDirty(key);
+                NativeBinding.unlock(key);
+
+                if(!dirty) {
+                    //NativeBinding.unlock(key);
+                    return;
+                }
+
                 NativeBinding.waitForBufferChanges(key);
+
+                // if (intBuf.hasRemaining() && intBuf.position() != 0) {
+                //     return;
+                // }
 
                 // System.out.println(new Date());
 
                 intBuf.rewind();
-
+                
                 int w = NativeBinding.getW(key);
                 int h = NativeBinding.getH(key);
 
-                Platform.runLater(()-> {
+                // Platform.runLater(()-> {
                     // create new image instance if the image doesn't exist or
                     // if the dimensions do not match
                     if( img==null 
@@ -88,20 +108,32 @@ public final class NativeNode extends Region {
                         view.fitWidthProperty().bind(widthProperty());
                     }
 
-                    // TODO use JavaFX 13 pixel-buffers
                     img.getPixelWriter().setPixels(
                             0, 0, (int) img.getWidth(), (int) img.getHeight(),
                             format, intBuf, (int) img.getWidth()
                     );
-                });
 
-            }
+                    NativeBinding.lock(key);
+                    NativeBinding.setDirty(key, false);
+                    NativeBinding.unlock(key);
+                    
+                //});
+
+            // }
+
+            //NativeBinding.unlock(key);
         };
 
-        Thread t = new Thread(r);
-        // t.setDaemon(false);
+        
 
-        t.start();
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                
+                r.run();
+                
+            }
+        }.start();
 
         view.setStyle("-fx-border-color: red;");
 

@@ -220,7 +220,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChan
       std::cerr << "ERROR: key not available" << std::endl;
   } else {
     
-    // connections[key]->buffer_semaphore.try_wait();
+    // connections[key]->buffer_semaphore.wait();
 
     // try at least every second 
     // boost::system_time const timeout=
@@ -231,6 +231,63 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChan
     }
   }
 
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_hasBufferChanges
+  (JNIEnv *env, jclass cls, jint key) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    
+    // connections[key]->buffer_semaphore.wait();
+
+    // try at least every second 
+    // boost::system_time const timeout=
+    //   boost::get_system_time()+ boost::posix_time::milliseconds(1000);
+    // while(!connections[key]->buffer_semaphore.timed_wait(timeout)) {
+    return boolC2J(connections[key]->buffer_semaphore.try_wait());
+  }
+
+  return false;
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
+  (JNIEnv *env, jclass cls, jint key) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    connections[key]->mutex.lock();
+  }
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_unlock
+  (JNIEnv *env, jclass cls, jint key) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    connections[key]->mutex.unlock();
+  }
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isDirty
+  (JNIEnv *env, jclass cls, jint key) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    return boolC2J(connections[key]->dirty);
+  }
+
+  return false;
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setDirty
+  (JNIEnv *env, jclass cls, jint key, jboolean dirty) {
+  if(key >= connections.size() || connections[key] == NULL) {
+    std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    connections[key]->dirty = boolJ2C(dirty);
+  }
 }
 
 
