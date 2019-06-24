@@ -25,8 +25,45 @@
  */
 package eu.mihosoft.nativefx;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
+import javafx.scene.image.WritablePixelFormat;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
-public final class NativeNode extends Node {
+public final class NativeNode extends StackPane {
 
+    private final WritablePixelFormat<IntBuffer> format
+            = PixelFormat.getIntArgbPreInstance();
+
+    public NativeNode(int key) {
+
+        ByteBuffer buffer = NativeBinding.getBuffer(key);
+
+        IntBuffer intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN)
+        .asIntBuffer();
+
+        WritableImage img = new WritableImage(1024, 768);    
+
+        img.getPixelWriter().setPixels(
+                0, 0, (int) img.getWidth(), (int) img.getHeight(),
+                format, intBuf, (int) img.getWidth()
+        );
+
+        ImageView view = new ImageView(img);
+
+        view.setStyle("-fx-border-color: red;");
+        
+        view.setFitWidth(1024);
+
+        getChildren().add(view);
+
+    }
 }

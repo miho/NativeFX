@@ -126,6 +126,37 @@ int main(int argc, char *argv[])
     // cast shared memory pointer to correct uchar type
     uchar* buffer_data = (uchar*) buffer_addr;
 
+    double full = 1024*768;
+
+    for(int x = 0; x < 1024;++x) {
+        int y = 768.0/1024.0 * x;
+
+        buffer_data[y*1024*4+x*4+0] = 0  ; // B
+        buffer_data[y*1024*4+x*4+1] = 0  ; // G
+        buffer_data[y*1024*4+x*4+2] = 255; // R
+        buffer_data[y*1024*4+x*4+3] = 255; // A
+
+        int x_mirror = 1024-x;
+
+        buffer_data[y*1024*4+x_mirror*4+0] = 0  ; // B
+        buffer_data[y*1024*4+x_mirror*4+1] = 255; // G
+        buffer_data[y*1024*4+x_mirror*4+2] = 0  ; // R
+        buffer_data[y*1024*4+x_mirror*4+3] = 255; // A
+    }
+
+    // for(int y = 0; y < 768; ++y) {
+
+    //     for(int x = 0; x < 1024;++x) {
+
+    //         if(x==y) {
+    //             buffer_data[y*1024*4+x*4+0] = 255; // B
+    //             buffer_data[y*1024*4+x*4+1] = 0  ; // G
+    //             buffer_data[y*1024*4+x*4+2] = 255; // R
+    //             buffer_data[y*1024*4+x*4+3] = 255; // A
+    //         }
+    //     }
+    // }
+
     // TODO:
     // use buffer
 

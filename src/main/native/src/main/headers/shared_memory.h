@@ -108,7 +108,7 @@ void store_shared_string(std::string str, char* str_to_store_to) {
 struct shared_memory_info {
    shared_memory_info()
       : img_buffer_size(0),
-        w(0), h(0), dirty(false), 
+        w(1024), h(768), dirty(false), 
         client_to_server_msg(""),
         client_to_server_res(""),
         server_to_client_msg(""),
@@ -116,7 +116,6 @@ struct shared_memory_info {
         client_to_server_msg_semaphore(0),
         client_to_server_res_semaphore(0) {//,
         //r_event(), m_event(), m_wheel_event(), k_event() {
-
    }
 
    // mutex to protect access

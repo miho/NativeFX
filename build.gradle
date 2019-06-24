@@ -2,6 +2,8 @@ plugins {
 
     id 'java'
 
+    id 'application'
+
     id 'org.openjfx.javafxplugin' version '0.0.7'
     id "de.undercouch.download" version "3.4.3"
 
@@ -41,6 +43,8 @@ dependencies {
 javafx {
     modules = [ 'javafx.controls']
 }
+
+mainClassName = 'eu.mihosoft.nativefx.NativeFXApp'
 
 task downloadBoostHeaders(type: Download) {
     
@@ -263,6 +267,15 @@ jar {
 //    include '**/*.dylib'
 //    include '**/*.so'
 //    include '**/*.dll'
+
+
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': mainClassName
+    )
+  }
+
 }
 
 clean.dependsOn += "cleanNativeResources"

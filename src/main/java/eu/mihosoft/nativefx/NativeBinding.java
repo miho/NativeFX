@@ -171,10 +171,10 @@ public final class NativeBinding {
     // native void fireKeyReleasedEvent(int key, String characters, int modifiers, long timestamp);
     // native void fireKeyTypedEvent   (int key, String characters, int modifiers, long timestamp);
 
-    native ByteBuffer getBuffer(int key);
+    static native ByteBuffer getBuffer(int key);
 
-    native void       lock     (int key);
-    native void       unlock   (int key);
+    static native void       lock     (int key);
+    static native void       unlock   (int key);
     
     native void       lockBuffer     (int key);
     native void       unlockBuffer   (int key);

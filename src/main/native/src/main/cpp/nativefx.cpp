@@ -141,7 +141,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isConnected
     // }
     // return false;
 
-    return key < connections.size() && connections[key] != NULL;
+    return boolC2J(key < connections.size() && connections[key] != NULL);
 }
 
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
@@ -160,7 +160,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
     names[key]          = ""; // NULL?
 
     delete connections[key];
-    delete buffers[key];
+    // delete buffers[key];
     delete shm_infos[key];
     delete info_regions[key];
     delete shm_buffers[key];
@@ -173,7 +173,22 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
     shm_buffers[key]    = NULL;
     buffer_regions[key] = NULL;
 
-    return true;
+    return boolC2J(true);
+}
+
+JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
+  (JNIEnv *env, jclass cls, jint key) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return NULL;
+  }
+
+  void* buffer_addr = buffers[key];
+
+  jobject result = env->NewDirectByteBuffer(buffer_addr, 1024*768*4);
+  
+  return result;
 }
 
 
