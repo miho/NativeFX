@@ -28,7 +28,10 @@ package eu.mihosoft.nativefx;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.util.Date;
 
+import javafx.animation.Animation;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -38,32 +41,70 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-public final class NativeNode extends StackPane {
+public final class NativeNode extends Region {
 
     private final WritablePixelFormat<IntBuffer> format
             = PixelFormat.getIntArgbPreInstance();
 
+    private WritableImage img;
+    private ImageView view;
+
     public NativeNode(int key) {
 
-        ByteBuffer buffer = NativeBinding.getBuffer(key);
+        view = new ImageView();
 
+        ByteBuffer buffer = NativeBinding.getBuffer(key);
         IntBuffer intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN)
         .asIntBuffer();
 
-        WritableImage img = new WritableImage(1024, 768);    
+        Runnable r = () -> {
 
-        img.getPixelWriter().setPixels(
-                0, 0, (int) img.getWidth(), (int) img.getHeight(),
-                format, intBuf, (int) img.getWidth()
-        );
+            while(NativeBinding.isConnected(key)) {
 
-        ImageView view = new ImageView(img);
+                // System.out.print("> waiting for redraw command: ");
+
+                NativeBinding.waitForBufferChanges(key);
+
+                // System.out.println(new Date());
+
+                intBuf.rewind();
+
+                int w = NativeBinding.getW(key);
+                int h = NativeBinding.getH(key);
+
+                Platform.runLater(()-> {
+                    // create new image instance if the image doesn't exist or
+                    // if the dimensions do not match
+                    if( img==null 
+                        || Double.compare(w, img.getWidth())!=0
+                        || Double.compare(w, img.getHeight())!=0 ) {
+
+                        // System.out.println(">>");
+
+                        img = new WritableImage(w, h);
+                        view.setImage(img);
+
+                        // TODO improve layout (width or hight ...)
+                        view.fitWidthProperty().bind(widthProperty());
+                    }
+
+                    // TODO use JavaFX 13 pixel-buffers
+                    img.getPixelWriter().setPixels(
+                            0, 0, (int) img.getWidth(), (int) img.getHeight(),
+                            format, intBuf, (int) img.getWidth()
+                    );
+                });
+
+            }
+        };
+
+        Thread t = new Thread(r);
+        // t.setDaemon(false);
+
+        t.start();
 
         view.setStyle("-fx-border-color: red;");
-        
-        view.setFitWidth(1024);
 
         getChildren().add(view);
-
     }
 }

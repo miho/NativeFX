@@ -114,7 +114,8 @@ struct shared_memory_info {
         server_to_client_msg(""),
         server_to_client_res(""),
         client_to_server_msg_semaphore(0),
-        client_to_server_res_semaphore(0) {//,
+        client_to_server_res_semaphore(0),
+        buffer_semaphore(0) {//,
         //r_event(), m_event(), m_wheel_event(), k_event() {
    }
 
@@ -124,6 +125,8 @@ struct shared_memory_info {
    // boost::interprocess::interprocess_mutex client_to_server_res_mutex;
    // boost::interprocess::interprocess_mutex evt_mutex;
    // boost::interprocess::interprocess_mutex buffer_mutex;
+
+   boost::interprocess::interprocess_semaphore buffer_semaphore;
 
    boost::interprocess::interprocess_semaphore client_to_server_msg_semaphore;
    boost::interprocess::interprocess_semaphore client_to_server_res_semaphore;

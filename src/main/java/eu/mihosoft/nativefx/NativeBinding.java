@@ -155,12 +155,12 @@ public final class NativeBinding {
     // native void addEventListener   (int key, NativeEventListener l);
     // native void removeEventListener(int key, NativeEventListener l);
 
-    native void    resize   (int key, int w, int h);
-    native boolean isDirty  (int key);
-    native void    redraw   (int key, int x, int y, int w, int h);
-    native void    setDirty (int key, boolean value);
-    native int     getW     (int key);
-    native int     getH     (int key);
+    static native void    resize   (int key, int w, int h);
+    static native boolean isDirty  (int key);
+    static native void    redraw   (int key, int x, int y, int w, int h);
+    static native void    setDirty (int key, boolean value);
+    static native int     getW     (int key);
+    static native int     getH     (int key);
 
     // native void fireMousePressedEvent (int key, double x, double y,                int buttons, int modifiers, long timestamp);
     // native void fireMouseReleasedEvent(int key, double x, double y,                int buttons, int modifiers, long timestamp);
@@ -175,9 +175,11 @@ public final class NativeBinding {
 
     static native void       lock     (int key);
     static native void       unlock   (int key);
+
+    static native void waitForBufferChanges(int key);
     
-    native void       lockBuffer     (int key);
-    native void       unlockBuffer   (int key);
+    static native void       lockBuffer     (int key);
+    static native void       unlockBuffer   (int key);
 
 
 }

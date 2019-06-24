@@ -1,8 +1,18 @@
 #include<iostream>
+#include <unistd.h>
 
 #include "args/args.hxx"
 
 #include "shared_memory.h"
+
+
+
+void set_rgba(uchar* buffer_data, int buffer_w, int buffer_h, int x, int y, uchar r, uchar g, uchar b, uchar a) {
+    buffer_data[y*buffer_w*4+x*4+0] = b; // B
+    buffer_data[y*buffer_w*4+x*4+1] = g; // G
+    buffer_data[y*buffer_w*4+x*4+2] = r; // R
+    buffer_data[y*buffer_w*4+x*4+3] = a; // A
+}
 
 int main(int argc, char *argv[])
 {
@@ -126,54 +136,83 @@ int main(int argc, char *argv[])
     // cast shared memory pointer to correct uchar type
     uchar* buffer_data = (uchar*) buffer_addr;
 
-    double full = 1024*768;
+    int W = info_data->w;
+    int H = info_data->h;
 
-    for(int x = 0; x < 1024;++x) {
-        int y = 768.0/1024.0 * x;
+    double full = W*H;
 
-        buffer_data[y*1024*4+x*4+0] = 0  ; // B
-        buffer_data[y*1024*4+x*4+1] = 0  ; // G
-        buffer_data[y*1024*4+x*4+2] = 255; // R
-        buffer_data[y*1024*4+x*4+3] = 255; // A
-
-        int x_mirror = 1024-x;
-
-        buffer_data[y*1024*4+x_mirror*4+0] = 0  ; // B
-        buffer_data[y*1024*4+x_mirror*4+1] = 255; // G
-        buffer_data[y*1024*4+x_mirror*4+2] = 0  ; // R
-        buffer_data[y*1024*4+x_mirror*4+3] = 255; // A
-    }
-
-    // for(int y = 0; y < 768; ++y) {
-
-    //     for(int x = 0; x < 1024;++x) {
-
-    //         if(x==y) {
-    //             buffer_data[y*1024*4+x*4+0] = 255; // B
-    //             buffer_data[y*1024*4+x*4+1] = 0  ; // G
-    //             buffer_data[y*1024*4+x*4+2] = 255; // R
-    //             buffer_data[y*1024*4+x*4+3] = 255; // A
-    //         }
-    //     }
-    // }
-
-    // TODO:
-    // use buffer
-
+    int counter = 0;
     while(true) {
 
-        std::string msg = "";
+    usleep(1000*30);
+
+        for(int y = 0; y < H; ++y) {
+            for(int x = 0; x < W;++x) {
+                set_rgba(buffer_data,W,H,x,y, 
+                        0, // R
+                        0, // G
+                        0, // B
+                      255  // A
+                );
+            }
+        }
+
+    for(double alpha = 0; alpha < 2 * M_PI; alpha+=0.001) {
+        int x = W/2+sin(alpha)*(counter%(W/2));
+        int y = H/2+cos(alpha)*(counter%(W/2));
+        if(x > 0 && x < W && y > 0 && y < H) {
+            set_rgba(buffer_data,W,H,x,y, 
+                255, // R
+                0, // G
+                0, // B
+                255  // A
+            );
+        }
+    }
+
+    counter+=5;
+
+    for(int x = 0; x < W;++x) {
+        int y = (double)H/(double)W * x;
+
+        set_rgba(buffer_data,W,H,x,y, 
+            255, // R
+              0, // G
+              0, // B
+            255  // A
+        );
+
+        int x_mirror = W-x;
+
+        set_rgba(buffer_data,W,H,x_mirror,y, 
+              0, // R
+            255, // G
+              0, // B
+            255  // A
+        );
+    }
+
+    // publish buffer changes
+    info_data->buffer_semaphore.post();
+    info_data->buffer_semaphore.post();
+
+    // process messages
 
         // receive msg from client
-        info_data->client_to_server_msg_semaphore.wait();
-        msg = info_data->client_to_server_msg;
+        bool has_msg = info_data->client_to_server_msg_semaphore.try_wait();
+        
+        if(has_msg) {
+            std::string msg = "";
+            msg = info_data->client_to_server_msg;
 
-        // send response from server to client
-        store_shared_string("sharing works 123!", info_data->client_to_server_res);
-        info_data->client_to_server_res_semaphore.post();
+            // send response from server to client
+            store_shared_string("sharing works 123!", info_data->client_to_server_res);
+            info_data->client_to_server_res_semaphore.post();
 
-        std::cout << "received: " << msg << std::endl;
-    }
+            std::cout << "received: " << msg << std::endl;
+        }
+
+    } // end while
 
     // remove shared memory objects
     ipc::shared_memory_object::remove(infoName.c_str());

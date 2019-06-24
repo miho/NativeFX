@@ -4,6 +4,8 @@
 #include<vector>
 #include<string>
 
+#include <boost/thread/xtime.hpp>
+
 #include "eu_mihosoft_nativefx_NativeBinding.h"
 #include "jnitypeconverter.h"
 
@@ -189,6 +191,46 @@ JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
   jobject result = env->NewDirectByteBuffer(buffer_addr, 1024*768*4);
   
   return result;
+}
+
+JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getW
+  (JNIEnv *env, jclass cls, jint key) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return -1;
+  }
+
+  return connections[key]->w;
+}
+
+JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getH
+  (JNIEnv *env, jclass cls, jint key) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return -1;
+  }
+
+  return connections[key]->h;
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChanges
+  (JNIEnv *env, jclass cls, jint key) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    
+    // connections[key]->buffer_semaphore.try_wait();
+
+    // try at least every second 
+    // boost::system_time const timeout=
+    //   boost::get_system_time()+ boost::posix_time::milliseconds(1000);
+    // while(!connections[key]->buffer_semaphore.timed_wait(timeout)) {
+    while(!connections[key]->buffer_semaphore.try_wait()) {  
+      //
+    }
+  }
+
 }
 
 
