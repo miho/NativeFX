@@ -68,18 +68,17 @@ public final class NativeNode extends Region {
 
                 // System.out.print("> waiting for redraw command: ");
 
-                 //if(!NativeBinding.hasBufferChanges(key)) return;
+                // if(!NativeBinding.hasBufferChanges(key)) return;
 
-                 NativeBinding.lock(key);
+                NativeBinding.lock(key);
                 boolean dirty = NativeBinding.isDirty(key);
                 NativeBinding.unlock(key);
 
                 if(!dirty) {
-                    //NativeBinding.unlock(key);
                     return;
                 }
 
-                NativeBinding.waitForBufferChanges(key);
+                //NativeBinding.waitForBufferChanges(key);
 
                 // if (intBuf.hasRemaining() && intBuf.position() != 0) {
                 //     return;

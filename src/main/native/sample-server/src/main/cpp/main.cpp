@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
     // publish buffer changes
     //info_data->mutex.unlock();
-    info_data->buffer_semaphore.post();
+    //info_data->buffer_semaphore.post();
 
     // process messages
 
