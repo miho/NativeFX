@@ -10,6 +10,8 @@ Why should you use it? Ever wanted to integrate native applications into the sce
 
 Got curious? This project is still WIP. But it comes with a sample server that shows how to use it. We run it on Linux, macOs and Windows (on x64). There's a good chance it will work for you as well. If not, create an issue and let us know!
 
+Many features are still missing. We are working on stabilizing the API in the upcoming months so that we are ready if JavaFX 13 will be released.
+
 ## Performance
 
 There have been efforts to do this before. Why should this approach be any better? 
