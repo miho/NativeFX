@@ -24,11 +24,11 @@ add_executable(sample-server ${SOURCES})
 
 # todo: is there a better way to detect linux?
 if(UNIX AND NOT APPLE)
-        set(LINUX TRUE)
+    set(LINUX TRUE)
 endif()
 
 if(LINUX)
-        target_link_libraries(sample-server rt pthread)
+    target_link_libraries(sample-server rt pthread)
 endif()
 
 #target_link_libraries (nativefx libname)
