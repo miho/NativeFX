@@ -55,7 +55,7 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_nextKey
 void update_buffer_connection(int key) {
   
     if(key >= connections.size()) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return;
     }
 
@@ -207,7 +207,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
   (JNIEnv *env, jclass cls, jint key) {
 
     if(key >= connections.size()) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return false;
     }
 
@@ -237,7 +237,7 @@ JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
   (JNIEnv *env, jclass cls, jint key) {
 
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return NULL;
   }
 
@@ -254,7 +254,7 @@ JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getW
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return -1;
   }
 
@@ -264,7 +264,7 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getW
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getH
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return -1;
   }
 
@@ -275,7 +275,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_resize
   (JNIEnv *env, jclass cls, jint key, jint w, jint h) {
 
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
       return;
   }
 
@@ -294,7 +294,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChan
   (JNIEnv *env, jclass cls, jint key) {
 
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     
     // connections[key]->buffer_semaphore.wait();
@@ -314,7 +314,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_hasBufferChan
   (JNIEnv *env, jclass cls, jint key) {
 
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     
     // connections[key]->buffer_semaphore.wait();
@@ -332,7 +332,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_hasBufferChan
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     connections[key]->mutex.lock();
   }
@@ -341,7 +341,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_unlock
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     connections[key]->mutex.unlock();
   }
@@ -350,7 +350,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_unlock
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isDirty
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     return boolC2J(connections[key]->dirty);
   }
@@ -361,7 +361,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isDirty
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setDirty
   (JNIEnv *env, jclass cls, jint key, jboolean dirty) {
   if(key >= connections.size() || connections[key] == NULL) {
-    std::cerr << "ERROR: key not available" << std::endl;
+    std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     connections[key]->dirty = boolJ2C(dirty);
   }
@@ -370,7 +370,7 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setDirty
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setBufferReady
   (JNIEnv *env, jclass cls, jint key, jboolean value) {
   if(key >= connections.size() || connections[key] == NULL) {
-    std::cerr << "ERROR: key not available" << std::endl;
+    std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     connections[key]->buffer_ready = boolJ2C(value);
   }  
@@ -380,7 +380,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isBufferReady
   (JNIEnv *env, jclass cls, jint key) {
 
   if(key >= connections.size() || connections[key] == NULL) {
-      std::cerr << "ERROR: key not available" << std::endl;
+      std::cerr << "ERROR: key not available: " << key << std::endl;
   } else {
     return boolC2J(connections[key]->buffer_ready);
   }

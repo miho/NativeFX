@@ -68,7 +68,7 @@ public final class NativeNode extends Region {
             boolean isReady = NativeBinding.isBufferReady(key);
 
             if(!isReady) {
-                System.out.println("> WARNING: buffer ready: " + isReady);
+                System.out.println("["+key+"]> WARNING: buffer ready: " + isReady);
             }
 
             if (!dirty || !isReady) {
@@ -107,7 +107,7 @@ public final class NativeNode extends Region {
                 int h = (int)getHeight();
 
                 if((w != NativeBinding.getW(key) || h != NativeBinding.getH(key)) && w > 0 && h > 0) {
-                    System.out.println("> requesting buffer resize W: " + w + ", H: " + h);
+                    System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
                     NativeBinding.resize(key, w, h);
                     // buffer = null;
                     // intBuf = null;
