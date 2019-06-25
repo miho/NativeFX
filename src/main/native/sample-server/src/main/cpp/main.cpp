@@ -125,8 +125,11 @@ int main(int argc, char *argv[])
                 ipc::read_write
     );
 
+    int W = info_data->w;
+    int H = info_data->h;
+
     // set the size of the shared image buffer (w*h*#channels*sizeof(uchar))
-    shm_buffer.truncate( /*w*/1024*/*h*/768
+    shm_buffer.truncate( 7000*7000 // TODO properly resize shared memory
                         */*#channels*/4
                         */*channel size*/sizeof(uchar)
     );
@@ -143,9 +146,6 @@ int main(int argc, char *argv[])
     // cast shared memory pointer to correct uchar type
     uchar* buffer_data = (uchar*) buffer_addr;
 
-    int W = info_data->w;
-    int H = info_data->h;
-
     double full = W*H;
 
     int counter = 0;
@@ -153,8 +153,10 @@ int main(int argc, char *argv[])
 
         info_data->mutex.lock();
         bool is_dirty = info_data->dirty;
-        info_data->mutex.unlock();
-        if(is_dirty) continue;
+        if(is_dirty) { 
+            info_data->mutex.unlock();
+            continue;
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -205,6 +207,26 @@ int main(int argc, char *argv[])
     }
 
     info_data->dirty = true;
+
+    int new_W = info_data->w;
+    int new_H = info_data->h;
+
+    if(new_W!=W || new_H != H) {
+        //trigger buffer resize
+
+        W = new_W;
+        H = new_H;
+
+        // // set the size of the shared image buffer (w*h*#channels*sizeof(uchar))
+        // shm_buffer.truncate( /*w*/W*/*h*/H
+        //                     */*#channels*/4
+        //                     */*channel size*/sizeof(uchar)
+        // );
+
+        std::cout << "> resize to W: " << W << ", H: " << H << std::endl;
+    }
+
+    info_data->mutex.unlock();
 
     // publish buffer changes
     //info_data->mutex.unlock();

@@ -137,7 +137,7 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     } else if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe").exists()) {
         msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe"
     } else {
-        // we didn't find msbuild in default paths
+        // we didn't find msbuild in default locations
         // if it's on the path this will work
         msbuildCmd = "MSBuild.exe"
     }

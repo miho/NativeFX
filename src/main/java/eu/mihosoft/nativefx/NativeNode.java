@@ -33,6 +33,7 @@ import java.util.Date;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -50,13 +51,16 @@ public final class NativeNode extends Region {
     private WritableImage img;
     private ImageView view;
 
+    private ByteBuffer buffer;
+    private IntBuffer intBuf;
+
     public NativeNode(int key) {
 
         view = new ImageView();
 
-        ByteBuffer buffer = NativeBinding.getBuffer(key);
-        IntBuffer intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN)
-        .asIntBuffer();
+        // ByteBuffer buffer = null;NativeBinding.getBuffer(key);
+        //IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
+        //.asIntBuffer();
 
         Runnable r = () -> {
 
@@ -67,19 +71,21 @@ public final class NativeNode extends Region {
                 if(!dirty) {
                     return;
                 }
-
-                intBuf.rewind();
                 
-                int w = NativeBinding.getW(key);
-                int h = NativeBinding.getH(key);
+                int currentW = NativeBinding.getW(key);
+                int currentH = NativeBinding.getH(key);
 
                 // create new image instance if the image doesn't exist or
                 // if the dimensions do not match
                 if( img==null 
-                    || Double.compare(w, img.getWidth())!=0
-                    || Double.compare(w, img.getHeight())!=0 ) {
+                    || Double.compare(currentW, img.getWidth()) !=0
+                    || Double.compare(currentH, img.getHeight())!=0 ) {
 
-                    img = new WritableImage(w, h);
+                    buffer = NativeBinding.getBuffer(key);
+                    intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN)
+                        .asIntBuffer();                        
+
+                    img = new WritableImage(currentW, currentH);
                     view.setImage(img);
 
                     // TODO improve layout (width or hight ...)
@@ -94,6 +100,17 @@ public final class NativeNode extends Region {
                 // we updated the image, not dirty anymore
                 NativeBinding.lock(key);
                 NativeBinding.setDirty(key, false);
+
+                int w = (int)getWidth();
+                int h = (int)getHeight();
+
+                if((w!=NativeBinding.getW(key) || h!=NativeBinding.getH(key)) && w > 0 && h > 0) {
+                    System.out.println("> requesting buffer resize W: " + w + ", H: " + h);
+                    NativeBinding.resize(key, w, h);
+                    buffer = null;
+                    intBuf = null;
+                }
+
                 NativeBinding.unlock(key);
                 
         };

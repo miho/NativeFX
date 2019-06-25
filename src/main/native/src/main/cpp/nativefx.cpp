@@ -191,7 +191,8 @@ JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
 
   void* buffer_addr = buffers[key];
 
-  jobject result = env->NewDirectByteBuffer(buffer_addr, 1024*768*4);
+  jobject result = env->NewDirectByteBuffer(buffer_addr,
+     connections[key]->w*connections[key]->h*4);
   
   return result;
 }
@@ -214,6 +215,18 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getH
   }
 
   return connections[key]->h;
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_resize
+  (JNIEnv *env, jclass cls, jint key, jint w, jint h) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return;
+  }
+
+  connections[key]->w = w;  
+  connections[key]->h = h;  
 }
 
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChanges
