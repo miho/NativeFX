@@ -1,10 +1,16 @@
 #include<iostream>
-#include <unistd.h>
+#include <chrono>
+#include <thread>
+
+// force boost to be  included as header only, also on windows
+#define BOOST_ALL_NO_LIB 1
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include "args/args.hxx"
 
 #include "shared_memory.h"
-
 
 
 void set_rgba(uchar* buffer_data, int buffer_w, int buffer_h, int x, int y, uchar r, uchar g, uchar b, uchar a) {
@@ -149,7 +155,7 @@ int main(int argc, char *argv[])
         info_data->mutex.unlock();
         if(is_dirty) continue;
 
-    usleep(1000*1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         for(int y = 0; y < H; ++y) {
             for(int x = 0; x < W;++x) {
