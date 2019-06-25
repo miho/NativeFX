@@ -50,7 +50,6 @@ public final class NativeNode extends Region {
     private WritableImage img;
     private ImageView view;
 
-
     public NativeNode(int key) {
 
         view = new ImageView();
@@ -61,15 +60,6 @@ public final class NativeNode extends Region {
 
         Runnable r = () -> {
 
-            //NativeBinding.lock(key);
-
-
-        //    while(NativeBinding.isConnected(key)) {
-
-                // System.out.print("> waiting for redraw command: ");
-
-                // if(!NativeBinding.hasBufferChanges(key)) return;
-
                 NativeBinding.lock(key);
                 boolean dirty = NativeBinding.isDirty(key);
                 NativeBinding.unlock(key);
@@ -78,59 +68,40 @@ public final class NativeNode extends Region {
                     return;
                 }
 
-                //NativeBinding.waitForBufferChanges(key);
-
-                // if (intBuf.hasRemaining() && intBuf.position() != 0) {
-                //     return;
-                // }
-
-                // System.out.println(new Date());
-
                 intBuf.rewind();
                 
                 int w = NativeBinding.getW(key);
                 int h = NativeBinding.getH(key);
 
-                // Platform.runLater(()-> {
-                    // create new image instance if the image doesn't exist or
-                    // if the dimensions do not match
-                    if( img==null 
-                        || Double.compare(w, img.getWidth())!=0
-                        || Double.compare(w, img.getHeight())!=0 ) {
+                // create new image instance if the image doesn't exist or
+                // if the dimensions do not match
+                if( img==null 
+                    || Double.compare(w, img.getWidth())!=0
+                    || Double.compare(w, img.getHeight())!=0 ) {
 
-                        // System.out.println(">>");
+                    img = new WritableImage(w, h);
+                    view.setImage(img);
 
-                        img = new WritableImage(w, h);
-                        view.setImage(img);
+                    // TODO improve layout (width or hight ...)
+                    view.fitWidthProperty().bind(widthProperty());
+                }
 
-                        // TODO improve layout (width or hight ...)
-                        view.fitWidthProperty().bind(widthProperty());
-                    }
+                img.getPixelWriter().setPixels(
+                        0, 0, (int) img.getWidth(), (int) img.getHeight(),
+                        format, intBuf, (int) img.getWidth()
+                );
 
-                    img.getPixelWriter().setPixels(
-                            0, 0, (int) img.getWidth(), (int) img.getHeight(),
-                            format, intBuf, (int) img.getWidth()
-                    );
-
-                    NativeBinding.lock(key);
-                    NativeBinding.setDirty(key, false);
-                    NativeBinding.unlock(key);
-                    
-                //});
-
-            // }
-
-            //NativeBinding.unlock(key);
+                // we updated the image, not dirty anymore
+                NativeBinding.lock(key);
+                NativeBinding.setDirty(key, false);
+                NativeBinding.unlock(key);
+                
         };
-
-        
 
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                
                 r.run();
-                
             }
         }.start();
 
