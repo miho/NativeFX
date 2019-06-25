@@ -52,9 +52,10 @@ int main(int argc, char *argv[])
     std::string infoName = args::get(infoNameArg);
     std::string bufferName = args::get(bufferNameArg);
 
-    if(!infoNameArg || !bufferNameArg) {
-        std::cerr << "'info-name' and 'buffer-name' must be specified to create or delete shared memory";
+    if((infoName.size() == 0 || bufferName.size() == 0) && !deleteSharedMem) {
+        std::cerr << std::endl << std::endl << "ERROR: 'info-name' and 'buffer-name' must be specified to create or delete shared memory!" << std::endl << std::endl;
         std::cerr << parser;
+        return 1;
     }
     
     namespace ipc  = boost::interprocess;
