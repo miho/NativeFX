@@ -21,5 +21,19 @@ include_directories("./ext/headers/")
 
 # create a executable
 add_executable(sample-server ${SOURCES})
-#target_link_libraries(nativefx ${JNI_LIBRARIES})
+
+# create a executable
+add_executable(sample-server ${SOURCES})
+
+
+# todo: is there a better way to detect linux?
+if(UNIX AND NOT APPLE)
+        set(LINUX TRUE)
+endif()
+
+if(LINUX)
+        target_link_libraries(sample-server rt pthread)
+endif()
+
 #target_link_libraries (nativefx libname)
+
