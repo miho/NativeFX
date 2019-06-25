@@ -1,6 +1,8 @@
 # NativeFX (WIP)
 Native Rendering integration for JavaFX (13 and beyond)
 
+<img src="resources/img/screenshot-macos.jpg">
+
 ## Why?
 NativeFX adds native rendering support to the JavaFX scene graph. It uses [Boost IPC](https://www.boost.org/doc/libs/1_63_0/doc/html/interprocess.html) to share memory among multiple processes. In contrast to other solutions it runs with the official APIs. No workarounds necessary. And since the native rendering is done in a seperate process it won't crash your JVM if something goes wrong. That's ideal if you are interesed in a robust solution.
 
