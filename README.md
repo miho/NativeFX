@@ -72,7 +72,7 @@ To compile and run the sample-server, do the following (releatrive to the previo
     mkdir build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
     MSBuild.exe sample-server.sln', /property:Configuration=Release /property:Platform=x64
-    Release/x64/sample-server  -i _mem_info_0 -b _mem_buff_0
+    Release\x64\sample-server.exe  -i _mem_info_0 -b _mem_buff_0
 
 ### Step 2 (run the sample JavaFX application)
 
