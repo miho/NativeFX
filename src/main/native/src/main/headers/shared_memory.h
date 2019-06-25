@@ -160,11 +160,11 @@ struct shared_memory_buffer
 };
 
 std::string get_info_name(int key, std::string name) {
-  return name + "_info_" + std::to_string(key);
+  return name + "_info_";// + std::to_string(key);
 }
 
 std::string get_buffer_name(int key, std::string name) {
-  return name + "_buff_" + std::to_string(key);
+  return name + "_buff_";// + std::to_string(key);
 }
 
 #endif // SHARED_MEMORY_H

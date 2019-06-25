@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -14,13 +15,17 @@ public class NativeFXApp extends Application {
 
     public void start(Stage primaryStage) {
 
-        NativeBinding.init();
-        
-        int key = NativeBinding.connectTo("_mem");
+        NativeNode root = new NativeNode();
+        root.connect("_mem_1");
 
-        Parent root = new NativeNode(key);
+        root.setMinWidth(100);
 
-        root.setStyle("-fx-border-color: green;");
+        // NativeNode root2 = new NativeNode();
+        // root2.connect("_mem_2");
+
+        // root2.setMinWidth(700);
+
+        // Scene scene = new Scene(new HBox(root, root2), 1024,768);
 
         Scene scene = new Scene(new StackPane(root), 1024,768);
 

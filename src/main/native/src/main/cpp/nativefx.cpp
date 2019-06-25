@@ -68,13 +68,13 @@ void update_buffer_connection(int key) {
         ipc::shared_memory_object* shm_buffer = 
           new ipc::shared_memory_object
                 (ipc::open_only,             // only open
-                 buffer_name.c_str(),   // name
+                 buffer_name.c_str(),        // name
                  ipc::read_write             // read-write mode
         );
 
-        // if(shm_buffers[key]!=NULL) {
-        //   delete shm_buffers[key];
-        // }
+        if(shm_buffers[key]!=NULL) {
+          delete shm_buffers[key];
+        }
 
         shm_buffers[key] = shm_buffer;
 
@@ -85,9 +85,9 @@ void update_buffer_connection(int key) {
                   ipc::read_write     // map it as read-write
         );
 
-        // if(buffer_regions[key]!=NULL) {
-        //   delete buffer_regions[key];
-        // }
+        if(buffer_regions[key]!=NULL) {
+          delete buffer_regions[key];
+        }
 
         buffer_regions[key] = buffer_region;
 

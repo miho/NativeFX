@@ -45,7 +45,8 @@ import javafx.scene.paint.Color;
 
 public final class NativeNode extends Region {
 
-    private final WritablePixelFormat<IntBuffer> format = PixelFormat.getIntArgbPreInstance();
+    private final WritablePixelFormat<IntBuffer> format 
+        = PixelFormat.getIntArgbPreInstance();
 
     private WritableImage img;
     private ImageView view;
@@ -53,13 +54,29 @@ public final class NativeNode extends Region {
     private ByteBuffer buffer;
     private IntBuffer intBuf;
 
-    public NativeNode(int key) {
+    private AnimationTimer timer;
+    private int key = -1;
+
+    public NativeNode() {
+
+    }
+
+    public void connect(String name) {
+
+        NativeBinding.init();
+
+        disconnect();
+
+        if(key <0 || NativeBinding.isConnected(key)) {
+            key = NativeBinding.connectTo(name);
+        }
+
+        if(key <0) {
+            throw new RuntimeException("Cannot connect to shared memory " + key + ".");
+        }
 
         view = new ImageView();
-
-        // ByteBuffer buffer = null;NativeBinding.getBuffer(key);
-        // IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
-        // .asIntBuffer();
+        view.setPreserveRatio(true); 
 
         Runnable r = () -> {
 
@@ -91,9 +108,6 @@ public final class NativeNode extends Region {
 
                 img = new WritableImage(currentW, currentH);
                 view.setImage(img);
-
-                // TODO improve layout (width or hight ...)
-                view.fitWidthProperty().bind(widthProperty());
             }
 
             img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), format, intBuf,
@@ -117,15 +131,107 @@ public final class NativeNode extends Region {
                 
         };
 
-        new AnimationTimer() {
+
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 r.run();
             }
-        }.start();
+        };
 
-        view.setStyle("-fx-border-color: red;");
+        timer.start();
 
         getChildren().add(view);
+    }
+
+    public void disconnect() {
+        if (key < 0) return;
+
+        if(timer!=null) timer.stop();
+
+        getChildren().clear();
+
+        img = null;
+        view = null;
+    
+        buffer = null;
+        intBuf = null;
+    
+        timer = null;
+    }
+
+    public NativeNode(int key) {
+
+        // view = new ImageView();
+        // view.setPreserveRatio(true); 
+        // // TODO improve layout (width or hight ...)
+        // view.fitWidthProperty().bind(widthProperty());
+        // view.fitHeightProperty().bind(heightProperty());
+
+        // // ByteBuffer buffer = null;NativeBinding.getBuffer(key);
+        // // IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
+        // // .asIntBuffer();
+
+        // Runnable r = () -> {
+
+        //     NativeBinding.lock(key);
+        //     boolean dirty = NativeBinding.isDirty(key);
+        //     boolean isReady = NativeBinding.isBufferReady(key);
+
+        //     if(!isReady) {
+        //         System.out.println("["+key+"]> WARNING: buffer ready: " + isReady);
+        //     }
+
+        //     if (!dirty || !isReady) {
+        //         NativeBinding.unlock(key);
+        //         return;
+        //     }
+
+        //     int currentW = NativeBinding.getW(key);
+        //     int currentH = NativeBinding.getH(key);
+
+        //     // create new image instance if the image doesn't exist or
+        //     // if the dimensions do not match
+        //     if (img == null || Double.compare(currentW, img.getWidth()) != 0
+        //             || Double.compare(currentH, img.getHeight()) != 0) {
+
+        //         System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
+
+        //         buffer = NativeBinding.getBuffer(key);
+        //         intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
+
+        //         img = new WritableImage(currentW, currentH);
+        //         view.setImage(img);
+        //     }
+
+        //     img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), format, intBuf,
+        //             (int) img.getWidth());
+
+        //         // we updated the image, not dirty anymore
+        //         // NativeBinding.lock(key);
+        //         NativeBinding.setDirty(key, false);
+
+        //         int w = (int)getWidth();
+        //         int h = (int)getHeight();
+
+        //         if((w != NativeBinding.getW(key) || h != NativeBinding.getH(key)) && w > 0 && h > 0) {
+        //             System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
+        //             NativeBinding.resize(key, w, h);
+        //             // buffer = null;
+        //             // intBuf = null;
+        //         }
+
+        //         NativeBinding.unlock(key);
+                
+        // };
+
+        // new AnimationTimer() {
+        //     @Override
+        //     public void handle(long now) {
+        //         r.run();
+        //     }
+        // }.start();
+
+        // getChildren().add(view);
     }
 }

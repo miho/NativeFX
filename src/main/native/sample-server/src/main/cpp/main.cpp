@@ -228,13 +228,7 @@ int main(int argc, char *argv[])
         W = new_W;
         H = new_H;
 
-        // // set the size of the shared image buffer (w*h*#channels*sizeof(uchar))
-        // shm_buffer.truncate( /*w*/W*/*h*/H
-        //                     */*#channels*/4
-        //                     */*channel size*/sizeof(uchar)
-        // );
-
-        std::cout << "> resize to W: " << W << ", H: " << H << std::endl;
+        std::cout << "[" + infoName + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
 
         ipc::shared_memory_object::remove(bufferName.c_str());
         buffer_data = create_shared_buffer(bufferName, W, H);
