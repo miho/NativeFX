@@ -108,7 +108,7 @@ void store_shared_string(std::string str, char* str_to_store_to) {
 struct shared_memory_info {
    shared_memory_info()
       : img_buffer_size(0),
-        w(1024), h(768), dirty(false), 
+        w(1024), h(768), dirty(false), buffer_ready(true), 
         client_to_server_msg(""),
         client_to_server_res(""),
         server_to_client_msg(""),
@@ -136,6 +136,7 @@ struct shared_memory_info {
    int w;
    int h;
    bool dirty;
+   bool buffer_ready;
 
    char client_to_server_msg[IPC_MSG_SIZE];
    char client_to_server_res[IPC_MSG_SIZE];

@@ -12,12 +12,47 @@
 
 #include "shared_memory.h"
 
+namespace ipc  = boost::interprocess;
+
+ipc::shared_memory_object shm_buffer;
+ipc::mapped_region buffer_region;
+
 
 void set_rgba(uchar* buffer_data, int buffer_w, int buffer_h, int x, int y, uchar r, uchar g, uchar b, uchar a) {
     buffer_data[y*buffer_w*4+x*4+0] = b; // B
     buffer_data[y*buffer_w*4+x*4+1] = g; // G
     buffer_data[y*buffer_w*4+x*4+2] = r; // R
     buffer_data[y*buffer_w*4+x*4+3] = a; // A
+}
+
+uchar* create_shared_buffer(std::string buffer_name, int w, int h) {
+
+    // create the shared memory buffer object.
+    shm_buffer = ipc::shared_memory_object (
+                ipc::create_only,
+                buffer_name.c_str(),
+                ipc::read_write
+    );
+
+    // set the size of the shared image buffer (w*h*#channels*sizeof(uchar))
+    shm_buffer.truncate( w*h // TODO properly resize shared memory
+                        */*#channels*/4
+                        */*channel size*/sizeof(uchar)
+    );
+
+    // map the shared memory buffer object in this process
+    buffer_region = ipc::mapped_region(
+                shm_buffer,
+                ipc::read_write
+    );
+
+    // get the address of the shared image buffer
+    void * buffer_addr = buffer_region.get_address();
+
+    // cast shared memory pointer to correct uchar type
+    uchar* buffer_data = (uchar*) buffer_addr;
+
+    return buffer_data;
 }
 
 int main(int argc, char *argv[])
@@ -57,8 +92,7 @@ int main(int argc, char *argv[])
         std::cerr << parser;
         return 1;
     }
-    
-    namespace ipc  = boost::interprocess;
+
 
     if(deleteSharedMem) {
         // remove shared memory objects
@@ -110,7 +144,7 @@ int main(int argc, char *argv[])
     shm_info.truncate(sizeof(struct shared_memory_info));
 
     // map the shared memory info object in this process
-    ipc::mapped_region info_region(shm_info,ipc::read_write);
+    ipc::mapped_region info_region(shm_info, ipc::read_write);
 
     // get the adress of the info object
     void* info_addr = info_region.get_address();
@@ -118,33 +152,10 @@ int main(int argc, char *argv[])
     // construct the shared structure in memory
     shared_memory_info* info_data = new (info_addr) shared_memory_info;
 
-    // create the shared memory buffer object.
-    ipc::shared_memory_object shm_buffer(
-                ipc::create_only,
-                bufferName.c_str(),
-                ipc::read_write
-    );
-
     int W = info_data->w;
     int H = info_data->h;
 
-    // set the size of the shared image buffer (w*h*#channels*sizeof(uchar))
-    shm_buffer.truncate( 7000*7000 // TODO properly resize shared memory
-                        */*#channels*/4
-                        */*channel size*/sizeof(uchar)
-    );
-
-    // map the shared memory buffer object in this process
-    ipc::mapped_region buffer_region(
-                shm_buffer,
-                ipc::read_write
-    );
-
-    // get the address of the shared image buffer
-    void * buffer_addr = buffer_region.get_address();
-
-    // cast shared memory pointer to correct uchar type
-    uchar* buffer_data = (uchar*) buffer_addr;
+    uchar* buffer_data = create_shared_buffer(bufferName, W, H);
 
     double full = W*H;
 
@@ -224,6 +235,10 @@ int main(int argc, char *argv[])
         // );
 
         std::cout << "> resize to W: " << W << ", H: " << H << std::endl;
+
+        ipc::shared_memory_object::remove(bufferName.c_str());
+        buffer_data = create_shared_buffer(bufferName, W, H);
+        info_data->buffer_ready = true;
     }
 
     info_data->mutex.unlock();

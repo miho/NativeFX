@@ -159,6 +159,8 @@ public final class NativeBinding {
     static native boolean isDirty  (int key);
     static native void    redraw   (int key, int x, int y, int w, int h);
     static native void    setDirty (int key, boolean value);
+    static native void    setBufferReady (int key, boolean value);
+    static native boolean isBufferReady  (int key);
     static native int     getW     (int key);
     static native int     getH     (int key);
 

@@ -45,8 +45,7 @@ import javafx.scene.paint.Color;
 
 public final class NativeNode extends Region {
 
-    private final WritablePixelFormat<IntBuffer> format
-            = PixelFormat.getIntArgbPreInstance();
+    private final WritablePixelFormat<IntBuffer> format = PixelFormat.getIntArgbPreInstance();
 
     private WritableImage img;
     private ImageView view;
@@ -59,56 +58,59 @@ public final class NativeNode extends Region {
         view = new ImageView();
 
         // ByteBuffer buffer = null;NativeBinding.getBuffer(key);
-        //IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
-        //.asIntBuffer();
+        // IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
+        // .asIntBuffer();
 
         Runnable r = () -> {
 
-                NativeBinding.lock(key);
-                boolean dirty = NativeBinding.isDirty(key);
+            NativeBinding.lock(key);
+            boolean dirty = NativeBinding.isDirty(key);
+            boolean isReady = NativeBinding.isBufferReady(key);
+
+            if(!isReady) {
+                System.out.println("> WARNING: buffer ready: " + isReady);
+            }
+
+            if (!dirty || !isReady) {
                 NativeBinding.unlock(key);
+                return;
+            }
 
-                if(!dirty) {
-                    return;
-                }
-                
-                int currentW = NativeBinding.getW(key);
-                int currentH = NativeBinding.getH(key);
+            int currentW = NativeBinding.getW(key);
+            int currentH = NativeBinding.getH(key);
 
-                // create new image instance if the image doesn't exist or
-                // if the dimensions do not match
-                if( img==null 
-                    || Double.compare(currentW, img.getWidth()) !=0
-                    || Double.compare(currentH, img.getHeight())!=0 ) {
+            // create new image instance if the image doesn't exist or
+            // if the dimensions do not match
+            if (img == null || Double.compare(currentW, img.getWidth()) != 0
+                    || Double.compare(currentH, img.getHeight()) != 0) {
 
-                    buffer = NativeBinding.getBuffer(key);
-                    intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN)
-                        .asIntBuffer();                        
+                System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
 
-                    img = new WritableImage(currentW, currentH);
-                    view.setImage(img);
+                buffer = NativeBinding.getBuffer(key);
+                intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
 
-                    // TODO improve layout (width or hight ...)
-                    view.fitWidthProperty().bind(widthProperty());
-                }
+                img = new WritableImage(currentW, currentH);
+                view.setImage(img);
 
-                img.getPixelWriter().setPixels(
-                        0, 0, (int) img.getWidth(), (int) img.getHeight(),
-                        format, intBuf, (int) img.getWidth()
-                );
+                // TODO improve layout (width or hight ...)
+                view.fitWidthProperty().bind(widthProperty());
+            }
+
+            img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), format, intBuf,
+                    (int) img.getWidth());
 
                 // we updated the image, not dirty anymore
-                NativeBinding.lock(key);
+                // NativeBinding.lock(key);
                 NativeBinding.setDirty(key, false);
 
                 int w = (int)getWidth();
                 int h = (int)getHeight();
 
-                if((w!=NativeBinding.getW(key) || h!=NativeBinding.getH(key)) && w > 0 && h > 0) {
+                if((w != NativeBinding.getW(key) || h != NativeBinding.getH(key)) && w > 0 && h > 0) {
                     System.out.println("> requesting buffer resize W: " + w + ", H: " + h);
                     NativeBinding.resize(key, w, h);
-                    buffer = null;
-                    intBuf = null;
+                    // buffer = null;
+                    // intBuf = null;
                 }
 
                 NativeBinding.unlock(key);

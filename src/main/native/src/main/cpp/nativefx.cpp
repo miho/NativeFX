@@ -14,14 +14,16 @@
 
 #include "shared_memory.h"
 
+namespace ipc = boost::interprocess;
+
 std::vector<std::string> names;
 std::vector<shared_memory_info*>   connections;
 std::vector<void*> buffers;
 
-std::vector<boost::interprocess::shared_memory_object*> shm_infos;
-std::vector<boost::interprocess::mapped_region*> info_regions;
-std::vector<boost::interprocess::shared_memory_object*> shm_buffers;
-std::vector<boost::interprocess::mapped_region*> buffer_regions;
+std::vector<ipc::shared_memory_object*> shm_infos;
+std::vector<ipc::mapped_region*> info_regions;
+std::vector<ipc::shared_memory_object*> shm_buffers;
+std::vector<ipc::mapped_region*> buffer_regions;
 
 JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
   (JNIEnv *env, jclass cls, jint key, jstring jmsg) {
@@ -48,6 +50,58 @@ JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_nextKey
   (JNIEnv *env, jclass cls) {
     return connections.size();
+}
+
+void update_buffer_connection(int key) {
+  
+    if(key >= connections.size()) {
+      std::cerr << "ERROR: key not available" << std::endl;
+      return;
+    }
+
+      std::string name = names[key];
+      std::string info_name = get_info_name(key, name);
+      std::string buffer_name = get_buffer_name(key,name);
+
+      try {
+        // create a shared memory object.
+        ipc::shared_memory_object* shm_buffer = 
+          new ipc::shared_memory_object
+                (ipc::open_only,             // only open
+                 buffer_name.c_str(),   // name
+                 ipc::read_write             // read-write mode
+        );
+
+        // if(shm_buffers[key]!=NULL) {
+        //   delete shm_buffers[key];
+        // }
+
+        shm_buffers[key] = shm_buffer;
+
+        // map the whole shared memory in this process
+        ipc::mapped_region* buffer_region = 
+          new ipc::mapped_region(
+                 *shm_buffer,    // what to map
+                  ipc::read_write     // map it as read-write
+        );
+
+        // if(buffer_regions[key]!=NULL) {
+        //   delete buffer_regions[key];
+        // }
+
+        buffer_regions[key] = buffer_region;
+
+        // get the address of the mapped region
+        void* buffer_addr = buffer_region->get_address();
+
+        buffers[key] = buffer_addr;
+
+      } catch(...) {
+
+        std::cerr << "ERROR: cannot connect to '" << info_name << "'. Server probably not running." << std::endl;
+
+        return;
+      }
 }
 
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
@@ -152,8 +206,6 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isConnected
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
   (JNIEnv *env, jclass cls, jint key) {
 
-    namespace ipc = boost::interprocess;
-
     if(key >= connections.size()) {
       std::cerr << "ERROR: key not available" << std::endl;
       return false;
@@ -189,10 +241,12 @@ JNIEXPORT jobject JNICALL Java_eu_mihosoft_nativefx_NativeBinding_getBuffer
       return NULL;
   }
 
+  update_buffer_connection(key);
+
   void* buffer_addr = buffers[key];
 
   jobject result = env->NewDirectByteBuffer(buffer_addr,
-     connections[key]->w*connections[key]->h*4);
+     connections[key]->w * connections[key]->h * 4);
   
   return result;
 }
@@ -225,8 +279,15 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_resize
       return;
   }
 
+  int prev_w = connections[key]->w;
+  int prev_h = connections[key]->h;
+
   connections[key]->w = w;  
   connections[key]->h = h;  
+
+  if(prev_w != w || prev_h != h) {
+    connections[key]->buffer_ready = false;
+  }
 }
 
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChanges
@@ -306,5 +367,26 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setDirty
   }
 }
 
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_setBufferReady
+  (JNIEnv *env, jclass cls, jint key, jboolean value) {
+  if(key >= connections.size() || connections[key] == NULL) {
+    std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    connections[key]->buffer_ready = boolJ2C(value);
+  }  
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isBufferReady
+  (JNIEnv *env, jclass cls, jint key) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available" << std::endl;
+  } else {
+    return boolC2J(connections[key]->buffer_ready);
+  }
+
+  return false;
+
+}
 
 #endif /*_Included_NativeFX_CPP*/
