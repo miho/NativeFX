@@ -19,12 +19,8 @@ include_directories("../src/main/headers/")
 include_directories("../ext/headers/")
 include_directories("./ext/headers/")
 
-# create a executable
+# create an executable
 add_executable(sample-server ${SOURCES})
-
-# create a executable
-add_executable(sample-server ${SOURCES})
-
 
 # todo: is there a better way to detect linux?
 if(UNIX AND NOT APPLE)
