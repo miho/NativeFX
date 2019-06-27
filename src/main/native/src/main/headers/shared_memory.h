@@ -7,6 +7,9 @@
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <boost/interprocess/containers/string.hpp>
 
+#define IPC_MSG_SIZE 4096
+#define IPC_KEY_EVT_NUM_CHARS 128
+
 // instead of Qt stuff, we use plain c++ & boost
 // for the client lib
 // therefore, we need to declare uchar (was provided by qt before)
@@ -19,8 +22,6 @@ typedef unsigned char uchar;
 
 typedef boost::interprocess::basic_string<char> shared_string;
 
-#define IPC_MSG_SIZE 4096
-#define IPC_KEY_EVT_NUM_CHARS 128
 
 #define LOCK_TIMEOUT 1000 // milliseconds 
 
@@ -85,7 +86,7 @@ struct key_event {
    long timestamp = {0};
 
    int modifiers  = {NO_KEY};
-   char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // = {""} assignment not allowed
+   char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
 };
 
 struct redraw_event : event{
@@ -113,10 +114,6 @@ struct shared_memory_info {
    shared_memory_info()
       : img_buffer_size(0),
         w(1024), h(768), dirty(false), buffer_ready(true), 
-        client_to_server_msg(""),
-        client_to_server_res(""),
-        server_to_client_msg(""),
-        server_to_client_res(""),
         client_to_server_msg_semaphore(0),
         client_to_server_res_semaphore(0),
         buffer_semaphore(0) {//,
@@ -142,11 +139,11 @@ struct shared_memory_info {
    bool dirty;
    bool buffer_ready;
 
-   char client_to_server_msg[IPC_MSG_SIZE+1];
-   char client_to_server_res[IPC_MSG_SIZE+1];
+   char client_to_server_msg[IPC_MSG_SIZE+1]; // not initialized since it is not allowed
+   char client_to_server_res[IPC_MSG_SIZE+1]; // not initialized since it is not allowed
    
-   char server_to_client_msg[IPC_MSG_SIZE+1];
-   char server_to_client_res[IPC_MSG_SIZE+1];
+   char server_to_client_msg[IPC_MSG_SIZE+1]; // not initialized since it is not allowed
+   char server_to_client_res[IPC_MSG_SIZE+1]; // not initialized since it is not allowed
 
    // shared_string msg;
 
