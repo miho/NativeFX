@@ -1,4 +1,7 @@
 # NativeFX (WIP)
+
+[![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
+
 Native Rendering integration for JavaFX (13 and beyond)
 
 <img src="resources/img/screenshot-macos.jpg">
