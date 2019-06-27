@@ -1,4 +1,9 @@
 # NativeFX (WIP)
+[![Build Status](https://travis-ci.org/miho/NativeFX.svg?branch=master)](https://travis-ci.org/miho/NativeFX)
+[![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master&jobName=__Linux_JDK_11__)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
+[![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master&jobName=__MacOS_JDK_11__)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
+[![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master&jobName=__Windows_JDK_11__)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
+
 Native Rendering integration for JavaFX (13 and beyond)
 
 <img src="resources/img/screenshot-macos.jpg">
