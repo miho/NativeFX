@@ -35,7 +35,7 @@ matrix:
 #   - /Users/travis/build/miho/
 
 before_script:
-    - sh ./gradlew clean classes assemble --no-daemon
+    - sh ./gradlew clean assemble
 script:
     - export CWD=$(pwd)
-    - sh ./gradlew test --no-daemon
+    - sh ./gradlew test
