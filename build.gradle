@@ -129,8 +129,8 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
 
     workingDir "$projectDir/build/native/"
 
-    // we didn't find msbuild in default locations
-    // if it's on the path this will work
+    // if we didn't find msbuild in default locations
+    // then  this will work if it's on the path
     String msbuildCmd = "MSBuild.exe"    
 
     String[] paths = [
@@ -144,6 +144,11 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
         "C:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\MSBuild.exe"
     ]
 
+    // this is stupid. but it looks like we really have to do this.
+    // PLEASE let me know if i'm wrong.
+    // (why can't msbuild.exe just be on the path like make?)
+    // (we don't want to force devs to use the developer command line or do
+    //  other crazy magic like running vcvarsall.but etc.)
     for(String p : paths) {
         if(new File(p).isFile()) {
             msbuildCmd = p;
