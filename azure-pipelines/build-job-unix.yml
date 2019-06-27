@@ -20,7 +20,7 @@ jobs:
         jdkArchitectureOption: 'x64'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
-        tasks: 'clean classes assemble'
+        tasks: 'clean assemble'
     - task: Gradle@2
       inputs:
         gradleWrapperFile: './gradlew'
