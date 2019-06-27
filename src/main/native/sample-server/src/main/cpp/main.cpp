@@ -154,6 +154,12 @@ int main(int argc, char *argv[])
     // construct the shared structure in memory
     shared_memory_info* info_data = new (info_addr) shared_memory_info;
 
+    // init c-strings of info_data struct
+    strcpy(info_data->client_to_server_msg, "");
+    strcpy(info_data->client_to_server_res, "");
+    strcpy(info_data->server_to_client_msg, "");
+    strcpy(info_data->server_to_client_res, "");
+
     int W = info_data->w;
     int H = info_data->h;
 
