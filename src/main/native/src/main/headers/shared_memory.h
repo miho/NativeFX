@@ -85,7 +85,7 @@ struct key_event {
    long timestamp = {0};
 
    int modifiers  = {NO_KEY};
-   char chars[IPC_KEY_EVT_NUM_CHARS] = {""};
+   char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // = {""} assignment not allowed
 };
 
 struct redraw_event : event{
@@ -104,7 +104,7 @@ void store_shared_string(std::string str, char* str_to_store_to) {
         str_to_store_to[idx] = str[idx];
       }
       // fill unused entries with '\0' 
-      for(size_t idx = str.size(); idx < IPC_MSG_SIZE;++idx) {
+      for(size_t idx = str.size(); idx < IPC_MSG_SIZE + 1;++idx) {
         str_to_store_to[idx] = '\0';
       }
 }
@@ -142,11 +142,11 @@ struct shared_memory_info {
    bool dirty;
    bool buffer_ready;
 
-   char client_to_server_msg[IPC_MSG_SIZE];
-   char client_to_server_res[IPC_MSG_SIZE];
+   char client_to_server_msg[IPC_MSG_SIZE+1];
+   char client_to_server_res[IPC_MSG_SIZE+1];
    
-   char server_to_client_msg[IPC_MSG_SIZE];
-   char server_to_client_res[IPC_MSG_SIZE];
+   char server_to_client_msg[IPC_MSG_SIZE+1];
+   char server_to_client_res[IPC_MSG_SIZE+1];
 
    // shared_string msg;
 
