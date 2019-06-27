@@ -129,10 +129,6 @@ public final class NativeBinding {
 
             System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/"+libName);
 
-            if(isOS("linux")) {
-                System.loadLibrary("rt");
-            }
-
             System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);

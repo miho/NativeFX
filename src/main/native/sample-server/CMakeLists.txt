@@ -1,4 +1,4 @@
-# at least cmake 3.10 is required to build this project
+# at least cmake 3.9 is required to build this project
 cmake_minimum_required(VERSION 3.9)
 
 project(sample-server)

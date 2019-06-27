@@ -1,4 +1,4 @@
-# at least cmake 3.10 is required to build this project
+# at least cmake 3.9 is required to build this project
 cmake_minimum_required(VERSION 3.9)
 
 project(nativefx)
@@ -22,6 +22,16 @@ include_directories("ext/headers/")
 
 # create a shared library from the sources and link it against libs.
 add_library(nativefx SHARED ${SOURCES})
+
+# todo: is there a better way to detect linux?
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
+if(LINUX)
+    target_link_libraries(nativefx rt pthread)
+endif()
+
 message("> JNI Libs: ${JNI_LIBRARIES}")
 #target_link_libraries(nativefx ${JNI_LIBRARIES})
 #target_link_libraries (nativefx libname)
