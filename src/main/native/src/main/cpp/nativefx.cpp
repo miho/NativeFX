@@ -142,7 +142,18 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
         shared_memory_info * info_data = static_cast<shared_memory_info*>(info_addr);
         connections.push_back(info_data);
 
-        info_data->mutex.lock();
+        // timed locking of resources
+        boost::system_time const timeout=
+        boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+        bool locking_success = connections[key]->mutex.timed_lock(timeout);
+
+        if(!locking_success) {
+          std::cerr << "ERROR: cannot connect to '" << info_name << "':" << std::endl;
+          std::cerr << " -> The shared memory seems to exist." << std::endl;
+          std::cerr << " -> But we are unable to lock the resources." << std::endl;
+          std::cerr << " -> Server not running?." << std::endl;
+          return -1;
+        }
 
         // create a shared memory object.
         shared_memory_object* shm_buffer = 
@@ -329,12 +340,17 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_hasBufferChan
   return false;
 }
 
-JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
       std::cerr << "ERROR: key not available: " << key << std::endl;
+      return false;
   } else {
-    connections[key]->mutex.lock();
+    // try to lock (returns true if successful, false if wasn't successful
+    // within the specified LOCK_TIMEOUT)
+    boost::system_time const timeout=
+      boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+    return boolC2J(connections[key]->mutex.timed_lock(timeout));
   }
 }
 

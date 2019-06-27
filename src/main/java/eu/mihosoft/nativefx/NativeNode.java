@@ -35,6 +35,8 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -42,8 +44,11 @@ import javafx.scene.image.WritablePixelFormat;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public final class NativeNode extends Region {
+
+    private String serverName;
 
     private final WritablePixelFormat<IntBuffer> format 
         = PixelFormat.getIntArgbPreInstance();
@@ -57,11 +62,14 @@ public final class NativeNode extends Region {
     private AnimationTimer timer;
     private int key = -1;
 
+    private boolean lockingError = false;
+
     public NativeNode() {
 
     }
 
     public void connect(String name) {
+        this.serverName = name;
 
         NativeBinding.init();
 
@@ -80,7 +88,13 @@ public final class NativeNode extends Region {
 
         Runnable r = () -> {
 
-            NativeBinding.lock(key);
+            lockingError = !NativeBinding.lock(key);
+            if(lockingError) {
+                showErrorText();
+                timer.stop();
+                return;
+            }
+
             boolean dirty = NativeBinding.isDirty(key);
             boolean isReady = NativeBinding.isBufferReady(key);
 
@@ -158,6 +172,15 @@ public final class NativeNode extends Region {
         intBuf = null;
     
         timer = null;
+    }
+
+    private void showErrorText() {
+        getChildren().clear();
+        Label label = new Label("ERROR, cannot connect to server '"+serverName+"'.");
+        label.setStyle("-fx-text-fill: red; -fx-background-color: white; -fx-border-color: red;-fx-font-size:16");
+        getChildren().add(label);
+        label.layoutXProperty().bind(widthProperty().divide(2).subtract(label.widthProperty().divide(2)));
+        label.layoutYProperty().bind(heightProperty().divide(2).subtract(label.heightProperty().divide(2)));    
     }
 
     public NativeNode(int key) {

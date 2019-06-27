@@ -5,6 +5,8 @@
 // force boost to be  included as header only, also on windows
 #define BOOST_ALL_NO_LIB 1
 
+#include <boost/thread/xtime.hpp>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -59,8 +61,8 @@ int main(int argc, char *argv[])
 {
     args::ArgumentParser parser("This is a NativeFX test program.", "---");
     args::HelpFlag helpArg(parser, "help", "Display this help menu", {'h', "help"});
-    args::ValueFlag<std::string> infoNameArg(parser, "info-name", "Defines the name of the shared memory info object created by this program", {'i', "info"});
-    args::ValueFlag<std::string> bufferNameArg(parser, "buffer-name", "Defines the name of the shared memory buffer object created by this program", {'b', "buffer"});
+    args::ValueFlag<std::string> info_nameArg(parser, "info-name", "Defines the name of the shared memory info object created by this program", {'i', "info"});
+    args::ValueFlag<std::string> buffer_nameArg(parser, "buffer-name", "Defines the name of the shared memory buffer object created by this program", {'b', "buffer"});
     args::Flag deleteSharedMem(parser, "delete", "Indicates that existing shared memory with the specified name should be deleted", {'d', "delete"});
 
     try
@@ -84,10 +86,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::string infoName = args::get(infoNameArg);
-    std::string bufferName = args::get(bufferNameArg);
+    std::string info_name = args::get(info_nameArg);
+    std::string buffer_name = args::get(buffer_nameArg);
 
-    if((infoName.size() == 0 || bufferName.size() == 0) && !deleteSharedMem) {
+    if((info_name.size() == 0 || buffer_name.size() == 0) && !deleteSharedMem) {
         std::cerr << std::endl << std::endl << "ERROR: 'info-name' and 'buffer-name' must be specified to create or delete shared memory!" << std::endl << std::endl;
         std::cerr << parser;
         return 1;
@@ -96,19 +98,19 @@ int main(int argc, char *argv[])
 
     if(deleteSharedMem) {
         // remove shared memory objects
-        ipc::shared_memory_object::remove(infoName.c_str());
-        ipc::shared_memory_object::remove(bufferName.c_str());
+        ipc::shared_memory_object::remove(info_name.c_str());
+        ipc::shared_memory_object::remove(buffer_name.c_str());
 
         std::cout << "> deleted shared-mem" <<std::endl;
-        std::cout << "  -> info:   " << infoName<<std::endl;
-        std::cout << "  -> buffer: " << bufferName<<std::endl;
+        std::cout << "  -> info:   " << info_name<<std::endl;
+        std::cout << "  -> buffer: " << buffer_name<<std::endl;
 
         return 0;
     }
 
     std::cout << "> creating shared-mem" <<std::endl;
-    std::cout << "  -> info:   " << infoName<<std::endl;
-    std::cout << "  -> buffer: " << bufferName<<std::endl;
+    std::cout << "  -> info:   " << info_name<<std::endl;
+    std::cout << "  -> buffer: " << buffer_name<<std::endl;
 
     ipc::shared_memory_object shm_info;
 
@@ -116,28 +118,28 @@ int main(int argc, char *argv[])
         // create the shared memory info object.
         shm_info = ipc::shared_memory_object(
                     ipc::create_only,
-                    infoName.c_str(),
+                    info_name.c_str(),
                     ipc::read_write
         );
     } catch(ipc::interprocess_exception & ex) {
             // remove shared memory objects
-            ipc::shared_memory_object::remove(infoName.c_str());
-            ipc::shared_memory_object::remove(bufferName.c_str());
+            ipc::shared_memory_object::remove(info_name.c_str());
+            ipc::shared_memory_object::remove(buffer_name.c_str());
 
             std::cout << "> deleted pre-existing shared-mem" <<std::endl;
-            std::cout << "  -> info:   " << infoName<<std::endl;
-            std::cout << "  -> buffer: " << bufferName<<std::endl;
+            std::cout << "  -> info:   " << info_name<<std::endl;
+            std::cout << "  -> buffer: " << buffer_name<<std::endl;
 
             // create the shared memory info object.
             shm_info = ipc::shared_memory_object(
                         ipc::create_only,
-                        infoName.c_str(),
+                        info_name.c_str(),
                         ipc::read_write
             );
 
             std::cout << "> created shared-mem" <<std::endl;
-            std::cout << "  -> info:   " << infoName<<std::endl;
-            std::cout << "  -> buffer: " << bufferName<<std::endl;
+            std::cout << "  -> info:   " << info_name<<std::endl;
+            std::cout << "  -> buffer: " << buffer_name<<std::endl;
     }
 
     // set the shm size
@@ -155,14 +157,26 @@ int main(int argc, char *argv[])
     int W = info_data->w;
     int H = info_data->h;
 
-    uchar* buffer_data = create_shared_buffer(bufferName, W, H);
+    uchar* buffer_data = create_shared_buffer(buffer_name, W, H);
 
     double full = W*H;
 
     int counter = 0;
     while(true) {
 
-        info_data->mutex.lock();
+        
+        // timed locking of resources
+        boost::system_time const timeout=
+        boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+        bool locking_success = info_data->mutex.timed_lock(timeout);
+
+        if(!locking_success) {
+            std::cerr << "[" + info_name + "]" << "ERROR: cannot connect to '" << info_name << "':" << std::endl;
+            std::cerr << " -> But we are unable to lock the resources." << std::endl;
+            std::cerr << " -> Client not running?." << std::endl;
+            return -1;
+        }
+
         bool is_dirty = info_data->dirty;
         if(is_dirty) { 
             info_data->mutex.unlock();
@@ -228,10 +242,10 @@ int main(int argc, char *argv[])
         W = new_W;
         H = new_H;
 
-        std::cout << "[" + infoName + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
+        std::cout << "[" + info_name + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
 
-        ipc::shared_memory_object::remove(bufferName.c_str());
-        buffer_data = create_shared_buffer(bufferName, W, H);
+        ipc::shared_memory_object::remove(buffer_name.c_str());
+        buffer_data = create_shared_buffer(buffer_name, W, H);
         info_data->buffer_ready = true;
     }
 
@@ -260,8 +274,8 @@ int main(int argc, char *argv[])
     } // end while
 
     // remove shared memory objects
-    ipc::shared_memory_object::remove(infoName.c_str());
-    ipc::shared_memory_object::remove(bufferName.c_str());
+    ipc::shared_memory_object::remove(info_name.c_str());
+    ipc::shared_memory_object::remove(buffer_name.c_str());
 
     return 0;
 }

@@ -22,6 +22,8 @@ typedef boost::interprocess::basic_string<char> shared_string;
 #define IPC_MSG_SIZE 4096
 #define IPC_KEY_EVT_NUM_CHARS 128
 
+#define LOCK_TIMEOUT 1000 // milliseconds 
+
 enum MOUSE_BTN {
    NO_BTN        = 0,
    PRIMARY_BTN   = 1,

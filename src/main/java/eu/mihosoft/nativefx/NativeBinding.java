@@ -132,7 +132,7 @@ public final class NativeBinding {
         }
     }
 
-    private static void resourceToFile(String resource, Path destination) throws IOException{
+    private static void resourceToFile(String resource, Path destination) throws IOException {
         try (InputStream is = NativeBinding.class.getResourceAsStream(resource)) {
 
             System.out.println("> unpacking resource '" + resource+"' to file '"+destination + "'");
@@ -175,11 +175,11 @@ public final class NativeBinding {
 
     static native ByteBuffer getBuffer(int key);
 
-    static native void       lock     (int key);
+    static native boolean    lock     (int key);
     static native void       unlock   (int key);
 
-    static native void waitForBufferChanges(int key);
-    static native boolean hasBufferChanges(int key);
+    static native void       waitForBufferChanges(int key);
+    static native boolean    hasBufferChanges(int key);
     
     static native void       lockBuffer     (int key);
     static native void       unlockBuffer   (int key);
