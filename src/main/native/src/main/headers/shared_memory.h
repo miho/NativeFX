@@ -40,60 +40,62 @@ enum MODIFIER {
 
 enum EVENT_TYPE {
    NO_EVENT       = 0,
-   MOUSE_MOVED    = 1,
-   MOUSE_PRESSED  = 2,
-   MOUSE_RELEASED = 4,
+   EVENT          = 1,
+   MOUSE_EVENT    = 2,
+   MOUSE_MOVED    = 4,
+   MOUSE_PRESSED  = 8,
+   MOUSE_RELEASED = 16,
 
-   MOUSE_WHEEL    = 8,
+   MOUSE_WHEEL    = 32,
 
-   KEY_PRESSED    = 16,
-   KEY_RELEASED   = 32,
-   KEY_TYPED      = 64,
+   KEY_EVENT      = 64,
+   KEY_PRESSED    = 128,
+   KEY_RELEASED   = 256,
+   KEY_TYPED      = 512,
 
-   REDRAW         = 128
+   REDRAW_EVENT   = 1024
+};
+
+struct event {
+   int type       = {0};
+   long timestamp = {0};
 };
 
 struct mouse_event {
+   int type       = {MOUSE_EVENT};
+   long timestamp = {0};
 
-   mouse_event() : type(NO_EVENT), buttons(NO_BTN), modifiers(NO_KEY),
-                   x(0),y(0),timestamp(0) {}
-
-   int type;
-   int buttons;
-   int modifiers;
-   double x;
-   double y;
-   long timestamp;
+   int buttons    = {NO_BTN};
+   int modifiers  = {NO_KEY};
+   double x       = {0};
+   double y       = {0};
 };
 
 struct mouse_wheel_event {
-   mouse_wheel_event() : type(NO_EVENT), buttons(NO_BTN), modifiers(NO_KEY),
-                   amount(0),timestamp(0) {}
-   int type;
-   int buttons;
-   int modifiers;
-   double amount;
-   long timestamp;
+   int type       = {MOUSE_WHEEL};
+   long timestamp = {0};
+
+   int buttons    = NO_BTN;
+   int modifiers  = NO_KEY;
+   double amount  = {0};
 };
 
 struct key_event {
-   key_event() : type(NO_EVENT), modifiers(NO_KEY),
-                   chars(""),timestamp(0) {}
-   int type;
-   int modifiers;
-   char chars[IPC_KEY_EVT_NUM_CHARS];
-   long timestamp;
+   int type       = {KEY_EVENT};
+   long timestamp = {0};
+
+   int modifiers  = {NO_KEY};
+   char chars[IPC_KEY_EVT_NUM_CHARS] = {""};
 };
 
-struct redraw_event {
-   redraw_event() : type(NO_EVENT),
-                   x(0),y(0),w(0),h(0),timestamp(0) {}
-   int type;
-   double x;
-   double y;
-   double w;
-   double h;
-   long timestamp;
+struct redraw_event : event{
+   int type = {REDRAW_EVENT};
+   long timestamp = {0}; 
+
+   double x       = {0};
+   double y       = {0};
+   double w       = {0};
+   double h       = {0};
 };
 
 void store_shared_string(std::string str, char* str_to_store_to) {

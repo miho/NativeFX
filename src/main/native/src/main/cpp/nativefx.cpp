@@ -1,7 +1,7 @@
 #ifndef _Included_NativeFX_CPP
 #define _Included_NativeFX_CPP
 
-// force boost to be  included as header only, also on windows
+// force boost to be included as header only, also on windows
 #define BOOST_ALL_NO_LIB 1
 
 #include<vector>
