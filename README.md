@@ -71,6 +71,7 @@ To compile and run the sample-server, do the following (releatrive to the previo
 
     cd src/main/native/sample-server
     mkdir build
+    cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
     MSBuild.exe sample-server.sln', /property:Configuration=Release /property:Platform=x64
     Release\x64\sample-server.exe  -i _mem_info_0 -b _mem_buff_0
