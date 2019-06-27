@@ -126,20 +126,29 @@ task cmakeNative(dependsOn: [downloadAndUnzipBoostHeaders], type:Exec) {
 }
 
 task compileNative(dependsOn: cmakeNative, type:Exec) {
-    workingDir "$projectDir/build/native/"
-    
-    String msbuildCmd
 
-    // search msbuild in default locations for visual studio 2017
-    if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe").exists()) {
-        // path to msbuild for azure pipelines
-        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/MSBuild/15.0/Bin/MSBuild.exe";
-    } else if(new File("C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe").exists()) {
-        msbuildCmd = "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/bin/MSBuild.exe"
-    } else {
-        // we didn't find msbuild in default locations
-        // if it's on the path this will work
-        msbuildCmd = "MSBuild.exe"
+    workingDir "$projectDir/build/native/"
+
+    // we didn't find msbuild in default locations
+    // if it's on the path this will work
+    String msbuildCmd = "MSBuild.exe"    
+
+    String[] paths = [
+        // search msbuild in default locations for visual studio 2019
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\15.1\\Bin\\MSBuild.exe",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\15.1\\bin\\MSBuild.exe",,
+        // search msbuild in default locations for visual studio 2017
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\MSBuild\\15.0\\Bin\\MSBuild.exe",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\MSBuild\\15.0\\bin\\MSBuild.exe",
+        // search msbuild in default locations for visual studio 2015
+        "C:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\MSBuild.exe"
+    ]
+
+    for(String p : paths) {
+        if(new File(p).isFile()) {
+            msbuildCmd = p;
+            break;
+        }
     }
 
     if(isWindows) {
