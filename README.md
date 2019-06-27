@@ -50,7 +50,7 @@ Navigate to the `NativeFX` [Gradle](http://www.gradle.org/) project (i.e., `path
 
     gradlew clean classes assemble
 
-On Windows, make sure the environment is configured for development (MSBuild.exe must be in the path).
+On Windows, make sure the environment is configured for development (MSBuild.exe must be on the path).
 
 ## Testing NativeFX
 
