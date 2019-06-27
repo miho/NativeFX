@@ -116,16 +116,23 @@ public final class NativeBinding {
             Path libPath = Files.createTempDirectory("nativefx-libs");
 
             if(isOS("windows")) {
-                resourceToFile(vcredistPath1, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"));
-                resourceToFile(vcredistPath2, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"));
+                resourceToFile(vcredistPath1, Paths.get(libPath.toFile().getAbsolutePath(), "vcruntime140.dll"), false);
+                resourceToFile(vcredistPath2, Paths.get(libPath.toFile().getAbsolutePath(), "msvcp140.dll"), false);
 
-                System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
-                System.load(libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
+                if(Paths.get(libPath.toFile().getAbsolutePath()+"/vcruntime140.dll").toFile().isFile()) {
+                    System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
+                    System.load(libPath.toFile().getAbsolutePath()+"/vcruntime140.dll");
+                }
             }
 
             resourceToFile(path, Paths.get(libPath.toFile().getAbsolutePath(), libName));
 
             System.out.println("> loading " + libPath.toFile().getAbsolutePath()+"/"+libName);
+
+            if(isOS("linux")) {
+                System.loadLibrary("rt");
+            }
+
             System.load(libPath.toFile().getAbsolutePath()+"/"+libName);
         } catch (IOException e) {
             e.printStackTrace(System.err);
@@ -133,6 +140,10 @@ public final class NativeBinding {
     }
 
     private static void resourceToFile(String resource, Path destination) throws IOException {
+        resourceToFile(resource, destination, true);
+    }
+
+    private static void resourceToFile(String resource, Path destination, boolean failOnError) throws IOException {
         try (InputStream is = NativeBinding.class.getResourceAsStream(resource)) {
 
             System.out.println("> unpacking resource '" + resource+"' to file '"+destination + "'");
@@ -140,9 +151,16 @@ public final class NativeBinding {
             Files.copy(is, destination,
                         StandardCopyOption.REPLACE_EXISTING);
         } catch (NullPointerException e) {
-            throw new FileNotFoundException("Resource '" + resource + "' was not found.");
+            if(failOnError) {
+                throw new FileNotFoundException("Resource '" + resource + "' was not found.");
+            } else {
+                System.err.println("WARNING: Resource '" + resource + "' was not found.");
+            }
+            
         }
     }
+
+    
 
     static native int     nextKey  ();
 
