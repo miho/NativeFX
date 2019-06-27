@@ -136,7 +136,7 @@ task compileNative(dependsOn: cmakeNative, type:Exec) {
     String[] paths = [
         // search msbuild in default locations for visual studio 2019
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\15.1\\Bin\\MSBuild.exe",
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\15.1\\bin\\MSBuild.exe",,
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\15.1\\bin\\MSBuild.exe",
         // search msbuild in default locations for visual studio 2017
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\MSBuild\\15.0\\Bin\\MSBuild.exe",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\MSBuild\\15.0\\bin\\MSBuild.exe",
