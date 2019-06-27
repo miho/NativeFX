@@ -20,6 +20,16 @@ jobs:
         jdkArchitectureOption: 'x64'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
-        tasks: 'clean assemble test'
+        tasks: 'clean classes assemble'
+    - task: Gradle@2
+      inputs:
+        gradleWrapperFile: './gradlew'
+        workingDirectory: './'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: ${{ parameters.jdkVersion }}
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/TEST-*.xml'
+        tasks: 'test'
 
   
