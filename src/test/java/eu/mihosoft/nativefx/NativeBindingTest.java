@@ -6,6 +6,16 @@ package eu.mihosoft.nativefx;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * The tests do currently only verify that the JNI based native binding works.
+ * This is to ensure that no {@link UnsatisfiedLinkError} and similar exceptions
+ * are thrown.
+ * 
+ * <p><b>Note:</b></p> we still need to ensure that the behavior for events
+ * and buffer synchronization among multiple processes is consistent on all
+ * supported platforms. So far, there's no formal description for expected
+ * behavior. 
+ */
 public class NativeBindingTest {
     @Test public void testNativeMethodsSendMsg() {
         NativeBinding.init();
