@@ -47,11 +47,11 @@ Navigate to the `NativeFX` [Gradle](http://www.gradle.org/) project (i.e., `path
 
 #### Bash (Linux/macOS/Cygwin/other Unix shell)
 
-    bash gradlew clean classes assemble
+    bash gradlew clean assemble
     
 #### Windows (CMD)
 
-    gradlew clean classes assemble
+    gradlew clean assemble
 
 On Windows, make sure the environment is configured for development (MSBuild.exe must be on the path).
 
