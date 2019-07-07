@@ -31,7 +31,7 @@ If you are willing to use internal APIs you can try [DriftFX](https://github.com
 ### Requirements
 
 - Java >= 11
-- C++11 compliant compiler (GCC, Clang, Visual Studio 2017)
+- C++11 compliant compiler (GCC, Clang, Visual Studio 2017-19)
 - CMake >= 3.9
 - Internet connection (dependencies are downloaded automatically)
 - IDE: [Gradle](http://www.gradle.org/) Plugin (not necessary for command line usage)
