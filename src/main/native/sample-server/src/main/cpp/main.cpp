@@ -10,6 +10,12 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+// in case M_PI hasn't been defined we do it manually
+// see https://github.com/miho/NativeFX/issues/12
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif // M_PI
+
 #include "args/args.hxx"
 
 #include "shared_memory.h"
