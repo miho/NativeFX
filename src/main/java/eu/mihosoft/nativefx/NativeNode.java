@@ -30,6 +30,9 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Date;
 
+import eu.mihosoft.nativefx.NativeBinding.IntEnum;
+import eu.mihosoft.nativefx.NativeBinding.MODIFIER;
+import eu.mihosoft.nativefx.NativeBinding.MOUSE_BTN;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -41,6 +44,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -65,7 +69,17 @@ public final class NativeNode extends Region {
     private boolean lockingError = false;
 
     public NativeNode() {
+        addEventHandler(MouseEvent.MOUSE_MOVED, (ev)-> {
+            int x = (int)ev.getX();
+            int y = (int)ev.getY();
+            
+            long timestamp = System.nanoTime();
 
+            NativeBinding.fireMouseMoveEvent(key, x, y,
+                MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
+                timestamp
+            );
+        });
     }
 
     public void connect(String name) {

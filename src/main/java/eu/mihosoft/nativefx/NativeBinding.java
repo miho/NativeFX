@@ -29,6 +29,9 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+
+import javafx.scene.input.MouseEvent;
+
 import java.nio.file.Paths;
 
 public final class NativeBinding {
@@ -156,6 +159,87 @@ public final class NativeBinding {
         }
     }
 
+    interface IntEnum {
+        int asInt();
+        static int combine(IntEnum... enums) {
+            int result = 0;
+
+            for(IntEnum e : enums) {
+                result = result | e.asInt();
+            }
+
+            return result;
+        }
+
+        static int combine(int combined, IntEnum... enums) {
+            int result = combined;
+
+            for(IntEnum e : enums) {
+                result = result | e.asInt();
+            }
+
+            return result;
+        }
+    }
+
+    interface MOUSE_BTN {
+
+        static final int NO_BTN = 0;
+        static final int PRIMARY_BTN = 1;
+        static final int SECONDARY_BTN = 2;
+        static final int MIDDLE_BTN = 4;
+
+        static int fromEvent(MouseEvent ev) {
+            int result = MOUSE_BTN.NO_BTN;
+
+            if(ev.isPrimaryButtonDown()) {
+                result |=  MOUSE_BTN.PRIMARY_BTN;
+            }
+
+            if(ev.isSecondaryButtonDown()) {
+                result |=  MOUSE_BTN.SECONDARY_BTN;
+            }
+
+            if(ev.isMiddleButtonDown()) {
+                result |=  MOUSE_BTN.MIDDLE_BTN;
+            }
+
+            return result;
+        }
+     };
+     
+     interface MODIFIER {
+
+        static final int NO_KEY = 0;
+        static final int SHIFT_KEY = 1;
+        static final int ALT_KEY = 2;
+        static final int META_KEY = 4;
+        static final int CONTROL_KEY = 8;
+
+
+        static int fromEvent(MouseEvent ev) {
+            int result = MODIFIER.NO_KEY;
+
+            if(ev.isShiftDown()) {
+                result |=  MODIFIER.SHIFT_KEY;
+            }
+
+            if(ev.isAltDown()) {
+                result |=  MODIFIER.ALT_KEY;
+            }
+
+            if(ev.isMetaDown()) {
+                result |=  MODIFIER.META_KEY;
+            }
+
+            if(ev.isControlDown()) {
+                result |= MODIFIER.CONTROL_KEY;
+            }
+
+            return result;
+        }
+
+     };
     
 
     static native int     nextKey  ();
@@ -178,14 +262,14 @@ public final class NativeBinding {
     static native int     getW     (int key);
     static native int     getH     (int key);
 
-    // native void fireMousePressedEvent (int key, double x, double y,                int buttons, int modifiers, long timestamp);
-    // native void fireMouseReleasedEvent(int key, double x, double y,                int buttons, int modifiers, long timestamp);
-    // native void fireMouseMoveEvent    (int key, double x, double y,                int buttons, int modifiers, long timestamp);
-    // native void fireMouseWheelEvent   (int key, double x, double y, double amount, int buttons, int modifiers, long timestamp);
+    // native boolean fireMousePressedEvent (int key, double x, double y,                int buttons, int modifiers, long timestamp);
+    // native boolean fireMouseReleasedEvent(int key, double x, double y,                int buttons, int modifiers, long timestamp);
+    static native boolean fireMouseMoveEvent    (int key, double x, double y,                int buttons, int modifiers, long timestamp);
+    // native boolean fireMouseWheelEvent   (int key, double x, double y, double amount, int buttons, int modifiers, long timestamp);
 
-    // native void fireKeyPressedEvent (int key, String characters, int modifiers, long timestamp);
-    // native void fireKeyReleasedEvent(int key, String characters, int modifiers, long timestamp);
-    // native void fireKeyTypedEvent   (int key, String characters, int modifiers, long timestamp);
+    // native boolean fireKeyPressedEvent (int key, String characters, int modifiers, long timestamp);
+    // native boolean fireKeyReleasedEvent(int key, String characters, int modifiers, long timestamp);
+    // native boolean fireKeyTypedEvent   (int key, String characters, int modifiers, long timestamp);
 
     static native ByteBuffer getBuffer(int key);
 

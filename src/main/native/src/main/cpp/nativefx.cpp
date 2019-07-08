@@ -18,6 +18,7 @@ namespace ipc = boost::interprocess;
 
 std::vector<std::string> names;
 std::vector<shared_memory_info*>   connections;
+std::vector<ipc::message_queue*>   evt_msg_queues;
 std::vector<void*> buffers;
 
 std::vector<ipc::shared_memory_object*> shm_infos;
@@ -113,6 +114,7 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
       // setup key and names for new connection
       int key = connections.size();
       std::string info_name = get_info_name(key, name);
+      std::string evt_msg_queue_name = get_evt_msg_queue_name(key, name);
       std::string buffer_name = get_buffer_name(key,name);
       names.push_back(name);
 
@@ -141,6 +143,12 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
         // construct the shared structure in memory
         shared_memory_info * info_data = static_cast<shared_memory_info*>(info_addr);
         connections.push_back(info_data);
+      
+        // TODO create mq
+
+        ipc::message_queue * evt_msg_queue = open_evt_mq(evt_msg_queue_name);
+
+        evt_msg_queues.push_back(evt_msg_queue);
 
         // timed locking of resources
         boost::system_time const timeout=
@@ -233,6 +241,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
     delete info_regions[key];
     delete shm_buffers[key];
     delete buffer_regions[key];
+    delete evt_msg_queues[key];
 
     connections[key]    = NULL;
     buffers[key]        = NULL;
@@ -240,6 +249,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
     info_regions[key]   = NULL;
     shm_buffers[key]    = NULL;
     buffer_regions[key] = NULL;
+    evt_msg_queues[key] = NULL;
 
     return boolC2J(true);
 }
@@ -403,6 +413,36 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isBufferReady
 
   return false;
 
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseMoveEvent
+  (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
+    
+    if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return boolC2J(false);
+    }
+
+    mouse_event evt;
+    evt.type |= MOUSE_MOVED;
+    evt.timestamp = timestamp;
+    evt.x = x;
+    evt.y = y;
+    evt.buttons = buttons;
+    evt.modifiers = modifiers;
+
+    // timed locking of resources
+    boost::system_time const timeout=
+    boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+    bool result = evt_msg_queues[key]->timed_send(
+                &evt,            // data to send
+                sizeof(evt),     // size of the data (check it fits into max_size)
+                0,               // msg priority
+                timeout          // timeout
+    );
+
+    return boolC2J(result);            
 }
 
 #endif /*_Included_NativeFX_CPP*/
