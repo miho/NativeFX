@@ -69,46 +69,46 @@ enum EVENT_TYPE {
 };
 
 struct event {
-   int type       = {0};
-   long timestamp = {0};
+   int type       = 0;
+   long timestamp = 0;
 };
 
 struct mouse_event {
-   int type       = {MOUSE_EVENT};
-   long timestamp = {0};
-
-   int buttons    = {NO_BTN};
-   int modifiers  = {NO_KEY};
-   int click_count= {0};
-   double x       = {0};
-   double y       = {0};
-};
-
-struct mouse_wheel_event {
-   int type       = {MOUSE_WHEEL};
-   long timestamp = {0};
+   int type       = MOUSE_EVENT;
+   long timestamp = 0;
 
    int buttons    = NO_BTN;
    int modifiers  = NO_KEY;
-   double amount  = {0};
+   int click_count= 0;
+   double x       = 0;
+   double y       = 0;
+};
+
+struct mouse_wheel_event {
+   int type       = MOUSE_WHEEL;
+   long timestamp = 0;
+
+   int buttons    = NO_BTN;
+   int modifiers  = NO_KEY;
+   double amount  = 0;
 };
 
 struct key_event {
-   int type       = {KEY_EVENT};
-   long timestamp = {0};
+   int type       = KEY_EVENT;
+   long timestamp = 0;
 
-   int modifiers  = {NO_KEY};
+   int modifiers  =NO_KEY;
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
 };
 
 struct redraw_event : event{
-   int type = {REDRAW_EVENT};
-   long timestamp = {0}; 
+   int type = REDRAW_EVENT;
+   long timestamp = 0; 
 
-   double x       = {0};
-   double y       = {0};
-   double w       = {0};
-   double h       = {0};
+   double x       = 0;
+   double y       = 0;
+   double w       = 0;
+   double h       = 0;
 };
 
 void store_shared_string(std::string str, char* str_to_store_to) {
@@ -188,7 +188,7 @@ boost::interprocess::message_queue* open_evt_mq(std::string evt_msg_queue_name) 
 
    boost::interprocess::message_queue * evt_msg_queue = new boost::interprocess::message_queue(
      boost::interprocess::open_only,       // only open (don't create)
-     evt_msg_queue_name.c_str()           // name
+     evt_msg_queue_name.c_str()            // name
    );
 
    return evt_msg_queue;

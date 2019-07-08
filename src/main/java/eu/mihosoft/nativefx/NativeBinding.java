@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 import java.nio.file.Paths;
 
@@ -206,6 +207,14 @@ public final class NativeBinding {
 
             return result;
         }
+
+        static int fromEvent(ScrollEvent ev) {
+            int result = MOUSE_BTN.NO_BTN;
+
+            // TODO implement me 8.07.2019
+
+            return result;
+        }
      };
      
      interface MODIFIER {
@@ -218,6 +227,28 @@ public final class NativeBinding {
 
 
         static int fromEvent(MouseEvent ev) {
+            int result = MODIFIER.NO_KEY;
+
+            if(ev.isShiftDown()) {
+                result |=  MODIFIER.SHIFT_KEY;
+            }
+
+            if(ev.isAltDown()) {
+                result |=  MODIFIER.ALT_KEY;
+            }
+
+            if(ev.isMetaDown()) {
+                result |=  MODIFIER.META_KEY;
+            }
+
+            if(ev.isControlDown()) {
+                result |= MODIFIER.CONTROL_KEY;
+            }
+
+            return result;
+        }
+
+        static int fromEvent(ScrollEvent ev) {
             int result = MODIFIER.NO_KEY;
 
             if(ev.isShiftDown()) {
