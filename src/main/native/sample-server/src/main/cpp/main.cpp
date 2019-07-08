@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         bool locking_success = info_data->mutex.timed_lock(timeout);
 
         if(!locking_success) {
-            std::cerr << "[" + info_name + "]" << "ERROR: cannot connect to '" << info_name << "':" << std::endl;
+            std::cerr << "[" + info_name + "] " << "ERROR: cannot connect to '" << info_name << "':" << std::endl;
             std::cerr << " -> But we are unable to lock the resources." << std::endl;
             std::cerr << " -> Client not running?." << std::endl;
             return -1;
@@ -277,16 +277,48 @@ int main(int argc, char *argv[])
     unsigned int priority;
 
     while(evt_mq->get_num_msg()> 0) {
-        evt_mq->receive(evt_mq_msg_buff, MAX_SIZE, recvd_size, priority);
+
+        // timed locking of resources
+        boost::system_time const timeout=
+          boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+        bool result = evt_mq->timed_receive(evt_mq_msg_buff, MAX_SIZE, recvd_size, priority, timeout);
+
+        if(!result) {
+            std::cerr << "[" + info_name + "] ERROR: can't read messages, message queue not accessible." << std::endl; 
+        }
 
         event* evt = static_cast<event*>(evt_mq_msg_buff);
 
-        std::cout << "Event received: type=" << evt->type << ", ";
+        std::cout << "[" + info_name + "] " << "event received: type=" << evt->type << ", ";
 
-        if(evt->type | MOUSE_MOVED) {
-            mouse_event* evt_mouse_moved = static_cast<mouse_event*>(evt_mq_msg_buff);
-            std::cout << "x: " << evt_mouse_moved->x << ", y: " << evt_mouse_moved->x << std::endl;
+
+
+        if(evt->type & MOUSE_EVENT) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << "x: " << evt_mouse_evt->x << ", y: " << evt_mouse_evt->x;
+        } 
+        
+        if(evt->type & MOUSE_PRESSED) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << ", evt_name: PRESSED" << std::endl;
+        } else if(evt->type & MOUSE_RELEASED) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << ", evt_name: RLEASED" << std::endl;
+        }  else if(evt->type & MOUSE_ENTERED) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << ", evt_name: ENTERED" << std::endl;
+        }  else if(evt->type & MOUSE_EXITED) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << ", evt_name: EXITED" << std::endl;
+        }  else if(evt->type & MOUSE_CLICKED) {
+            mouse_event* evt_mouse_evt = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << ", #clicks: " << evt_mouse_evt->click_count << std::endl;
+        } else {
+            std::cout << std::endl;
         }
+        
+         
 
     } 
 

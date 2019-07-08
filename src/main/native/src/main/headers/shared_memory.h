@@ -52,17 +52,20 @@ enum EVENT_TYPE {
    EVENT          = 1,
    MOUSE_EVENT    = 2,
    MOUSE_MOVED    = 4,
-   MOUSE_PRESSED  = 8,
-   MOUSE_RELEASED = 16,
+   MOUSE_ENTERED  = 8,
+   MOUSE_EXITED   = 16,
+   MOUSE_RELEASED = 32,
+   MOUSE_PRESSED  = 64,
+   MOUSE_CLICKED  = 128,
 
-   MOUSE_WHEEL    = 32,
+   MOUSE_WHEEL    = 256,
 
-   KEY_EVENT      = 64,
-   KEY_PRESSED    = 128,
-   KEY_RELEASED   = 256,
-   KEY_TYPED      = 512,
+   KEY_EVENT      = 512,
+   KEY_PRESSED    = 1024,
+   KEY_RELEASED   = 2048,
+   KEY_TYPED      = 4096,
 
-   REDRAW_EVENT   = 1024
+   REDRAW_EVENT   = 8192
 };
 
 struct event {
@@ -76,6 +79,7 @@ struct mouse_event {
 
    int buttons    = {NO_BTN};
    int modifiers  = {NO_KEY};
+   int click_count= {0};
    double x       = {0};
    double y       = {0};
 };

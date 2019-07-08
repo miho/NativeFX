@@ -79,6 +79,51 @@ public final class NativeNode extends Region {
                 MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
                 timestamp
             );
+
+            ev.consume();
+        });
+
+        addEventHandler(MouseEvent.MOUSE_PRESSED, (ev)-> {
+            int x = (int)ev.getX();
+            int y = (int)ev.getY();
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireMousePressedEvent(key, x, y,
+                MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
+                timestamp
+            );
+
+            ev.consume();
+        });
+
+        addEventHandler(MouseEvent.MOUSE_RELEASED, (ev)-> {
+            int x = (int)ev.getX();
+            int y = (int)ev.getY();
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireMouseReleasedEvent(key, x, y,
+                MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
+                timestamp
+            );
+
+            ev.consume();
+        });
+
+        addEventHandler(MouseEvent.MOUSE_CLICKED, (ev)-> {
+            int x = (int)ev.getX();
+            int y = (int)ev.getY();
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireMouseClickedEvent(key, x, y,
+                MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
+                ev.getClickCount(),
+                timestamp
+            );
+
+            ev.consume();
         });
     }
 
