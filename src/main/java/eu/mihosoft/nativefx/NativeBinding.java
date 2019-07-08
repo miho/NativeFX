@@ -40,7 +40,7 @@ public final class NativeBinding {
     // }
 
     private NativeBinding() {
-        throw new AssertionError("Dont instantiate me!");
+        throw new AssertionError("Don't instantiate me!");
     }
 
     static String libEnding() {
