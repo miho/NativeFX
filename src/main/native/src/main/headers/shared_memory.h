@@ -6,9 +6,16 @@
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <boost/interprocess/containers/string.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
 
 #define IPC_MSG_SIZE 4096
 #define IPC_KEY_EVT_NUM_CHARS 128
+
+#define IPC_NUM_EVT_MSGS 100
+
+#define IPC_INFO_NAME "_info_"
+#define IPC_BUFF_NAME "_buff_"
+#define IPC_EVT_MQ_NAME "_evt_mq_"
 
 // instead of Qt stuff, we use plain c++ & boost
 // for the client lib
@@ -37,6 +44,7 @@ enum MODIFIER {
    SHIFT_KEY   = 1,
    ALT_KEY     = 2,
    META_KEY    = 4,
+   CONTROL_KEY = 8
 };
 
 enum EVENT_TYPE {
@@ -161,11 +169,56 @@ struct shared_memory_buffer
 };
 
 std::string get_info_name(int key, std::string name) {
-  return name + "_info_";// + std::to_string(key);
+  return name + IPC_INFO_NAME;
+}
+
+std::string get_evt_msg_queue_name(int key, std::string name) {
+  return name + IPC_EVT_MQ_NAME;
 }
 
 std::string get_buffer_name(int key, std::string name) {
-  return name + "_buff_";// + std::to_string(key);
+  return name + IPC_BUFF_NAME;
+}
+
+boost::interprocess::message_queue* open_evt_mq(std::string evt_msg_queue_name) {
+
+   boost::interprocess::message_queue * evt_msg_queue = new boost::interprocess::message_queue(
+     boost::interprocess::open_only,       // only open (don't create)
+     evt_msg_queue_name.c_str()           // name
+   );
+
+   return evt_msg_queue;
+}
+
+std::size_t max_event_message_size() {
+   return  std::max({
+     sizeof(event), 
+     sizeof(mouse_event), 
+     sizeof(mouse_wheel_event), 
+     sizeof(key_event), 
+     sizeof(redraw_event)
+   });
+}
+
+boost::interprocess::message_queue* create_evt_mq(std::string evt_msg_queue_name) {
+
+   // find the maximum event message size
+   std::size_t max_evt_struct_size = std::max({
+     sizeof(event), 
+     sizeof(mouse_event), 
+     sizeof(mouse_wheel_event), 
+     sizeof(key_event), 
+     sizeof(redraw_event)
+   });
+
+   boost::interprocess::message_queue * evt_msg_queue = new boost::interprocess::message_queue(
+     boost::interprocess::create_only,     // only open (don't create)
+     evt_msg_queue_name.c_str(),           // name
+     IPC_NUM_EVT_MSGS,                     // max message number
+     max_evt_struct_size                   // max message size
+   );
+
+   return evt_msg_queue;
 }
 
 #endif // SHARED_MEMORY_H

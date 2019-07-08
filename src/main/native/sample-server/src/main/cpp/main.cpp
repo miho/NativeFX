@@ -25,6 +25,8 @@ namespace ipc  = boost::interprocess;
 ipc::shared_memory_object shm_buffer;
 ipc::mapped_region buffer_region;
 
+ipc::message_queue* evt_mq;
+
 
 void set_rgba(uchar* buffer_data, int buffer_w, int buffer_h, int x, int y, uchar r, uchar g, uchar b, uchar a) {
     buffer_data[y*buffer_w*4+x*4+0] = b; // B
@@ -67,8 +69,7 @@ int main(int argc, char *argv[])
 {
     args::ArgumentParser parser("This is a NativeFX test program.", "---");
     args::HelpFlag helpArg(parser, "help", "Display this help menu", {'h', "help"});
-    args::ValueFlag<std::string> info_nameArg(parser, "info-name", "Defines the name of the shared memory info object created by this program", {'i', "info"});
-    args::ValueFlag<std::string> buffer_nameArg(parser, "buffer-name", "Defines the name of the shared memory buffer object created by this program", {'b', "buffer"});
+    args::ValueFlag<std::string> nameArg(parser, "name", "Defines the name of the shared memory objects to be created by this program", {'n', "name"});
     args::Flag deleteSharedMem(parser, "delete", "Indicates that existing shared memory with the specified name should be deleted", {'d', "delete"});
 
     try
@@ -92,11 +93,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::string info_name = args::get(info_nameArg);
-    std::string buffer_name = args::get(buffer_nameArg);
+    std::string name = args::get(nameArg);
 
-    if((info_name.size() == 0 || buffer_name.size() == 0) && !deleteSharedMem) {
-        std::cerr << std::endl << std::endl << "ERROR: 'info-name' and 'buffer-name' must be specified to create or delete shared memory!" << std::endl << std::endl;
+    std::string info_name = name + IPC_INFO_NAME;
+    std::string buffer_name = name + IPC_BUFF_NAME;
+    std::string evt_mq_name = name + IPC_EVT_MQ_NAME;
+
+    if(name.size() == 0) {
+        std::cerr << std::endl << std::endl << "ERROR: 'name' must be specified to create or delete shared memory!" << std::endl << std::endl;
         std::cerr << parser;
         return 1;
     }
@@ -106,17 +110,16 @@ int main(int argc, char *argv[])
         // remove shared memory objects
         ipc::shared_memory_object::remove(info_name.c_str());
         ipc::shared_memory_object::remove(buffer_name.c_str());
+        ipc::message_queue::remove(evt_mq_name.c_str());
 
         std::cout << "> deleted shared-mem" <<std::endl;
-        std::cout << "  -> info:   " << info_name<<std::endl;
-        std::cout << "  -> buffer: " << buffer_name<<std::endl;
+        std::cout << "  -> name:   " << name<<std::endl;
 
         return 0;
     }
 
     std::cout << "> creating shared-mem" <<std::endl;
-    std::cout << "  -> info:   " << info_name<<std::endl;
-    std::cout << "  -> buffer: " << buffer_name<<std::endl;
+    std::cout << "  -> name:   " << name<<std::endl;
 
     ipc::shared_memory_object shm_info;
 
@@ -127,14 +130,16 @@ int main(int argc, char *argv[])
                     info_name.c_str(),
                     ipc::read_write
         );
+
+        evt_mq = create_evt_mq(evt_mq_name);
     } catch(ipc::interprocess_exception & ex) {
             // remove shared memory objects
             ipc::shared_memory_object::remove(info_name.c_str());
             ipc::shared_memory_object::remove(buffer_name.c_str());
+            ipc::message_queue::remove(evt_mq_name.c_str());
 
             std::cout << "> deleted pre-existing shared-mem" <<std::endl;
-            std::cout << "  -> info:   " << info_name<<std::endl;
-            std::cout << "  -> buffer: " << buffer_name<<std::endl;
+            std::cout << "  -> name:   " << name<<std::endl;
 
             // create the shared memory info object.
             shm_info = ipc::shared_memory_object(
@@ -142,10 +147,10 @@ int main(int argc, char *argv[])
                         info_name.c_str(),
                         ipc::read_write
             );
+            evt_mq = create_evt_mq(evt_mq_name);
 
-            std::cout << "> created shared-mem" <<std::endl;
-            std::cout << "  -> info:   " << info_name<<std::endl;
-            std::cout << "  -> buffer: " << buffer_name<<std::endl;
+            std::cout << "> created shared-mem"  << std::endl;
+            std::cout << "  -> name:   " << name << std::endl;
     }
 
     // set the shm size
@@ -263,6 +268,30 @@ int main(int argc, char *argv[])
 
     info_data->mutex.unlock();
 
+
+    // process events
+    std::size_t MAX_SIZE = max_event_message_size();
+
+    void* evt_mq_msg_buff = malloc(MAX_SIZE);
+    ipc::message_queue::size_type recvd_size;
+    unsigned int priority;
+
+    while(evt_mq->get_num_msg()> 0) {
+        evt_mq->receive(evt_mq_msg_buff, MAX_SIZE, recvd_size, priority);
+
+        event* evt = static_cast<event*>(evt_mq_msg_buff);
+
+        std::cout << "Event received: type=" << evt->type << ", ";
+
+        if(evt->type | MOUSE_MOVED) {
+            mouse_event* evt_mouse_moved = static_cast<mouse_event*>(evt_mq_msg_buff);
+            std::cout << "x: " << evt_mouse_moved->x << ", y: " << evt_mouse_moved->x << std::endl;
+        }
+
+    } 
+
+    free(evt_mq_msg_buff);
+
     // publish buffer changes
     //info_data->mutex.unlock();
     //info_data->buffer_semaphore.post();
@@ -288,6 +317,7 @@ int main(int argc, char *argv[])
     // remove shared memory objects
     ipc::shared_memory_object::remove(info_name.c_str());
     ipc::shared_memory_object::remove(buffer_name.c_str());
+    ipc::message_queue::remove(evt_mq_name.c_str());
 
     return 0;
 }
