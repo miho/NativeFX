@@ -18,6 +18,7 @@ set(CMAKE_BUILD_TYPE DEBUG)
 include_directories("../src/main/headers/")
 include_directories("../ext/headers/")
 include_directories("./ext/headers/")
+include_directories("./src/main/headers/")
 
 # create an executable
 add_executable(sample-server ${SOURCES})
