@@ -7,7 +7,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7'
     id "de.undercouch.download" version "3.4.3"
 
-    id 'com.github.hierynomus.license' version '0.14.0'
+    id 'com.github.hierynomus.license' version '0.15.0'
 }
 
 repositories {
@@ -275,6 +275,12 @@ license {
     exclude '**/*.lib'
     exclude '**/*.so'
     exclude '**/*.dylib'
+
+    include '**/*.h'
+    include '**/*.hpp'
+    include '**/*.cpp'
+
+    include 'src/main/native/**/*'
 }
 
 test {
