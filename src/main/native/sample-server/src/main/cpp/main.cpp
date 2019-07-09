@@ -4,7 +4,7 @@ int main(int argc, char *argv[]) {
 
     int counter = 0;
 
-    nativefx::redraw_callback redraw = [&counter](auto name, uchar* buffer_data, int W, int H) {
+    auto redraw = [&counter](auto name, uchar* buffer_data, int W, int H) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     };
 
-    nativefx::event_callback evt = [](auto name, event* evt) {
+    auto evt = [](auto name, event* evt) {
         std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", ";
 
         if(evt->type & MOUSE_EVENT) {
@@ -85,5 +85,5 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    nativefx::start_server(argc,argv, redraw, evt);
+    nativefx::start_server(argc, argv, redraw, evt);
 }
