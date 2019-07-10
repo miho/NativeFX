@@ -2,9 +2,11 @@
 
 int main(int argc, char *argv[]) {
 
+    using namespace nativefx;
+
     int counter = 0;
 
-    auto redraw = [&counter](auto name, uchar* buffer_data, int W, int H) {
+    auto redraw = [&counter](std::string const& name, uchar* buffer_data, int W, int H) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -57,7 +59,7 @@ int main(int argc, char *argv[]) {
 
     };
 
-    auto evt = [](auto name, event* evt) {
+    auto evt = [](std::string const &name, event* evt) {
         std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", ";
 
         if(evt->type & MOUSE_EVENT) {

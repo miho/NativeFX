@@ -38,6 +38,8 @@
 
 namespace ipc = boost::interprocess;
 
+using namespace nativefx;
+
 std::vector<std::string> names;
 std::vector<shared_memory_info*>   connections;
 std::vector<ipc::message_queue*>   evt_msg_queues;

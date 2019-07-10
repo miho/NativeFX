@@ -49,10 +49,13 @@ typedef unsigned char uchar;
 
 #include <string>
 
-typedef boost::interprocess::basic_string<char> shared_string;
 
 
 #define LOCK_TIMEOUT 1000 // milliseconds 
+
+namespace nativefx {
+
+typedef boost::interprocess::basic_string<char> shared_string;
 
 enum MOUSE_BTN {
    NO_BTN        = 0,
@@ -246,3 +249,5 @@ boost::interprocess::message_queue* create_evt_mq(std::string evt_msg_queue_name
 
    return evt_msg_queue;
 }
+
+} // end namespace nativefx
