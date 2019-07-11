@@ -153,8 +153,7 @@ struct shared_memory_info {
         w(1024), h(768), dirty(false), buffer_ready(true), 
         client_to_server_msg_semaphore(0),
         client_to_server_res_semaphore(0),
-        buffer_semaphore(0) {//,
-        //r_event(), m_event(), m_wheel_event(), k_event() {
+        buffer_semaphore(0) {
    }
 
    // mutex to protect access

@@ -200,7 +200,6 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
 
             std::cout << "> created shared-mem"  << std::endl;
             std::cout << "  -> name:   " << name << std::endl;
-
     }
 
     // set the shm size
@@ -247,40 +246,42 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
         }
 
         bool is_dirty = info_data->dirty;
+        // if still is dirty it means that the client hasn't drawn the previous
+        // frame. in this case we just wait with updating the buffer until the
+        // client draws the content.
         if(is_dirty) { 
             info_data->mutex.unlock();
-            continue;
+            // continue; we still might want to process events
+        } else {
+            redraw(name, buffer_data, W, H);
+
+            info_data->dirty = true;
+
+            int new_W = info_data->w;
+            int new_H = info_data->h;
+
+            if(new_W!=W || new_H != H) {
+
+                // trigger buffer resize
+
+                W = new_W;
+                H = new_H;
+
+                std::cout << "[" + info_name + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
+
+                ipc::shared_memory_object::remove(buffer_name.c_str());
+                buffer_data = create_shared_buffer(buffer_name, W, H);
+                info_data->buffer_ready = true;
+            }
+
+            info_data->mutex.unlock();
         }
-
-        redraw(name, buffer_data, W, H);
-
-        info_data->dirty = true;
-
-        int new_W = info_data->w;
-        int new_H = info_data->h;
-
-        if(new_W!=W || new_H != H) {
-
-            // trigger buffer resize
-
-            W = new_W;
-            H = new_H;
-
-            std::cout << "[" + info_name + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
-
-            ipc::shared_memory_object::remove(buffer_name.c_str());
-            buffer_data = create_shared_buffer(buffer_name, W, H);
-            info_data->buffer_ready = true;
-        }
-
-        info_data->mutex.unlock();
-
 
         // process events
         ipc::message_queue::size_type recvd_size;
         unsigned int priority;
 
-        while(evt_mq->get_num_msg()> 0) {
+        while(evt_mq->get_num_msg() > 0) {
 
             // timed locking of resources
             boost::system_time const timeout=
