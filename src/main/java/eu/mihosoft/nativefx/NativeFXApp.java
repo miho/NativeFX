@@ -62,28 +62,9 @@ public class NativeFXApp extends Application {
             });
         });
 
-        Button effect2Btn = new Button("Perspective Effect");
+        Button effectDisableBtn = new Button("Disable Effect");
 
-        effect2Btn.setOnAction((ae)-> {
-            root.getChildren().filtered(n->n instanceof NativeNode).
-            forEach(n->{
-                NativeNode nn = (NativeNode) n;
-                PerspectiveTransform pt = new PerspectiveTransform();
-                pt.setUlx(0.0);
-                pt.setUly(0.0);
-                pt.urxProperty().bind(nn.widthProperty());
-                pt.uryProperty().bind(nn.heightProperty().multiply(0.25));
-                pt.lrxProperty().bind(nn.widthProperty());
-                pt.lryProperty().bind(nn.heightProperty().multiply(0.75));
-                pt.setLlx(0.0);
-                pt.llyProperty().bind(nn.heightProperty());
-                n.setEffect(pt);
-            });
-        });
-
-        Button effect3Btn = new Button("Disable Effect");
-
-        effect3Btn.setOnAction((ae)-> {
+        effectDisableBtn.setOnAction((ae)-> {
             root.getChildren().filtered(n->n instanceof NativeNode).
             forEach(n->{
                 n.setEffect(null);
@@ -106,7 +87,7 @@ public class NativeFXApp extends Application {
             root.getChildren().add(nativeN);
         });
 
-        ToolBar bar = new ToolBar(tf, btn, delBtn, effect1Btn, effect2Btn, effect3Btn);
+        ToolBar bar = new ToolBar(tf, btn, delBtn, effect1Btn, effectDisableBtn);
         root.getChildren().add(bar);
 
         Scene scene = new Scene(root, 1024,768);
