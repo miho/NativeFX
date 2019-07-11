@@ -68,6 +68,8 @@ public final class NativeNode extends Region {
     private AnimationTimer timer;
     private int key = -1;
 
+    private int buttonState;
+
     private boolean lockingError = false;
 
     public NativeNode() {
@@ -91,6 +93,8 @@ public final class NativeNode extends Region {
             
             long timestamp = System.nanoTime();
 
+            buttonState = MOUSE_BTN.fromEvent(ev);
+
             NativeBinding.fireMousePressedEvent(key, x, y,
                 MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
                 timestamp
@@ -106,7 +110,8 @@ public final class NativeNode extends Region {
             long timestamp = System.nanoTime();
 
             NativeBinding.fireMouseReleasedEvent(key, x, y,
-                MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
+                // TODO 11.07.2019 check whether we correctly detected btn up (what about multiple btns?)
+                buttonState, MODIFIER.fromEvent(ev),
                 timestamp
             );
 
