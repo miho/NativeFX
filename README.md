@@ -63,7 +63,7 @@ To compile and run the sample-server, do the following (releatrive to the previo
 
 #### Bash (Linux/macOS/Cygwin/other Unix shell)
 
-    cd src/main/native/sample-server
+    cd sample-servers/sample-server/
     mkdir build
     cd build
     cmake ..
@@ -72,7 +72,7 @@ To compile and run the sample-server, do the following (releatrive to the previo
     
 #### Windows (CMD)
 
-    cd src/main/native/sample-server
+    cd sample-servers/sample-server/
     mkdir build
     cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
@@ -92,4 +92,49 @@ Navigate back to the NativeFX project folder (i.e., `path/to/NativeFX/`) and do 
 
     gradlew run
     
-That's it!    
+Now, click the Connect button.    
+    
+That's it!
+
+## Testing the Qt sample server:
+
+### Requirements
+
+- Qt 5.12
+- Internet connection
+
+### Step 1 (compile and run the sample-server)
+
+Make sure Qt is installed properly. To compile and run the sample-server, do the following (releatrive to the previous project folder):
+
+#### Bash (Linux/macOS/Cygwin/other Unix shell)
+
+    cd sample-servers/nativefx-qt/
+    mkdir build
+    cd build
+    cmake ..
+    make
+    ./nativefx-qt -n _mem_1
+    
+#### Windows (CMD)
+
+    cd sample-servers/nativefx-qt/
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
+    MSBuild.exe sample-server.sln, /property:Configuration=Release /property:Platform=x64
+    Release\x64\sample-server.exe -n _mem_1
+    
+### Step 2 (run the sample JavaFX application)
+
+Navigate back to the NativeFX project folder (i.e., `path/to/NativeFX/`) and do the following:
+
+#### Bash (Linux/macOS/Cygwin/other Unix shell)
+
+    bash gradlew run
+    
+#### Windows (CMD)
+
+    gradlew run
+    
+Now, click the Connect button. 
