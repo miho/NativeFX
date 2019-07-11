@@ -34,6 +34,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.PerspectiveTransform;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -50,6 +52,43 @@ public class NativeFXApp extends Application {
         TextField tf = new TextField("_mem_1");
         Button btn = new Button("Connect");
         Button delBtn = new Button("Delete All");
+        Button effect1Btn = new Button("Blur Effect");
+
+        effect1Btn.setOnAction((ae)-> {
+            root.getChildren().filtered(n->n instanceof NativeNode).
+            forEach(n->{
+                BoxBlur blur = new BoxBlur(10, 10, 10);
+                n.setEffect(blur);
+            });
+        });
+
+        Button effect2Btn = new Button("Perspective Effect");
+
+        effect2Btn.setOnAction((ae)-> {
+            root.getChildren().filtered(n->n instanceof NativeNode).
+            forEach(n->{
+                NativeNode nn = (NativeNode) n;
+                PerspectiveTransform pt = new PerspectiveTransform();
+                pt.setUlx(0.0);
+                pt.setUly(0.0);
+                pt.urxProperty().bind(nn.widthProperty());
+                pt.uryProperty().bind(nn.heightProperty().multiply(0.25));
+                pt.lrxProperty().bind(nn.widthProperty());
+                pt.lryProperty().bind(nn.heightProperty().multiply(0.75));
+                pt.setLlx(0.0);
+                pt.llyProperty().bind(nn.heightProperty());
+                n.setEffect(pt);
+            });
+        });
+
+        Button effect3Btn = new Button("Disable Effect");
+
+        effect3Btn.setOnAction((ae)-> {
+            root.getChildren().filtered(n->n instanceof NativeNode).
+            forEach(n->{
+                n.setEffect(null);
+            });
+        });
 
         delBtn.setOnAction((ae)-> {
             root.getChildren().filtered(n->n instanceof NativeNode).
@@ -67,7 +106,7 @@ public class NativeFXApp extends Application {
             root.getChildren().add(nativeN);
         });
 
-        ToolBar bar = new ToolBar(tf, btn, delBtn);
+        ToolBar bar = new ToolBar(tf, btn, delBtn, effect1Btn, effect2Btn, effect3Btn);
         root.getChildren().add(bar);
 
         Scene scene = new Scene(root, 1024,768);
