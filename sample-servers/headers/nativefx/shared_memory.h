@@ -82,7 +82,6 @@ enum EVENT_TYPE {
    MOUSE_RELEASED = 32,
    MOUSE_PRESSED  = 64,
    MOUSE_CLICKED  = 128,
-
    MOUSE_WHEEL    = 256,
 
    KEY_EVENT      = 512,
@@ -105,17 +104,9 @@ struct mouse_event {
    int buttons    = NO_BTN;
    int modifiers  = NO_KEY;
    int click_count= 0;
+   double amount  = 0;
    double x       = 0;
    double y       = 0;
-};
-
-struct mouse_wheel_event {
-   int type       = MOUSE_WHEEL;
-   long timestamp = 0;
-
-   int buttons    = NO_BTN;
-   int modifiers  = NO_KEY;
-   double amount  = 0;
 };
 
 struct key_event {
@@ -126,7 +117,7 @@ struct key_event {
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
 };
 
-struct redraw_event : event{
+struct redraw_event : event {
    int type = REDRAW_EVENT;
    long timestamp = 0; 
 
@@ -185,7 +176,6 @@ struct shared_memory_info {
 
    redraw_event      r_event;
    mouse_event       m_event;
-   mouse_wheel_event m_wheel_event;
    key_event         k_event;
    
 };
@@ -222,7 +212,6 @@ std::size_t max_event_message_size() {
    return  std::max({
      sizeof(event), 
      sizeof(mouse_event), 
-     sizeof(mouse_wheel_event), 
      sizeof(key_event), 
      sizeof(redraw_event)
    });
@@ -234,7 +223,6 @@ boost::interprocess::message_queue* create_evt_mq(std::string evt_msg_queue_name
    std::size_t max_evt_struct_size = std::max({
      sizeof(event), 
      sizeof(mouse_event), 
-     sizeof(mouse_wheel_event), 
      sizeof(key_event), 
      sizeof(redraw_event)
    });

@@ -30,16 +30,16 @@
 #define NATIVEFX_VERSION_MAJOR 0
 
 /// minor version number
-#define NATIVEFX_VERSION_MINOR 0
+#define NATIVEFX_VERSION_MINOR 1
 
 /// patch number
-#define NATIVEFX_VERSION_PATCH 1
+#define NATIVEFX_VERSION_PATCH 0
 
 /// complete version number
 #define NATIVEFX_VERSION_CODE (NATIVEFX_VERSION_MAJOR * 10000 + NATIVEFX_VERSION_MINOR * 100 + NATIVEFX_VERSION_PATCH)
 
 /// version number as string
-#define NATIVEFX_VERSION_STRING "0.0.1"
+#define NATIVEFX_VERSION_STRING "0.1.0"
 
 // ---------------------------------------- INCLUDES ----------------------------------------
 

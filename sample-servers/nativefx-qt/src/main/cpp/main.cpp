@@ -227,6 +227,16 @@ int main(int argc, char *argv[])
             QApplication::sendEvent(receiver, mEvt);
         }
 
+        if(mouse_evt->type & nfx::MOUSE_WHEEL) {
+            QWheelEvent* mEvt = new QWheelEvent( p, 
+                mouse_evt->amount,
+                Qt::NoButton,
+                Qt::NoModifier   
+            );
+            //std::cout << "-> evt-type: RELEASE\n";
+            QApplication::sendEvent(receiver, mEvt);
+        }
+
     }; // end evt
 
     QTimer* timer = new QTimer;

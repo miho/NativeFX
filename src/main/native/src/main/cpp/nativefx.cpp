@@ -437,7 +437,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_isBufferReady
 
 }
 
-bool fire_mouse_event(jint key, int evt_type, double x, double y , int buttons, int modifiers, int click_count, long timestamp) {
+bool fire_mouse_event(jint key, int evt_type, double x, double y , double amount, int buttons, int modifiers, int click_count, long timestamp) {
     
     if(key >= connections.size() || connections[key] == NULL) {
       std::cerr << "ERROR: key not available: " << key << std::endl;
@@ -450,6 +450,7 @@ bool fire_mouse_event(jint key, int evt_type, double x, double y , int buttons, 
     evt.click_count = click_count;
     evt.x = x;
     evt.y = y;
+    evt.amount = amount;
     evt.buttons = buttons;
     evt.modifiers = modifiers;
 
@@ -470,7 +471,7 @@ bool fire_mouse_event(jint key, int evt_type, double x, double y , int buttons, 
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseMoveEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_MOVED, x, y, buttons, modifiers, 0, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_MOVED, x, y, 0.0, buttons, modifiers, 0, timestamp);
     return boolC2J(result);            
 }
 
@@ -478,7 +479,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseMove
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMousePressedEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_PRESSED, x, y, buttons, modifiers, 0, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_PRESSED, x, y, 0.0, buttons, modifiers, 0, timestamp);
     return boolC2J(result);          
 }
 
@@ -486,7 +487,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMousePres
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseReleasedEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_RELEASED, x, y, buttons, modifiers, 0, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_RELEASED, x, y, 0.0, buttons, modifiers, 0, timestamp);
     return boolC2J(result);        
 }
 
@@ -494,7 +495,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseRele
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseClickedEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jint click_count, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_CLICKED, x, y, buttons, modifiers, click_count, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_CLICKED, x, y, 0.0, buttons, modifiers, click_count, timestamp);
     return boolC2J(result);  
 
 }
@@ -503,7 +504,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseClic
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseEnteredEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_ENTERED, x, y, buttons, modifiers, 0, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_ENTERED, x, y, 0.0, buttons, modifiers, 0, timestamp);
     return boolC2J(result);  
 
 }
@@ -512,7 +513,14 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseEnte
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseExitedEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
-    bool result = fire_mouse_event(key, MOUSE_EXITED, x, y, buttons, modifiers, 0, timestamp);
+    bool result = fire_mouse_event(key, MOUSE_EXITED, x, y, 0.0, buttons, modifiers, 0, timestamp);
     return boolC2J(result);      
 
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseWheelEvent
+  (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y, jdouble amount, jint buttons, jint modifiers, jlong timestamp) {
+
+    bool result = fire_mouse_event(key, MOUSE_WHEEL, x, y, amount, buttons, modifiers, 0, timestamp);
+    return boolC2J(result); 
 }

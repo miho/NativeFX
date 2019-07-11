@@ -72,10 +72,23 @@ public final class NativeNode extends Region {
 
     private boolean lockingError = false;
 
+    private boolean hidpiAware = false;
+
     public NativeNode() {
+        this(false);
+    }
+
+    public NativeNode(boolean hidpiAware) {
+
+        this.hidpiAware = hidpiAware;
+        
         addEventHandler(MouseEvent.MOUSE_MOVED, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
@@ -88,8 +101,11 @@ public final class NativeNode extends Region {
         });
 
         addEventHandler(MouseEvent.MOUSE_PRESSED, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
@@ -104,8 +120,11 @@ public final class NativeNode extends Region {
         });
 
         addEventHandler(MouseEvent.MOUSE_RELEASED, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
@@ -119,8 +138,11 @@ public final class NativeNode extends Region {
         });
 
         addEventHandler(MouseEvent.MOUSE_DRAGGED, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
@@ -133,8 +155,11 @@ public final class NativeNode extends Region {
         });
 
         addEventHandler(MouseEvent.MOUSE_CLICKED, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
@@ -148,12 +173,15 @@ public final class NativeNode extends Region {
         });
 
         addEventHandler(ScrollEvent.SCROLL, (ev)-> {
-            int x = (int)ev.getX();
-            int y = (int)ev.getY();
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+            double x = ev.getX()*sx;
+            double y = ev.getY()*sy;
             
             long timestamp = System.nanoTime();
 
-            NativeBinding.fireMouseWheelEvent(key, x, y, ev.getDeltaX(),
+            NativeBinding.fireMouseWheelEvent(key, x, y, ev.getDeltaY(),
                 MOUSE_BTN.fromEvent(ev), MODIFIER.fromEvent(ev),
                 timestamp
             );
@@ -179,6 +207,9 @@ public final class NativeNode extends Region {
 
         view = new ImageView();
         view.setPreserveRatio(true);
+
+        view.fitWidthProperty().bind(widthProperty());
+        view.fitHeightProperty().bind(heightProperty());
 
         Runnable r = () -> {
 
@@ -228,9 +259,12 @@ public final class NativeNode extends Region {
                 int w = (int)getWidth();
                 int h = (int)getHeight();
 
-                if((w != NativeBinding.getW(key) || h != NativeBinding.getH(key)) && w > 0 && h > 0) {
+                double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+                double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+
+                if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
                     System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
-                    NativeBinding.resize(key, w, h);
+                    NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
                     // buffer = null;
                     // intBuf = null;
                 }

@@ -72,7 +72,7 @@ public class NativeFXApp extends Application {
 
         Scene scene = new Scene(root, 1024,768);
 
-        primaryStage.setTitle("NativeFX Test");
+        primaryStage.setTitle("NativeFX Demo Client");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest((value)->System.exit(0));
         primaryStage.show();
