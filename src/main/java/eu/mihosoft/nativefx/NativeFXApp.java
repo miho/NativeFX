@@ -47,7 +47,7 @@ public class NativeFXApp extends Application {
 
         VBox root = new VBox();
         
-        TextField tf = new TextField("_mem_0");
+        TextField tf = new TextField("_mem_1");
         Button btn = new Button("Connect");
         Button delBtn = new Button("Delete All");
 
