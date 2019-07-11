@@ -151,6 +151,237 @@ int delete_shared_mem(std::string const &name) {
     return SUCCESS;
 }
 
+class shared_canvas final {
+
+    private: 
+
+        std::string name;
+
+        std::string info_name;
+        std::string buffer_name;
+        std::string evt_mq_name;
+        
+        uchar* buffer_data;
+        shared_memory_info* info_data;
+        ipc::shared_memory_object* shm_info;
+        ipc::message_queue* evt_mq;
+        void* evt_mq_msg_buff;
+        STATUS status;
+        int W;
+        int H;
+
+        std::size_t MAX_SIZE;
+
+        shared_canvas( std::string const &name, uchar* buffer_data, ipc::shared_memory_object* shm_info, shared_memory_info* info_data, ipc::message_queue* evt_mq, void* evt_mq_msg_buff, int w, int h, STATUS status) {
+            this->name            = name;
+            this->buffer_data     = buffer_data;
+            this->shm_info        = shm_info;
+            this->info_data       = info_data;
+            this->evt_mq          = evt_mq;
+            this->evt_mq_msg_buff = evt_mq_msg_buff;
+
+            this->W               = w;
+            this->H               = h;
+
+            this->status          = status;
+
+
+            this->info_name       = name + IPC_INFO_NAME;
+            this->buffer_name     = name + IPC_BUFF_NAME;
+            this->evt_mq_name     = name + IPC_EVT_MQ_NAME;
+
+            this->MAX_SIZE        = max_event_message_size();
+        }
+
+    public:
+
+        static shared_canvas* create(std::string const &name) {
+
+            std::string info_name = name + IPC_INFO_NAME;
+            std::string buffer_name = name + IPC_BUFF_NAME;
+            std::string evt_mq_name = name + IPC_EVT_MQ_NAME;
+
+            std::cout << "> creating shared-mem" <<std::endl;
+            std::cout << "  -> name:   " << name<<std::endl;
+
+            ipc::shared_memory_object* shm_info;
+            ipc::message_queue* evt_mq;
+
+            try {
+
+                // create the shared memory info object.
+                shm_info = new ipc::shared_memory_object(
+                            ipc::create_only,
+                            info_name.c_str(),
+                            ipc::read_write
+                );
+
+                evt_mq = create_evt_mq(evt_mq_name);
+            } catch(ipc::interprocess_exception const & ex) {
+
+                    // remove shared memory objects
+                    ipc::shared_memory_object::remove(info_name.c_str());
+                    ipc::shared_memory_object::remove(buffer_name.c_str());
+                    ipc::message_queue::remove(evt_mq_name.c_str());
+
+                    std::cout << "> deleted pre-existing shared-mem" <<std::endl;
+                    std::cout << "  -> name:   " << name<<std::endl;
+
+                    // create the shared memory info object.
+                    shm_info = new ipc::shared_memory_object(
+                                ipc::create_only,
+                                info_name.c_str(),
+                                ipc::read_write
+                    );
+
+                    evt_mq = create_evt_mq(evt_mq_name);
+
+                    std::cout << "> created shared-mem"  << std::endl;
+                    std::cout << "  -> name:   " << name << std::endl;
+            }
+
+            // set the shm size
+            shm_info->truncate(sizeof(struct shared_memory_info));
+
+            // map the shared memory info object in this process
+            ipc::mapped_region* info_region = new ipc::mapped_region(*shm_info, ipc::read_write);
+
+            // get the adress of the info object
+            void* info_addr = info_region->get_address();
+
+            // construct the shared structure in memory
+            shared_memory_info* info_data = new (info_addr) shared_memory_info;
+
+            // init c-strings of info_data struct
+            strcpy(info_data->client_to_server_msg, "");
+            strcpy(info_data->client_to_server_res, "");
+            strcpy(info_data->server_to_client_msg, "");
+            strcpy(info_data->server_to_client_res, "");
+
+            int W = info_data->w;
+            int H = info_data->h;
+
+            uchar* buffer_data = create_shared_buffer(buffer_name, W, H);
+
+            double full = W*H;
+
+            std::size_t MAX_SIZE = max_event_message_size();
+            void* evt_mq_msg_buff = malloc(MAX_SIZE);
+
+            return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, W, H, SUCCESS);
+        }
+
+        int terminate(std::string const &name) {
+            return delete_shared_mem(name);
+        }
+
+        bool is_buffer_ready() {
+            // timed locking of resources
+            boost::system_time const timeout=
+            boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+            bool locking_success = info_data->mutex.timed_lock(timeout);
+
+            if(!locking_success) {
+                std::cerr << "[" + name + "] " << "ERROR: cannot connect to '" << name << "':" << std::endl;
+                std::cerr << " -> But we are unable to lock the resources." << std::endl;
+                std::cerr << " -> Client not running?." << std::endl;
+                return false;
+            }
+
+            bool result = info_data->buffer_ready;
+
+            info_data->mutex.unlock();
+
+            return result;
+        }
+
+        int draw(redraw_callback redraw, redraw_callback resized) {
+
+            // timed locking of resources
+            boost::system_time const timeout=
+            boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+            bool locking_success = info_data->mutex.timed_lock(timeout);
+
+            if(!locking_success) {
+                std::cerr << "[" + name + "] " << "ERROR: cannot connect to '" << name << "':" << std::endl;
+                std::cerr << " -> But we are unable to lock the resources." << std::endl;
+                std::cerr << " -> Client not running?." << std::endl;
+                return ERROR | CONNECTION_ERROR;
+            }
+
+            bool is_dirty = info_data->dirty;
+            // if still is dirty it means that the client hasn't drawn the previous
+            // frame. in this case we just wait with updating the buffer until the
+            // client draws the content.
+            if(is_dirty) { 
+                info_data->mutex.unlock();
+                // continue; we still might want to process events
+            } else {
+
+                redraw(name, buffer_data, W, H);
+
+                info_data->dirty = true;
+
+                int new_W = info_data->w;
+                int new_H = info_data->h;
+
+                if(new_W!=W || new_H != H) {
+
+                    // trigger buffer resize
+
+                    W = new_W;
+                    H = new_H;
+
+                    std::cout << "[" + name + "]" << "> resize to W: " << W << ", H: " << H << std::endl;
+
+                    ipc::shared_memory_object::remove(buffer_name.c_str());
+                    buffer_data = create_shared_buffer(buffer_name, W, H);
+                    info_data->buffer_ready = true;
+
+                    resized(name, buffer_data, W, H);
+                }
+
+                info_data->mutex.unlock();
+            }
+
+            return SUCCESS;
+        }
+
+        void process_events(event_callback events) {
+            // process events
+            ipc::message_queue::size_type recvd_size;
+            unsigned int priority;
+
+            while(evt_mq->get_num_msg() > 0) {
+
+                // timed locking of resources
+                boost::system_time const timeout=
+                boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+                bool result = evt_mq->timed_receive(evt_mq_msg_buff, MAX_SIZE, recvd_size, priority, timeout);
+
+                if(!result) {
+                    std::cerr << "[" + name + "] ERROR: can't read messages, message queue not accessible." << std::endl; 
+                }
+
+                event* evt = static_cast<event*>(evt_mq_msg_buff);
+
+                events(name, evt);
+                
+            } // end while has event messages
+        }
+
+        int get_status() {
+            return this->status;
+        }
+
+        bool is_valid() {
+            return this->status == SUCCESS;
+        }
+    
+
+};
+
 /**
  * Starts a NativeFX server.
  * 

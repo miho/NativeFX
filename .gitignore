@@ -5,11 +5,11 @@
 build
 build_me
 
-/.gradle
-/.vscode
-/.project
-/.classpath
-/.settings/
+.gradle
+.vscode
+.project
+.classpath
+.settings
 
 /bin/
 /src/main/native/ext/

@@ -4,11 +4,11 @@
 # Ignore Gradle build output directory
 build
 
-/.gradle
-/.vscode
-/.project
-/.classpath
-/.settings/
+.gradle
+.vscode
+.project
+.classpath
+.settings/
 
 /bin/
 /src/main/native/ext/

@@ -15,9 +15,9 @@ set(SOURCES
 
 set(CMAKE_BUILD_TYPE DEBUG)
 
-include_directories("../src/main/headers/")
 include_directories("../ext/headers/")
-include_directories("./ext/headers/")
+include_directories("../../src/main/native/ext/headers/")
+include_directories("../headers/")
 include_directories("./src/main/headers/")
 
 # create an executable

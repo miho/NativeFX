@@ -209,7 +209,7 @@ public final class NativeNode extends Region {
             if (img == null || Double.compare(currentW, img.getWidth()) != 0
                     || Double.compare(currentH, img.getHeight()) != 0) {
 
-                System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
+                // System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
 
                 buffer = NativeBinding.getBuffer(key);
                 intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
@@ -350,5 +350,17 @@ public final class NativeNode extends Region {
         // }.start();
 
         // getChildren().add(view);
+    }
+
+    @Override
+    protected double computePrefWidth(double height) {
+        // TODO: consider insets ect...
+        return 0;
+    }
+
+    @Override
+    protected double computePrefHeight(double width) {
+        // TODO: consider insets ect...
+        return 0;
     }
 }

@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * Copyright 2019-2019 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
  *

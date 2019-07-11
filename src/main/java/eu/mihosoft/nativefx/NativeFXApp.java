@@ -28,28 +28,49 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class NativeFXApp extends Application {
 
     public void start(Stage primaryStage) {
 
-        NativeNode root = new NativeNode();
-        root.connect("_mem_1");
+        VBox root = new VBox();
+        
+        TextField tf = new TextField("_mem_0");
+        Button btn = new Button("Connect");
+        Button delBtn = new Button("Delete All");
 
-        root.setMinWidth(100);
+        delBtn.setOnAction((ae)-> {
+            root.getChildren().filtered(n->n instanceof NativeNode).
+            forEach(n->{
+                NativeNode nn = (NativeNode) n;
+                nn.disconnect();
+            });
+            root.getChildren().removeIf(n->n instanceof NativeNode);
+        });
 
-        // NativeNode root2 = new NativeNode();
-        // root2.connect("_mem_2");
+        btn.setOnAction((ae)-> {
+            NativeNode nativeN = new NativeNode();
+            VBox.setVgrow(nativeN,Priority.SOMETIMES);
+            nativeN.connect(tf.getText());
+            root.getChildren().add(nativeN);
+        });
 
-        // root2.setMinWidth(700);
+        ToolBar bar = new ToolBar(tf, btn, delBtn);
+        root.getChildren().add(bar);
 
-        // Scene scene = new Scene(new HBox(root, root2), 1024,768);
-
-        Scene scene = new Scene(new StackPane(root), 1024,768);
+        Scene scene = new Scene(root, 1024,768);
 
         primaryStage.setTitle("NativeFX Test");
         primaryStage.setScene(scene);
