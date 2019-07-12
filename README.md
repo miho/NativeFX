@@ -125,6 +125,10 @@ Make sure Qt is installed properly (libs must be on the PATH). To compile and ru
     MSBuild.exe nativefx-qt.sln, /property:Configuration=Release /property:Platform=x64
     Release\nativefx-qt.exe -n _mem_1
     
+If Qt5 cannot be found, let CMake know where to search for Qt, e.g.,
+
+    cmake .. -DCMAKE_GENERATOR_PLATFORM=x64 -DQt5_DIR=C:\Qt\5.13.0\msvc2017_64\lib\cmake\Qt5\
+    
 ### Step 2 (run the sample JavaFX application)
 
 Navigate back to the NativeFX project folder (i.e., `path/to/NativeFX/`) and do the following:
