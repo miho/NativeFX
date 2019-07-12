@@ -105,7 +105,7 @@ That's it!
 
 ### Step 1 (compile and run the sample-server)
 
-Make sure Qt is installed properly. To compile and run the sample-server, do the following (releatrive to the previous project folder):
+Make sure Qt is installed properly (libs must be on the PATH). To compile and run the sample-server, do the following (releatrive to the previous project folder):
 
 #### Bash (Linux/macOS/Cygwin/other Unix shell)
 
@@ -123,7 +123,7 @@ Make sure Qt is installed properly. To compile and run the sample-server, do the
     cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
     MSBuild.exe nativefx-qt.sln, /property:Configuration=Release /property:Platform=x64
-    Release\x64\nativefx-qt.exe -n _mem_1
+    Release\nativefx-qt.exe -n _mem_1
     
 ### Step 2 (run the sample JavaFX application)
 
