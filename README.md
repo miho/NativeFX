@@ -122,8 +122,8 @@ Make sure Qt is installed properly. To compile and run the sample-server, do the
     mkdir build
     cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
-    MSBuild.exe sample-server.sln, /property:Configuration=Release /property:Platform=x64
-    Release\x64\sample-server.exe -n _mem_1
+    MSBuild.exe nativefx-qt.sln, /property:Configuration=Release /property:Platform=x64
+    Release\x64\nativefx-qt.exe -n _mem_1
     
 ### Step 2 (run the sample JavaFX application)
 
