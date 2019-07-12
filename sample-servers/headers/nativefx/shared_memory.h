@@ -57,39 +57,50 @@ namespace nativefx {
 
 typedef boost::interprocess::basic_string<char> shared_string;
 
+/**
+ * Status indicates success as well as different types of errors.
+ */
+enum STATUS {
+    NFX_SUCCESS          = 0,
+    NFX_ERROR            = 1,
+    NFX_CONNECTION_ERROR = 2,
+    NFX_TIMEOUT_ERROR    = 4,
+    NFX_ARGS_ERROR       = 8
+};
+
 enum MOUSE_BTN {
-   NO_BTN        = 0,
-   PRIMARY_BTN   = 1,
-   SECONDARY_BTN = 2,
-   MIDDLE_BTN    = 4
+   NFX_NO_BTN        = 0,
+   NFX_PRIMARY_BTN   = 1,
+   NFX_SECONDARY_BTN = 2,
+   NFX_MIDDLE_BTN    = 4
 };
 
 enum MODIFIER {
-   NO_KEY      = 0,
-   SHIFT_KEY   = 1,
-   ALT_KEY     = 2,
-   META_KEY    = 4,
-   CONTROL_KEY = 8
+   NFX_NO_KEY      = 0,
+   NFX_SHIFT_KEY   = 1,
+   NFX_ALT_KEY     = 2,
+   NFX_META_KEY    = 4,
+   NFX_CONTROL_KEY = 8
 };
 
 enum EVENT_TYPE {
-   NO_EVENT       = 0,
-   EVENT          = 1,
-   MOUSE_EVENT    = 2,
-   MOUSE_MOVED    = 4,
-   MOUSE_ENTERED  = 8,
-   MOUSE_EXITED   = 16,
-   MOUSE_RELEASED = 32,
-   MOUSE_PRESSED  = 64,
-   MOUSE_CLICKED  = 128,
-   MOUSE_WHEEL    = 256,
+   NFX_NO_EVENT       = 0,
+   NFX_EVENT          = 1,
+   NFX_MOUSE_EVENT    = 2,
+   NFX_MOUSE_MOVED    = 4,
+   NFX_MOUSE_ENTERED  = 8,
+   NFX_MOUSE_EXITED   = 16,
+   NFX_MOUSE_RELEASED = 32,
+   NFX_MOUSE_PRESSED  = 64,
+   NFX_MOUSE_CLICKED  = 128,
+   NFX_MOUSE_WHEEL    = 256,
 
-   KEY_EVENT      = 512,
-   KEY_PRESSED    = 1024,
-   KEY_RELEASED   = 2048,
-   KEY_TYPED      = 4096,
+   NFX_KEY_EVENT      = 512,
+   NFX_KEY_PRESSED    = 1024,
+   NFX_KEY_RELEASED   = 2048,
+   NFX_KEY_TYPED      = 4096,
 
-   REDRAW_EVENT   = 8192
+   NFX_REDRAW_EVENT   = 8192
 };
 
 struct event {
@@ -98,11 +109,11 @@ struct event {
 };
 
 struct mouse_event {
-   int type       = MOUSE_EVENT;
+   int type       = NFX_MOUSE_EVENT;
    long timestamp = 0;
 
-   int buttons    = NO_BTN;
-   int modifiers  = NO_KEY;
+   int buttons    = NFX_NO_BTN;
+   int modifiers  = NFX_NO_KEY;
    int click_count= 0;
    double amount  = 0;
    double x       = 0;
@@ -110,15 +121,15 @@ struct mouse_event {
 };
 
 struct key_event {
-   int type       = KEY_EVENT;
+   int type       = NFX_KEY_EVENT;
    long timestamp = 0;
 
-   int modifiers  =NO_KEY;
+   int modifiers  = NFX_NO_KEY;
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
 };
 
 struct redraw_event : event {
-   int type = REDRAW_EVENT;
+   int type = NFX_REDRAW_EVENT;
    long timestamp = 0; 
 
    double x       = 0;

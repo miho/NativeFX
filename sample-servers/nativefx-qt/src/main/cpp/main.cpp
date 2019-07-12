@@ -28,18 +28,18 @@ int parseArgs(int argc, char** argv, std::string &mem_name, std::string &url) {
     catch (const args::Completion& e)
     {
         std::cout << e.what();
-        return nfx::SUCCESS;
+        return nfx::NFX_SUCCESS;
     }
     catch (const args::Help&)
     {
         std::cerr << parser;
-        return nfx::ERROR | nfx::ARGS_ERROR;
+        return nfx::NFX_ERROR | nfx::NFX_ARGS_ERROR;
     }
     catch (const args::ParseError& e)
     {
         std::cerr << e.what() << std::endl;
         std::cerr << parser;
-        return nfx::ERROR | nfx::ARGS_ERROR;
+        return nfx::NFX_ERROR | nfx::NFX_ARGS_ERROR;
     }
 
     std::string _name = args::get(nameArg);
@@ -47,7 +47,7 @@ int parseArgs(int argc, char** argv, std::string &mem_name, std::string &url) {
     if(_name.size() == 0) {
         std::cerr << std::endl << std::endl << "ERROR: 'name' must be specified to create or delete shared memory!" << std::endl << std::endl;
         std::cerr << parser;
-        return nfx::ERROR | nfx::ARGS_ERROR;
+        return nfx::NFX_ERROR | nfx::NFX_ARGS_ERROR;
     }
 
     std::string _url = args::get(urlArg);
@@ -66,7 +66,7 @@ int parseArgs(int argc, char** argv, std::string &mem_name, std::string &url) {
         return nfx::delete_shared_mem(_name);
     }
 
-    return nfx::SUCCESS;
+    return nfx::NFX_SUCCESS;
 }
 
 int main(int argc, char *argv[])
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     std::string url;
 
     int res = parseArgs(argc,argv, mem_name, url);
-    if(res != nfx::SUCCESS) {
+    if(res != nfx::NFX_SUCCESS) {
         return res;
     }
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     auto evt = [&webView, &prevEvtTarget, &prevP](std::string const &name, nfx::event* evt) {
         // std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", \n";
 
-        if(!(evt->type & nfx::MOUSE_EVENT)) {
+        if(!(evt->type & nfx::NFX_MOUSE_EVENT)) {
             std::cout << "-> not a mouse event!\n";
             return; // this is not a mouse event
         }
@@ -182,22 +182,22 @@ int main(int argc, char *argv[])
         prevEvtTarget = receiver;
         prevP = p;
 
-        if(mouse_evt->buttons & nfx::PRIMARY_BTN) {
+        if(mouse_evt->buttons & nfx::NFX_PRIMARY_BTN) {
             btn = Qt::LeftButton;
             //std::cout << "-> btn: PRIMARY\n";
         }
 
-        if(mouse_evt->buttons & nfx::SECONDARY_BTN) {
+        if(mouse_evt->buttons & nfx::NFX_SECONDARY_BTN) {
             btn = Qt::RightButton;
             //std::cout << "-> btn: SECONDARY\n";
         }
 
-        if(mouse_evt->buttons & nfx::MIDDLE_BTN) {
+        if(mouse_evt->buttons & nfx::NFX_MIDDLE_BTN) {
             btn = Qt::MiddleButton;
             //std::cout << "-> btn: MIDDLE\n";
         }
 
-        if(mouse_evt->type & nfx::MOUSE_MOVED) {
+        if(mouse_evt->type & nfx::NFX_MOUSE_MOVED) {
             QMouseEvent* mEvt = new QMouseEvent( (QEvent::MouseMove), p, 
                 Qt::NoButton,
                 Qt::NoButton,
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             QApplication::sendEvent(receiver, mEvt);
         } 
         
-        if(mouse_evt->type & nfx::MOUSE_PRESSED) {
+        if(mouse_evt->type & nfx::NFX_MOUSE_PRESSED) {
             QMouseEvent* mEvt = new QMouseEvent( (QEvent::MouseButtonPress), p, 
                 btn,
                 Qt::NoButton,
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
             QApplication::sendEvent(receiver, mEvt);
         } 
         
-        if(mouse_evt->type & nfx::MOUSE_RELEASED) {
+        if(mouse_evt->type & nfx::NFX_MOUSE_RELEASED) {
             QMouseEvent* mEvt = new QMouseEvent( (QEvent::MouseButtonRelease), p, 
                 btn,
                 Qt::NoButton,
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
             QApplication::sendEvent(receiver, mEvt);
         }
 
-        if(mouse_evt->type & nfx::MOUSE_WHEEL) {
+        if(mouse_evt->type & nfx::NFX_MOUSE_WHEEL) {
             QWheelEvent* mEvt = new QWheelEvent( p, 
                 mouse_evt->amount,
                 Qt::NoButton,

@@ -105,17 +105,6 @@ uchar* create_shared_buffer(std::string buffer_name, int w, int h) {
     return buffer_data;
 }
 
-/**
- * Status indicates success as well as different types of errors.
- */
-enum STATUS {
-    SUCCESS          = 0,
-    ERROR            = 1,
-    CONNECTION_ERROR = 2,
-    TIMEOUT_ERROR    = 4,
-    ARGS_ERROR       = 8
-};
-
 typedef  std::function<void (std::string const &name, uchar* buffer_data, int W, int H)> redraw_callback;
 typedef  std::function<void (std::string const &name, event* evt)> event_callback;
 
@@ -148,7 +137,7 @@ int delete_shared_mem(std::string const &name) {
     std::cout << "> deleted shared-mem" <<std::endl;
     std::cout << "  -> name:   " << name<<std::endl;
 
-    return SUCCESS;
+    return NFX_SUCCESS;
 }
 
 class shared_canvas final {
@@ -268,7 +257,7 @@ class shared_canvas final {
             std::size_t MAX_SIZE = max_event_message_size();
             void* evt_mq_msg_buff = malloc(MAX_SIZE);
 
-            return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, W, H, SUCCESS);
+            return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, W, H, NFX_SUCCESS);
         }
 
         int terminate(std::string const &name) {
@@ -306,7 +295,7 @@ class shared_canvas final {
                 std::cerr << "[" + name + "] " << "ERROR: cannot connect to '" << name << "':" << std::endl;
                 std::cerr << " -> But we are unable to lock the resources." << std::endl;
                 std::cerr << " -> Client not running?." << std::endl;
-                return ERROR | CONNECTION_ERROR;
+                return NFX_ERROR | NFX_CONNECTION_ERROR;
             }
 
             bool is_dirty = info_data->dirty;
@@ -344,7 +333,7 @@ class shared_canvas final {
                 info_data->mutex.unlock();
             }
 
-            return SUCCESS;
+            return NFX_SUCCESS;
         }
 
         void process_events(event_callback events) {
@@ -376,7 +365,7 @@ class shared_canvas final {
         }
 
         bool is_valid() {
-            return this->status == SUCCESS;
+            return this->status == NFX_SUCCESS;
         }
     
 
@@ -473,7 +462,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
             std::cerr << "[" + info_name + "] " << "ERROR: cannot connect to '" << info_name << "':" << std::endl;
             std::cerr << " -> But we are unable to lock the resources." << std::endl;
             std::cerr << " -> Client not running?." << std::endl;
-            return ERROR | CONNECTION_ERROR;
+            return NFX_ERROR | NFX_CONNECTION_ERROR;
         }
 
         bool is_dirty = info_data->dirty;
@@ -539,7 +528,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
 
     free(evt_mq_msg_buff);
 
-    return SUCCESS;
+    return NFX_SUCCESS;
 }
 
 /**
@@ -566,18 +555,18 @@ int start_server(int argc, char *argv[], redraw_callback redraw, event_callback 
     catch (const args::Completion& e)
     {
         std::cout << e.what();
-        return SUCCESS;
+        return NFX_SUCCESS;
     }
     catch (const args::Help&)
     {
         std::cerr << parser;
-        return ERROR | ARGS_ERROR;
+        return NFX_ERROR | NFX_ARGS_ERROR;
     }
     catch (const args::ParseError& e)
     {
         std::cerr << e.what() << std::endl;
         std::cerr << parser;
-        return ERROR | ARGS_ERROR;
+        return NFX_ERROR | NFX_ARGS_ERROR;
     }
 
     std::string name = args::get(nameArg);
@@ -585,7 +574,7 @@ int start_server(int argc, char *argv[], redraw_callback redraw, event_callback 
     if(name.size() == 0) {
         std::cerr << std::endl << std::endl << "ERROR: 'name' must be specified to create or delete shared memory!" << std::endl << std::endl;
         std::cerr << parser;
-        return ERROR | ARGS_ERROR;
+        return NFX_ERROR | NFX_ARGS_ERROR;
     }
 
     if(deleteSharedMem) {
