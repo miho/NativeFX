@@ -39,7 +39,7 @@ If you are willing to use internal APIs you can try [DriftFX](https://github.com
 ### IDE
 
 Open the `NativeFX` [Gradle](http://www.gradle.org/) project in your favourite IDE (tested with VSCode) and build it
-by calling following tasks `clean classes assemble`.
+by calling following tasks `clean assemble`.
 
 ### Command Line
 
