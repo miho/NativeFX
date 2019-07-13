@@ -100,7 +100,7 @@ That's it!
 
 ### Requirements
 
-- Qt 5.12 (newer versions might work as well)
+- Qt 5.x (tested with 5.12 and 5.13)
 - Internet connection
 
 ### Step 1 (compile and run the sample-server)
