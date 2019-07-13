@@ -59,7 +59,7 @@ On Windows, make sure the environment is configured for development (MSBuild.exe
 
 ### Step 1 (compile and run the sample-server)
 
-To compile and run the sample-server, do the following (releatrive to the previous project folder):
+To compile and run the sample-server, do the following (relative to the previous project folder):
 
 #### Bash (Linux/macOS/Cygwin/other Unix shell)
 
