@@ -301,9 +301,9 @@ public final class NativeBinding {
     static native boolean fireMouseMoveEvent    (int key, double x, double y,                int buttons, int modifiers, long timestamp);
     static native boolean fireMouseWheelEvent   (int key, double x, double y, double amount, int buttons, int modifiers, long timestamp);
 
-    // native boolean fireKeyPressedEvent (int key, String characters, int modifiers, long timestamp);
-    // native boolean fireKeyReleasedEvent(int key, String characters, int modifiers, long timestamp);
-    // native boolean fireKeyTypedEvent   (int key, String characters, int modifiers, long timestamp);
+    static native boolean fireKeyPressedEvent (int key, String characters, int keyCode, int modifiers, long timestamp);
+    static native boolean fireKeyReleasedEvent(int key, String characters, int keyCode, int modifiers, long timestamp);
+    static native boolean fireKeyTypedEvent   (int key, String characters, int keyCode, int modifiers, long timestamp);
 
     static native ByteBuffer getBuffer(int key);
 

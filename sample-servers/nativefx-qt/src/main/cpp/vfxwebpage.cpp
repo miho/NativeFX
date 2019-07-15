@@ -15,23 +15,23 @@
         this->redraw_callback = redraw_callback;
     }
 
-    // void VFXWebPage::sendSimulatedEvent(QEvent *evt) {
+    void VFXWebPage::sendSimulatedEvent(QEvent *evt) {
 
-    //     if(eventsReciverWidget==nullptr) {
-    //         // Find the first child widget of QWebEngineView. It can accept user input events.
-    //         for(QObject* obj : this->children())
-    //         {
-    //             QWidget* wgt = qobject_cast<QWidget*>(obj);
-    //             if (wgt)
-    //             {
-    //                 eventsReciverWidget = wgt;
-    //                 break;
-    //             }
-    //         }
-    //     }
+        if(eventsReciverWidget==nullptr) {
+            // Find the first child widget of QWebEngineView. It can accept user input events.
+            for(QObject* obj : this->children())
+            {
+                QWidget* wgt = qobject_cast<QWidget*>(obj);
+                if (wgt)
+                {
+                    eventsReciverWidget = wgt;
+                    break;
+                }
+            }
+        }
 
-    //     QApplication::sendEvent(eventsReciverWidget, evt);
-    // }
+        QApplication::sendEvent(eventsReciverWidget, evt);
+    }
 
     //@override
    bool VFXWebPage::event(QEvent * ev) {

@@ -31,7 +31,7 @@
 #include <boost/interprocess/ipc/message_queue.hpp>
 
 #define IPC_MSG_SIZE 4096
-#define IPC_KEY_EVT_NUM_CHARS 128
+#define IPC_KEY_EVT_NUM_CHARS 8
 
 #define IPC_NUM_EVT_MSGS 100
 
@@ -126,6 +126,7 @@ struct key_event {
 
    int modifiers  = NFX_NO_KEY;
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
+   int key_code   = 0;                    // 0 is defined as "unknown key"
 };
 
 struct redraw_event : event {
@@ -145,6 +146,17 @@ void store_shared_string(std::string str, char* str_to_store_to) {
       }
       // fill unused entries with '\0' 
       for(size_t idx = str.size(); idx < IPC_MSG_SIZE + 1;++idx) {
+        str_to_store_to[idx] = '\0';
+      }
+}
+
+void store_key_codes(std::string str, char* str_to_store_to) {
+      // copy client_to_server_msg
+      for(size_t idx = 0; idx < str.size();++idx) {
+        str_to_store_to[idx] = str[idx];
+      }
+      // fill unused entries with '\0' 
+      for(size_t idx = str.size(); idx < IPC_KEY_EVT_NUM_CHARS + 1;++idx) {
         str_to_store_to[idx] = '\0';
       }
 }

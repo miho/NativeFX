@@ -130,7 +130,42 @@ int main(int argc, char *argv[])
     QPoint prevP;
 
     auto evt = [&webView, &prevEvtTarget, &prevP](std::string const &name, nfx::event* evt) {
-        // std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", \n";
+        std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", \n";
+
+        if(evt->type & nfx::NFX_KEY_EVENT) {
+
+            nfx::key_event* key_evt = static_cast<nfx::key_event*>((void*)evt);
+
+            //[static] QWidget *QApplication::focusWidget()
+            //Returns the application widget that has the keyboard input focus, or 0 if no widget in this application has the focus.
+            //See also QWidget::setFocus(), QWidget::hasFocus(), activeWindow(), and focusChanged().
+
+            qDebug() << "key_evt: " << key_evt->key_code;
+            std::cout << "key_evt: " << key_evt->key_code << std::endl;
+
+             QKeyEvent* qkevt = NULL;
+
+            if(key_evt->type & nfx::NFX_KEY_PRESSED) {
+                qkevt = new QKeyEvent(QEvent::KeyPress, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
+            } else if(key_evt->type & nfx::NFX_KEY_RELEASED) {
+                qkevt = new QKeyEvent(QEvent::KeyRelease, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
+            } else if(key_evt->type & nfx::NFX_KEY_TYPED) {
+                return;// qkevt = new QKeyEvent(QEvent::KeyTyped, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
+            } else {
+                return;
+            }
+
+            QWidget* event_receiver = QApplication::focusWidget();
+
+            if(event_receiver!=NULL) {
+                QApplication::sendEvent(event_receiver, qkevt); 
+            } else {
+                webView.sendSimulatedEvent(qkevt);
+            }
+
+            return;
+        }
+
 
         if(!(evt->type & nfx::NFX_MOUSE_EVENT)) {
             std::cout << "-> not a mouse event!\n";

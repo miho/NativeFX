@@ -97,7 +97,7 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
 
         addEventHandler(MouseEvent.MOUSE_PRESSED, (ev)-> {
@@ -116,7 +116,7 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
 
         addEventHandler(MouseEvent.MOUSE_RELEASED, (ev)-> {
@@ -134,7 +134,7 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
 
         addEventHandler(MouseEvent.MOUSE_DRAGGED, (ev)-> {
@@ -151,10 +151,13 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
 
         addEventHandler(MouseEvent.MOUSE_CLICKED, (ev)-> {
+
+            requestFocus();
+
             double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
             double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
 
@@ -169,7 +172,7 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
 
         addEventHandler(ScrollEvent.SCROLL, (ev)-> {
@@ -186,8 +189,49 @@ public final class NativeNode extends Region {
                 timestamp
             );
 
-            ev.consume();
+            // ev.consume();
         });
+
+        // ---- keys
+        
+        this.setFocusTraversable(true); // TODO make this optional?
+
+        addEventHandler(KeyEvent.KEY_PRESSED, (ev)-> {
+
+            System.out.println("KEY: " + ev.getText() + " : " + ev.getCode());
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireKeyPressedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+                /*modifiers*/0,
+                timestamp
+            );
+
+            // ev.consume();
+        });
+        addEventHandler(KeyEvent.KEY_RELEASED, (ev)-> {
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireKeyReleasedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+                /*modifiers*/0,
+                timestamp
+            );
+
+            // ev.consume();
+        });
+        addEventHandler(KeyEvent.KEY_TYPED, (ev)-> {
+            
+            long timestamp = System.nanoTime();
+
+            NativeBinding.fireKeyTypedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+                /*modifiers*/0,
+                timestamp
+            );
+
+            // ev.consume();
+        });
+
     }
 
     public void connect(String name) {

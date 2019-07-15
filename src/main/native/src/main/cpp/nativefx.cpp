@@ -468,6 +468,34 @@ bool fire_mouse_event(jint key, int evt_type, double x, double y , double amount
     return result;
 }
 
+bool fire_key_event(int key, int evt_type, std::string const &chars, int key_code, int modifiers, long timestamp) {
+
+    if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return boolC2J(false);
+    }
+
+    key_event evt;
+    evt.type |= evt_type;
+    evt.timestamp = timestamp;
+    store_key_codes(chars, evt.chars);
+    evt.key_code = key_code;
+    evt.modifiers = modifiers;
+
+    // timed locking of resources
+    boost::system_time const timeout=
+      boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+    bool result = evt_msg_queues[key]->timed_send(
+                &evt,            // data to send
+                sizeof(evt),     // size of the data (check it fits into max_size)
+                0,               // msg priority
+                timeout          // timeout
+    );
+
+    return result;  
+}
+
 JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseMoveEvent
   (JNIEnv *env, jclass cls, jint key, jdouble x, jdouble y , jint buttons, jint modifiers, jlong timestamp) {
     
@@ -523,4 +551,29 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireMouseWhee
 
     bool result = fire_mouse_event(key, NFX_MOUSE_WHEEL, x, y, amount, buttons, modifiers, 0, timestamp);
     return boolC2J(result); 
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireKeyPressedEvent
+  (JNIEnv *env, jclass cls, jint key, jstring characters, jint keyCode, jint modifiers, jlong timestamp) {
+    std::string chars = stringJ2C(env, characters);
+
+    bool result = fire_key_event(key, NFX_KEY_PRESSED, chars, keyCode, modifiers, timestamp);
+    return boolC2J(result);
+}
+
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireKeyReleasedEvent
+  (JNIEnv *env, jclass cls, jint key, jstring characters, jint keyCode, jint modifiers, jlong timestamp) {
+    std::string chars = stringJ2C(env, characters);
+
+    bool result = fire_key_event(key, NFX_KEY_RELEASED, chars, keyCode, modifiers, timestamp);
+    return boolC2J(result);
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireKeyTypedEvent
+  (JNIEnv *env, jclass cls, jint key, jstring characters, jint keyCode, jint modifiers, jlong timestamp) {
+    std::string chars = stringJ2C(env, characters);
+
+    bool result = fire_key_event(key, NFX_KEY_TYPED, chars, keyCode, modifiers, timestamp);
+    return boolC2J(result);
 }
