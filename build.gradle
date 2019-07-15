@@ -305,3 +305,7 @@ test {
         //        org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
     }
 }
+
+run {
+    jvmArgs "-Dfile.encoding=UTF-8"
+}

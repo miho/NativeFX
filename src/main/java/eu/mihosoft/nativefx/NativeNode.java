@@ -198,11 +198,11 @@ public final class NativeNode extends Region {
 
         addEventHandler(KeyEvent.KEY_PRESSED, (ev)-> {
 
-            System.out.println("KEY: " + ev.getText() + " : " + ev.getCode());
+            System.out.println("KEY: pressed " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
-            NativeBinding.fireKeyPressedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+            NativeBinding.fireKeyPressedEvent(key, ev.getText(), ev.getCode().getCode(),
                 /*modifiers*/0,
                 timestamp
             );
@@ -210,10 +210,12 @@ public final class NativeNode extends Region {
             // ev.consume();
         });
         addEventHandler(KeyEvent.KEY_RELEASED, (ev)-> {
+
+            System.out.println("KEY: released " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
-            NativeBinding.fireKeyReleasedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+            NativeBinding.fireKeyReleasedEvent(key, ev.getText(), ev.getCode().getCode(),
                 /*modifiers*/0,
                 timestamp
             );
@@ -221,10 +223,12 @@ public final class NativeNode extends Region {
             // ev.consume();
         });
         addEventHandler(KeyEvent.KEY_TYPED, (ev)-> {
+
+            System.out.println("KEY: typed    " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
-            NativeBinding.fireKeyTypedEvent(key, ev.getCharacter(), ev.getCode().getCode(),
+            NativeBinding.fireKeyTypedEvent(key, ev.getText(), ev.getCode().getCode(),
                 /*modifiers*/0,
                 timestamp
             );

@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     QPoint prevP;
 
     auto evt = [&webView, &prevEvtTarget, &prevP](std::string const &name, nfx::event* evt) {
-        std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", \n";
+        // std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", \n";
 
         if(evt->type & nfx::NFX_KEY_EVENT) {
 
@@ -141,15 +141,18 @@ int main(int argc, char *argv[])
             //See also QWidget::setFocus(), QWidget::hasFocus(), activeWindow(), and focusChanged().
 
             qDebug() << "key_evt: " << key_evt->key_code;
-            std::cout << "key_evt: " << key_evt->key_code << std::endl;
-
-             QKeyEvent* qkevt = NULL;
+            std::string kChars = key_evt->chars;
+            QKeyEvent* qkevt = NULL;
+            std::cout << "key_evt: " << key_evt->key_code << ", chars: " << kChars << std::endl;
 
             if(key_evt->type & nfx::NFX_KEY_PRESSED) {
-                qkevt = new QKeyEvent(QEvent::KeyPress, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
+                std::cout << "--- pressed" << std::endl;
+                qkevt = new QKeyEvent(QEvent::KeyPress, 0/*key_evt->key_code*/, Qt::NoModifier, 0,0,0,kChars.c_str());
             } else if(key_evt->type & nfx::NFX_KEY_RELEASED) {
-                qkevt = new QKeyEvent(QEvent::KeyRelease, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
+                std::cout << "--- released" << std::endl;
+                qkevt = new QKeyEvent(QEvent::KeyRelease, 0/*key_evt->key_code*/, Qt::NoModifier, 0,0,0,kChars.c_str());
             } else if(key_evt->type & nfx::NFX_KEY_TYPED) {
+                std::cout << "--- typed" << std::endl;
                 return;// qkevt = new QKeyEvent(QEvent::KeyTyped, key_evt->key_code, Qt::NoModifier, 0,0,0,NULL);
             } else {
                 return;
