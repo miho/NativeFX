@@ -242,10 +242,12 @@ jar {
 
 
   manifest {
-    attributes(
-      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': mainClassName
-    )
+    // attributes(
+    //   'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+    //   'Main-Class': mainClassName
+    // )
+
+        attributes('Automatic-Module-Name': 'eu.mihosoft.nativefx.core')
   }
 
 }
