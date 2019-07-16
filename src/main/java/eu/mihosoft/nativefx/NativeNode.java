@@ -348,6 +348,9 @@ public final class NativeNode extends Region {
 
         if(timer!=null) timer.stop();
 
+        // NativeBinding.terminate(key);
+        NativeBinding.removeEventListeners(key);
+
         getChildren().clear();
 
         img = null;

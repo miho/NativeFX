@@ -50,7 +50,6 @@ std::vector<ipc::shared_memory_object*> shm_buffers;
 std::vector<ipc::mapped_region*> buffer_regions;
 
 JNIEnv* jni_env;
-jclass native_binding_cls;
 
 JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
   (JNIEnv *env, jclass cls, jint key, jstring jmsg) {
@@ -135,7 +134,6 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
   (JNIEnv *env, jclass cls, jstring jname) {
 
       jni_env = env;
-      native_binding_cls = cls;
 
       using namespace boost::interprocess;
       std::string name = stringJ2C(env, jname);
@@ -597,8 +595,10 @@ void fire_native_event(int key, std::string type, std::string evt) {
       return;
   }
 
+  jclass cls = jni_env->FindClass("eu/mihosoft/nativefx/NativeBinding");
+
   jmethodID fireNativeEventMethod = jni_env->GetStaticMethodID(
-    native_binding_cls, 
+    cls, 
     "fireNativeEvent", "(ILjava/lang/String;Ljava/lang/String;)V"
   );
 
@@ -608,9 +608,10 @@ void fire_native_event(int key, std::string type, std::string evt) {
   }
 
   jni_env->CallVoidMethod(
-    native_binding_cls, fireNativeEventMethod, 
-    key, stringC2J(jni_env, type), stringC2J(jni_env, type)
+    cls, fireNativeEventMethod, 
+    key, stringC2J(jni_env, type), stringC2J(jni_env, evt)
   );
+
 }
 
 JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_processNativeEvents
@@ -625,13 +626,13 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_processNativeEven
   ipc::message_queue::size_type recvd_size;
   unsigned int priority;
 
+  native_event nevt;
+
   while(evt_msg_queues_native[key]->get_num_msg() > 0) {
 
     // timed locking of resources
     boost::system_time const timeout=
     boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
-
-    native_event nevt;
 
     bool result = evt_msg_queues_native[key]->timed_receive(&nevt, sizeof(native_event), recvd_size, priority, timeout);
 

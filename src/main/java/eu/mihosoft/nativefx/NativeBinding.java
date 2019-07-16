@@ -309,15 +309,28 @@ public final class NativeBinding {
         listeners.get(key).remove(l);
     }
 
-    /*CALLED FROM NATIVE*/ static void fireNativeEvent(int key, String type, String evt) {
+    static void removeEventListeners(int key) {
 
         // create list if not present
         if(!listeners.containsKey(key)) {
             List<NativeEventListener> list = new ArrayList<>();
             listeners.put(key, list);
         }
+
+        listeners.get(key).clear();
+    }
+
+    /*CALLED FROM NATIVE*/ static void fireNativeEvent(int key, String type, String evt) {
+
         
-        for(NativeEventListener l : listeners.get(key)) {
+        // return early if not present
+        if(!listeners.containsKey(key)) {
+            return;
+        }
+
+        List<NativeEventListener> list = listeners.get(key);
+        
+        for(NativeEventListener l : list) {
             l.event(key, type, evt);
         }
     }

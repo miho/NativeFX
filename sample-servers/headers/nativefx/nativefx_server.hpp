@@ -362,11 +362,11 @@ class shared_canvas final {
             store_shared_string(type,     nevt.type,     IPC_NUM_NATIVE_EVT_TYPE_SIZE);
             store_shared_string(evt,      nevt.evt_msg,  IPC_NUM_NATIVE_EVT_MSG_SIZE );
 
-            // bool result = evt_mq_native->timed_send(&nevt, sizeof(native_event), priority, timeout);
+            bool result = evt_mq_native->timed_send(&nevt, sizeof(native_event), priority, timeout);
 
-            // if(!result) {
-            //     std::cerr << "[" + name + "] ERROR: can't send messages, message queue not accessible." << std::endl; 
-            // }
+            if(!result) {
+                std::cerr << "[" + name + "] ERROR: can't send messages, message queue not accessible." << std::endl; 
+            }
         }
 
         void process_events(event_callback events) {
