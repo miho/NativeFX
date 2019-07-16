@@ -29,6 +29,10 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -281,8 +285,44 @@ public final class NativeBinding {
 
     static native String  sendMsg(int key, String msg);
 
-    // native void addEventListener   (int key, NativeEventListener l);
-    // native void removeEventListener(int key, NativeEventListener l);
+    private static final Map<Integer, List<NativeEventListener>> listeners = new HashMap<>();
+
+    static void addEventListener   (int key, NativeEventListener l) {
+
+        // create list if not present
+        if(!listeners.containsKey(key)) {
+            List<NativeEventListener> list = new ArrayList<>();
+            listeners.put(key, list);
+        }
+
+        listeners.get(key).add(l);
+    }
+
+    static void removeEventListener(int key, NativeEventListener l) {
+
+        // create list if not present
+        if(!listeners.containsKey(key)) {
+            List<NativeEventListener> list = new ArrayList<>();
+            listeners.put(key, list);
+        }
+
+        listeners.get(key).remove(l);
+    }
+
+    /*CALLED FROM NATIVE*/ static void fireNativeEvent(int key, String type, String evt) {
+
+        // create list if not present
+        if(!listeners.containsKey(key)) {
+            List<NativeEventListener> list = new ArrayList<>();
+            listeners.put(key, list);
+        }
+        
+        for(NativeEventListener l : listeners.get(key)) {
+            l.event(key, type, evt);
+        }
+    }
+
+    static native void    processNativeEvents(int key);
 
     static native void    resize   (int key, int w, int h);
     static native boolean isDirty  (int key);

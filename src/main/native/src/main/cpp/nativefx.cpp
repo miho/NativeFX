@@ -40,13 +40,17 @@ using namespace nativefx;
 
 std::vector<std::string> names;
 std::vector<shared_memory_info*>   connections;
-std::vector<ipc::message_queue*>   evt_msg_queues;
+std::vector<ipc::message_queue*>   evt_msg_queues;        // for java events that are sent to the server
+std::vector<ipc::message_queue*>   evt_msg_queues_native; // for native server events sent to the java clinet
 std::vector<void*> buffers;
 
 std::vector<ipc::shared_memory_object*> shm_infos;
 std::vector<ipc::mapped_region*> info_regions;
 std::vector<ipc::shared_memory_object*> shm_buffers;
 std::vector<ipc::mapped_region*> buffer_regions;
+
+JNIEnv* jni_env;
+jclass native_binding_cls;
 
 JNIEXPORT jstring JNICALL Java_eu_mihosoft_nativefx_NativeBinding_sendMsg
   (JNIEnv *env, jclass cls, jint key, jstring jmsg) {
@@ -130,6 +134,9 @@ void update_buffer_connection(int key) {
 JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
   (JNIEnv *env, jclass cls, jstring jname) {
 
+      jni_env = env;
+      native_binding_cls = cls;
+
       using namespace boost::interprocess;
       std::string name = stringJ2C(env, jname);
 
@@ -137,6 +144,7 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
       int key = connections.size();
       std::string info_name = get_info_name(key, name);
       std::string evt_msg_queue_name = get_evt_msg_queue_name(key, name);
+      std::string evt_msg_queue_native_name = get_evt_msg_queue_native_name(key, name);
       std::string buffer_name = get_buffer_name(key,name);
       names.push_back(name);
 
@@ -166,11 +174,13 @@ JNIEXPORT jint JNICALL Java_eu_mihosoft_nativefx_NativeBinding_connectTo
         shared_memory_info * info_data = static_cast<shared_memory_info*>(info_addr);
         connections.push_back(info_data);
       
-        // TODO create mq
-
+        // create mq (for java clinet events transferred to server)
         ipc::message_queue * evt_msg_queue = open_evt_mq(evt_msg_queue_name);
-
         evt_msg_queues.push_back(evt_msg_queue);
+
+        // create mq (for native server events transferred to java client)
+        ipc::message_queue * evt_msg_queue_native = open_evt_mq(evt_msg_queue_native_name);
+        evt_msg_queues_native.push_back(evt_msg_queue_native);
 
         // timed locking of resources
         boost::system_time const timeout=
@@ -264,14 +274,16 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
     delete shm_buffers[key];
     delete buffer_regions[key];
     delete evt_msg_queues[key];
+    delete evt_msg_queues_native[key];
 
-    connections[key]    = NULL;
-    buffers[key]        = NULL;
-    shm_infos[key]      = NULL;
-    info_regions[key]   = NULL;
-    shm_buffers[key]    = NULL;
-    buffer_regions[key] = NULL;
-    evt_msg_queues[key] = NULL;
+    connections[key]           = NULL;
+    buffers[key]               = NULL;
+    shm_infos[key]             = NULL;
+    info_regions[key]          = NULL;
+    shm_buffers[key]           = NULL;
+    buffer_regions[key]        = NULL;
+    evt_msg_queues[key]        = NULL;
+    evt_msg_queues_native[key] = NULL;
 
     return boolC2J(true);
 }
@@ -576,4 +588,59 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_fireKeyTypedE
 
     bool result = fire_key_event(key, NFX_KEY_TYPED, chars, keyCode, modifiers, timestamp);
     return boolC2J(result);
+}
+
+void fire_native_event(int key, std::string type, std::string evt) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return;
+  }
+
+  jmethodID fireNativeEventMethod = jni_env->GetStaticMethodID(
+    native_binding_cls, 
+    "fireNativeEvent", "(ILjava/lang/String;Ljava/lang/String;)V"
+  );
+
+  if (fireNativeEventMethod == NULL) {
+    std::cerr << "ERROR: cannot fire native events. Method not found by JNI" << std::endl;
+    return;
+  }
+
+  jni_env->CallVoidMethod(
+    native_binding_cls, fireNativeEventMethod, 
+    key, stringC2J(jni_env, type), stringC2J(jni_env, type)
+  );
+}
+
+JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_processNativeEvents
+  (JNIEnv *env, jclass cls, jint key) {
+
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return;
+  }
+
+  // process events
+  ipc::message_queue::size_type recvd_size;
+  unsigned int priority;
+
+  while(evt_msg_queues_native[key]->get_num_msg() > 0) {
+
+    // timed locking of resources
+    boost::system_time const timeout=
+    boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+    native_event nevt;
+
+    bool result = evt_msg_queues_native[key]->timed_receive(&nevt, sizeof(native_event), recvd_size, priority, timeout);
+
+    if(!result) {
+      std::cerr << "[" << key << "] ERROR: can't read messages, message queue not accessible." << std::endl; 
+    }
+
+    fire_native_event(key, nevt.type, nevt.evt_msg);
+                
+  } // end while has event messages
+
 }

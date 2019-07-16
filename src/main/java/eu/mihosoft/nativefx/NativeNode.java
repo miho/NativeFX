@@ -25,6 +25,7 @@
  */
 package eu.mihosoft.nativefx;
 
+import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -271,9 +272,11 @@ public final class NativeNode extends Region {
             boolean dirty = NativeBinding.isDirty(key);
             boolean isReady = NativeBinding.isBufferReady(key);
 
-            if(!isReady) {
-                System.out.println("["+key+"]> WARNING: buffer ready: " + isReady);
-            }
+            // if(!isReady) {
+            //     System.out.println("["+key+"]> WARNING: buffer ready: " + isReady);
+            // }
+
+            NativeBinding.processNativeEvents(key);
 
             if (!dirty || !isReady) {
                 NativeBinding.unlock(key);
@@ -330,6 +333,14 @@ public final class NativeNode extends Region {
         timer.start();
 
         getChildren().add(view);
+    }
+
+    public void addNativeEventListener(NativeEventListener l) {
+        NativeBinding.addEventListener(key, l);
+    }
+
+    public void removeNativeEventListener(NativeEventListener l) {
+        NativeBinding.removeEventListener(key, l);
     }
 
     public void disconnect() {

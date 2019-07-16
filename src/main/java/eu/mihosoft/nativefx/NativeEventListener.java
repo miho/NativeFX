@@ -24,5 +24,5 @@ package eu.mihosoft.nativefx;
 
 @FunctionalInterface
 public interface NativeEventListener {
-    void event(String evt);
+    void event(int key, String type, String evt);
 }

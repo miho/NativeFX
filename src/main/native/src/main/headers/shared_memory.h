@@ -33,11 +33,15 @@
 #define IPC_MSG_SIZE 4096
 #define IPC_KEY_EVT_NUM_CHARS 8
 
+#define IPC_NUM_NATIVE_EVT_TYPE_SIZE 128
+#define IPC_NUM_NATIVE_EVT_MSG_SIZE 1024
+
 #define IPC_NUM_EVT_MSGS 100
 
 #define IPC_INFO_NAME "_info_"
 #define IPC_BUFF_NAME "_buff_"
 #define IPC_EVT_MQ_NAME "_evt_mq_"
+#define IPC_EVT_MQ_NATIVE_NAME "_evt_mq_native_"
 
 // instead of Qt stuff, we use plain c++ & boost
 // for the client lib
@@ -48,8 +52,6 @@ typedef unsigned char uchar;
 #include <boost/interprocess/offset_ptr.hpp>
 
 #include <string>
-
-
 
 #define LOCK_TIMEOUT 1000 // milliseconds 
 
@@ -139,6 +141,27 @@ struct redraw_event : event {
    double h       = 0;
 };
 
+/**
+ * Event that is used to communicate events from native servers back to the
+ * client Java API. It's intended to be used in a boost message queue. That's
+ * why we don't use more complex types such as std::string etc.
+ */
+struct native_event {
+    char type[IPC_NUM_NATIVE_EVT_TYPE_SIZE + 1];   // not initialized since it is not allowed
+    char evt_msg[IPC_NUM_NATIVE_EVT_MSG_SIZE + 1]; // not initialized since it is not allowed
+};
+
+void store_shared_string(std::string str, char* str_to_store_to, size_t size) {
+      // copy client_to_server_msg
+      for(size_t idx = 0; idx < str.size();++idx) {
+        str_to_store_to[idx] = str[idx];
+      }
+      // fill unused entries with '\0' 
+      for(size_t idx = str.size(); idx < size + 1;++idx) {
+        str_to_store_to[idx] = '\0';
+      }
+}
+
 void store_shared_string(std::string str, char* str_to_store_to) {
       // copy client_to_server_msg
       for(size_t idx = 0; idx < str.size();++idx) {
@@ -217,6 +240,10 @@ std::string get_evt_msg_queue_name(int key, std::string name) {
   return name + IPC_EVT_MQ_NAME;
 }
 
+std::string get_evt_msg_queue_native_name(int key, std::string name) {
+  return name + IPC_EVT_MQ_NATIVE_NAME;
+}
+
 std::string get_buffer_name(int key, std::string name) {
   return name + IPC_BUFF_NAME;
 }
@@ -249,6 +276,22 @@ boost::interprocess::message_queue* create_evt_mq(std::string evt_msg_queue_name
      sizeof(key_event), 
      sizeof(redraw_event)
    });
+
+   boost::interprocess::message_queue * evt_msg_queue = new boost::interprocess::message_queue(
+     boost::interprocess::create_only,     // only open (don't create)
+     evt_msg_queue_name.c_str(),           // name
+     IPC_NUM_EVT_MSGS,                     // max message number
+     max_evt_struct_size                   // max message size
+   );
+
+   return evt_msg_queue;
+}
+
+boost::interprocess::message_queue* create_evt_mq_native(std::string evt_msg_queue_name) {
+
+   // find the maximum event message size
+   std::size_t max_evt_struct_size = sizeof(native_event); 
+
 
    boost::interprocess::message_queue * evt_msg_queue = new boost::interprocess::message_queue(
      boost::interprocess::create_only,     // only open (don't create)

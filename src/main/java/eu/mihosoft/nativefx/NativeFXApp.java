@@ -82,6 +82,9 @@ public class NativeFXApp extends Application {
 
         btn.setOnAction((ae)-> {
             NativeNode nativeN = new NativeNode();
+            nativeN.addNativeEventListener((key, type, evt)->{
+                System.out.println("> key: " + key + ", type: " + type + ", evt_msg: " + evt);
+            });
             VBox.setVgrow(nativeN,Priority.SOMETIMES);
             nativeN.connect(tf.getText());
             root.getChildren().add(nativeN);

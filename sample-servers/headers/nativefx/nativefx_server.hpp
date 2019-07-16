@@ -126,13 +126,15 @@ void set_rgba(uchar* buffer_data, int buffer_w, int buffer_h, int x, int y, ucha
  */
 int delete_shared_mem(std::string const &name) {
 
-    std::string info_name = name + IPC_INFO_NAME;
-    std::string buffer_name = name + IPC_BUFF_NAME;
-    std::string evt_mq_name = name + IPC_EVT_MQ_NAME;
+    std::string info_name          = name + IPC_INFO_NAME;
+    std::string buffer_name        = name + IPC_BUFF_NAME;
+    std::string evt_mq_name        = name + IPC_EVT_MQ_NAME;
+    std::string evt_mq_native_name = name + IPC_EVT_MQ_NATIVE_NAME;
 
     ipc::shared_memory_object::remove(info_name.c_str());
     ipc::shared_memory_object::remove(buffer_name.c_str());
     ipc::message_queue::remove(evt_mq_name.c_str());
+    ipc::message_queue::remove(evt_mq_native_name.c_str());
 
     std::cout << "> deleted shared-mem" <<std::endl;
     std::cout << "  -> name:   " << name<<std::endl;
@@ -149,11 +151,13 @@ class shared_canvas final {
         std::string info_name;
         std::string buffer_name;
         std::string evt_mq_name;
+        std::string evt_mq_native_name;
         
         uchar* buffer_data;
         shared_memory_info* info_data;
         ipc::shared_memory_object* shm_info;
         ipc::message_queue* evt_mq;
+        ipc::message_queue* evt_mq_native;
         void* evt_mq_msg_buff;
         STATUS status;
         int W;
@@ -161,13 +165,14 @@ class shared_canvas final {
 
         std::size_t MAX_SIZE;
 
-        shared_canvas( std::string const &name, uchar* buffer_data, ipc::shared_memory_object* shm_info, shared_memory_info* info_data, ipc::message_queue* evt_mq, void* evt_mq_msg_buff, int w, int h, STATUS status) {
+        shared_canvas( std::string const &name, uchar* buffer_data, ipc::shared_memory_object* shm_info, shared_memory_info* info_data, ipc::message_queue* evt_mq, void* evt_mq_msg_buff, ipc::message_queue* evt_mq_native, int w, int h, STATUS status) {
             this->name            = name;
             this->buffer_data     = buffer_data;
             this->shm_info        = shm_info;
             this->info_data       = info_data;
             this->evt_mq          = evt_mq;
             this->evt_mq_msg_buff = evt_mq_msg_buff;
+            this->evt_mq_native   = evt_mq_native;
 
             this->W               = w;
             this->H               = h;
@@ -175,11 +180,12 @@ class shared_canvas final {
             this->status          = status;
 
 
-            this->info_name       = name + IPC_INFO_NAME;
-            this->buffer_name     = name + IPC_BUFF_NAME;
-            this->evt_mq_name     = name + IPC_EVT_MQ_NAME;
+            this->info_name          = name + IPC_INFO_NAME;
+            this->buffer_name        = name + IPC_BUFF_NAME;
+            this->evt_mq_name        = name + IPC_EVT_MQ_NAME;
+            this->evt_mq_native_name = name + IPC_EVT_MQ_NAME;
 
-            this->MAX_SIZE        = max_event_message_size();
+            this->MAX_SIZE           = max_event_message_size();
         }
 
     public:
@@ -189,12 +195,14 @@ class shared_canvas final {
             std::string info_name = name + IPC_INFO_NAME;
             std::string buffer_name = name + IPC_BUFF_NAME;
             std::string evt_mq_name = name + IPC_EVT_MQ_NAME;
+            std::string evt_mq_native_name = name + IPC_EVT_MQ_NATIVE_NAME;
 
             std::cout << "> creating shared-mem" <<std::endl;
             std::cout << "  -> name:   " << name<<std::endl;
 
             ipc::shared_memory_object* shm_info;
             ipc::message_queue* evt_mq;
+            ipc::message_queue* evt_mq_native;
 
             try {
 
@@ -206,6 +214,7 @@ class shared_canvas final {
                 );
 
                 evt_mq = create_evt_mq(evt_mq_name);
+                evt_mq_native = create_evt_mq_native(evt_mq_native_name);
             } catch(ipc::interprocess_exception const & ex) {
 
                     // remove shared memory objects
@@ -223,7 +232,8 @@ class shared_canvas final {
                                 ipc::read_write
                     );
 
-                    evt_mq = create_evt_mq(evt_mq_name);
+                    evt_mq        = create_evt_mq(evt_mq_name);
+                    evt_mq_native = create_evt_mq_native(evt_mq_native_name);
 
                     std::cout << "> created shared-mem"  << std::endl;
                     std::cout << "  -> name:   " << name << std::endl;
@@ -257,7 +267,7 @@ class shared_canvas final {
             std::size_t MAX_SIZE = max_event_message_size();
             void* evt_mq_msg_buff = malloc(MAX_SIZE);
 
-            return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, W, H, NFX_SUCCESS);
+            return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, evt_mq_native, W, H, NFX_SUCCESS);
         }
 
         int terminate(std::string const &name) {
@@ -334,6 +344,27 @@ class shared_canvas final {
             }
 
             return NFX_SUCCESS;
+        }
+
+        void send_native_event(std::string type, std::string evt) {
+            // process events
+            ipc::message_queue::size_type recvd_size;
+            unsigned int priority;
+
+            // timed locking of resources
+            boost::system_time const timeout=
+            boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+            native_event nevt;
+
+            store_shared_string(type,     nevt.type,     IPC_NUM_NATIVE_EVT_TYPE_SIZE);
+            store_shared_string(evt,      nevt.evt_msg,  IPC_NUM_NATIVE_EVT_MSG_SIZE );
+
+            bool result = evt_mq->timed_send(&nevt, sizeof(native_event), priority, timeout);
+
+            if(!result) {
+                std::cerr << "[" + name + "] ERROR: can't send messages, message queue not accessible." << std::endl; 
+            }
         }
 
         void process_events(event_callback events) {
