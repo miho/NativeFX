@@ -295,12 +295,12 @@ int main(int argc, char *argv[])
 
     webView.set_redraw_callback(redraw_1);
 
-    // auto native_evt_callback = [&canvas](std::string const& type, std::string const& evt) {
-    //     std::cout << "native-evt: type=" << type << ", evt: " << evt << std::endl;
-    //     canvas->send_native_event(type, evt);
-    // };
+    auto native_evt_callback = [&canvas](std::string type, std::string evt) {
+        std::cout << "native-evt: type=" << type << ", evt: " << evt << std::endl;
+        canvas->send_native_event(type, evt);
+    };
 
-    //webView.set_native_event_callback(native_evt_callback);
+    webView.set_native_event_callback(native_evt_callback);
 
     // TODO find out whether these guru settings actually affect
     //      the resize performance or whether it's only caused  

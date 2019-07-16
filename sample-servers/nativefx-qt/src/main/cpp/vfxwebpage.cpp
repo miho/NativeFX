@@ -15,7 +15,7 @@
         this->redraw_callback = redraw_callback;
     }
 
-    void VFXWebPage::set_native_event_callback(std::function<void (std::string const &type, std::string const &evt)> native_evt_callback) {
+    void VFXWebPage::set_native_event_callback(std::function<void (std::string type, std::string evt)> native_evt_callback) {
         connect(this, &QWebEngineView::loadFinished, [native_evt_callback](){native_evt_callback("web:load-finished","");});
         //connect(this, &QWebEngineView::loadFinished, native_evt_callback);
     }
