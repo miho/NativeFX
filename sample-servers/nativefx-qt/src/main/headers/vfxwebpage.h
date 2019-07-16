@@ -18,6 +18,8 @@ public:
 
     void set_redraw_callback(std::function<void ()> redraw_callback);
 
+    void set_native_event_callback(std::function<void (std::string const &type, std::string const &evt)> native_evt_callback);
+
     void request_redraw(QImage* img);
 
     void sendSimulatedEvent(QEvent *evt);

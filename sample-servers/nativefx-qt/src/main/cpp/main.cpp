@@ -63,7 +63,11 @@ int parseArgs(int argc, char** argv, std::string &mem_name, std::string &url) {
 
     if(deleteSharedMem) {
         // remove shared memory objects
-        return nfx::delete_shared_mem(_name);
+        if(nfx::NFX_SUCCESS==nfx::delete_shared_mem(_name)) {
+            std::exit(0);
+        } else {
+            std::exit(1);
+        }
     }
 
     return nfx::NFX_SUCCESS;
@@ -290,6 +294,13 @@ int main(int argc, char *argv[])
     };
 
     webView.set_redraw_callback(redraw_1);
+
+    // auto native_evt_callback = [&canvas](std::string const& type, std::string const& evt) {
+    //     std::cout << "native-evt: type=" << type << ", evt: " << evt << std::endl;
+    //     canvas->send_native_event(type, evt);
+    // };
+
+    //webView.set_native_event_callback(native_evt_callback);
 
     // TODO find out whether these guru settings actually affect
     //      the resize performance or whether it's only caused  

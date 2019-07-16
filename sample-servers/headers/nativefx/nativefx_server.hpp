@@ -73,6 +73,7 @@ namespace ipc  = boost::interprocess;
 ipc::shared_memory_object shm_buffer;
 ipc::mapped_region buffer_region;
 ipc::message_queue* evt_mq;
+ipc::message_queue* evt_mq_native;
 
 // deprecated
 uchar* create_shared_buffer(std::string buffer_name, int w, int h) {
@@ -415,6 +416,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
     std::string info_name = name + IPC_INFO_NAME;
     std::string buffer_name = name + IPC_BUFF_NAME;
     std::string evt_mq_name = name + IPC_EVT_MQ_NAME;
+    std::string evt_mq_native_name = name + IPC_EVT_MQ_NATIVE_NAME;
 
     std::cout << "> creating shared-mem" <<std::endl;
     std::cout << "  -> name:   " << name<<std::endl;
@@ -431,12 +433,15 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
         );
 
         evt_mq = create_evt_mq(evt_mq_name);
+        evt_mq_native = create_evt_mq_native(evt_mq_native_name);
     } catch(ipc::interprocess_exception const & ex) {
 
             // remove shared memory objects
             ipc::shared_memory_object::remove(info_name.c_str());
             ipc::shared_memory_object::remove(buffer_name.c_str());
             ipc::message_queue::remove(evt_mq_name.c_str());
+            ipc::message_queue::remove(evt_mq_native_name.c_str());
+
 
             std::cout << "> deleted pre-existing shared-mem" <<std::endl;
             std::cout << "  -> name:   " << name<<std::endl;
@@ -448,6 +453,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
                         ipc::read_write
             );
             evt_mq = create_evt_mq(evt_mq_name);
+            evt_mq_native = create_evt_mq_native(evt_mq_native_name);
 
             std::cout << "> created shared-mem"  << std::endl;
             std::cout << "  -> name:   " << name << std::endl;
@@ -556,6 +562,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
     ipc::shared_memory_object::remove(info_name.c_str());
     ipc::shared_memory_object::remove(buffer_name.c_str());
     ipc::message_queue::remove(evt_mq_name.c_str());
+    ipc::message_queue::remove(evt_mq_native_name.c_str());
 
     free(evt_mq_msg_buff);
 
