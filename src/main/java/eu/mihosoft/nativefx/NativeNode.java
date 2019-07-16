@@ -313,8 +313,6 @@ public final class NativeNode extends Region {
                 if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
                     System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
                     NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
-                    // buffer = null;
-                    // intBuf = null;
                 }
 
                 NativeBinding.unlock(key);

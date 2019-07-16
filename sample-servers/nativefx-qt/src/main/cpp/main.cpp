@@ -291,7 +291,19 @@ int main(int argc, char *argv[])
 
     webView.set_redraw_callback(redraw_1);
 
-    webView.setAttribute(Qt::WA_DontShowOnScreen);
+    // TODO find out whether these guru settings actually affect
+    //      the resize performance or whether it's only caused  
+    //      by debug vs. release 
+    //webView.setAttribute( Qt::WA_OpaquePaintEvent, true );
+    //webView.setAttribute( Qt::WA_DontCreateNativeAncestors, true );
+    //webView.setAttribute( Qt::WA_NativeWindow, true );
+    //webView.setAttribute( Qt::WA_NoSystemBackground, true );
+    //webView.setAutoFillBackground( false );
+
+    // don't show the native window
+    // we could reuse this to offer optional fullscreen mode
+    webView.setAttribute(Qt::WA_DontShowOnScreen, true);
+
     // install event filter on itself TODO maybe problematic since
     // the same filter is registered multiple times for GL children
     webView.installEventFilter(&webView);
