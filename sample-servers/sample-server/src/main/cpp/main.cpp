@@ -1,4 +1,4 @@
-#include "nativefx_server.hpp"
+#include "nativefx/nativefx_server.hpp"
 
 int main(int argc, char *argv[]) {
 
@@ -62,24 +62,24 @@ int main(int argc, char *argv[]) {
     auto evt = [](std::string const &name, event* evt) {
         std::cout << "[" + name + "] " << "event received: type=" << evt->type << ", ";
 
-        if(evt->type & MOUSE_EVENT) {
+        if(evt->type & NFX_MOUSE_EVENT) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << "x: " << evt_mouse_evt->x << ", y: " << evt_mouse_evt->x;
         } 
         
-        if(evt->type & MOUSE_PRESSED) {
+        if(evt->type & NFX_MOUSE_PRESSED) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << ", evt_name: PRESSED" << std::endl;
-        } else if(evt->type & MOUSE_RELEASED) {
+        } else if(evt->type & NFX_MOUSE_RELEASED) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << ", evt_name: RLEASED" << std::endl;
-        }  else if(evt->type & MOUSE_ENTERED) {
+        }  else if(evt->type & NFX_MOUSE_ENTERED) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << ", evt_name: ENTERED" << std::endl;
-        }  else if(evt->type & MOUSE_EXITED) {
+        }  else if(evt->type & NFX_MOUSE_EXITED) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << ", evt_name: EXITED" << std::endl;
-        }  else if(evt->type & MOUSE_CLICKED) {
+        }  else if(evt->type & NFX_MOUSE_CLICKED) {
             mouse_event* evt_mouse_evt = static_cast<mouse_event*>((void*)evt);
             std::cout << ", #clicks: " << evt_mouse_evt->click_count << std::endl;
         } else {
