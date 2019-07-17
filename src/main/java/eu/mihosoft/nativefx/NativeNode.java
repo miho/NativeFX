@@ -25,11 +25,14 @@
  */
 package eu.mihosoft.nativefx;
 
+import java.awt.BasicStroke;
 import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Date;
+
+import javax.swing.border.StrokeBorder;
 
 import eu.mihosoft.nativefx.NativeBinding.IntEnum;
 import eu.mihosoft.nativefx.NativeBinding.MODIFIER;
@@ -53,6 +56,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+/**
+ * This node renders native buffers. It handles the connection to a
+ * shared memory object, the transfer of input events and resize requests as
+ * well as native events.
+ */
 public final class NativeNode extends Region {
 
     private String serverName;
@@ -75,10 +83,17 @@ public final class NativeNode extends Region {
 
     private boolean hidpiAware = false;
 
+    /**
+     * Constructor. Creates a new instance of this class without hidpi-awareness.
+     */
     public NativeNode() {
         this(false);
     }
 
+    /**
+     * Constructor. Creates a new instance of this class.
+     * @param hidpiAware determines whether this node should be hidpi-aware
+     */
     public NativeNode(boolean hidpiAware) {
 
         this.hidpiAware = hidpiAware;
@@ -237,8 +252,16 @@ public final class NativeNode extends Region {
             // ev.consume();
         });
 
+
+        showNotConnectedText();
+
     }
 
+    /**
+     * Connects this node to the specified shared memory object.
+     * @param name name of the shared memory to connect to
+     * @throws RuntimeException if the connection cannot be established
+     */
     public void connect(String name) {
         this.serverName = name;
 
@@ -251,17 +274,19 @@ public final class NativeNode extends Region {
         }
 
         if(key <0) {
+            showErrorText();
             throw new RuntimeException("Cannot connect to shared memory " + key + ".");
         }
 
         view = new ImageView();
-        view.setPreserveRatio(true);
+        view.setPreserveRatio(false);
 
         view.fitWidthProperty().bind(widthProperty());
         view.fitHeightProperty().bind(heightProperty());
 
         Runnable r = () -> {
 
+            // try to lock the shared resource
             lockingError = !NativeBinding.lock(key);
             if(lockingError) {
                 showErrorText();
@@ -278,6 +303,8 @@ public final class NativeNode extends Region {
 
             NativeBinding.processNativeEvents(key);
 
+            // if not dirty yet and/or not ready there's nothing
+            // to do. we return early.
             if (!dirty || !isReady) {
                 NativeBinding.unlock(key);
                 return;
@@ -335,14 +362,26 @@ public final class NativeNode extends Region {
         getChildren().add(view);
     }
 
+    /**
+     * Adds the specified listener to the native observable.
+     * @param l listener to add
+     */
     public void addNativeEventListener(NativeEventListener l) {
         NativeBinding.addEventListener(key, l);
     }
 
+    /**
+     * Removes the specified listener from the native observable.
+     * @param l listener to remove
+     */
     public void removeNativeEventListener(NativeEventListener l) {
         NativeBinding.removeEventListener(key, l);
     }
 
+    /**
+     * Disconnects this node from the connected server and removes native 
+     * listeners added by this node.
+     */
     public void disconnect() {
         if (key < 0) return;
 
@@ -362,6 +401,11 @@ public final class NativeNode extends Region {
         timer = null;
     }
 
+    /**
+     * Disconnects this node and terminates the connected server. All shared 
+     * memory resources are released. Native listeners thar have been added
+     * by this node will be removed as well.
+     */
     public void terminate() {
         if (key < 0) return;
 
@@ -381,6 +425,15 @@ public final class NativeNode extends Region {
         timer = null;
     }
 
+    private void showNotConnectedText() {
+        getChildren().clear();
+        Label label = new Label("INFO, not connected to a server.");
+        label.setStyle("-fx-text-fill: green; -fx-background-color: white; -fx-border-color: green;-fx-font-size:16");
+        getChildren().add(label);
+        label.layoutXProperty().bind(widthProperty().divide(2).subtract(label.widthProperty().divide(2)));
+        label.layoutYProperty().bind(heightProperty().divide(2).subtract(label.heightProperty().divide(2)));    
+    }
+
     private void showErrorText() {
         getChildren().clear();
         Label label = new Label("ERROR, cannot connect to server '"+serverName+"'.");
@@ -388,81 +441,6 @@ public final class NativeNode extends Region {
         getChildren().add(label);
         label.layoutXProperty().bind(widthProperty().divide(2).subtract(label.widthProperty().divide(2)));
         label.layoutYProperty().bind(heightProperty().divide(2).subtract(label.heightProperty().divide(2)));    
-    }
-
-    public NativeNode(int key) {
-
-        // view = new ImageView();
-        // view.setPreserveRatio(true); 
-        // // TODO improve layout (width or hight ...)
-        // view.fitWidthProperty().bind(widthProperty());
-        // view.fitHeightProperty().bind(heightProperty());
-
-        // // ByteBuffer buffer = null;NativeBinding.getBuffer(key);
-        // // IntBuffer intBuf = null;buffer.order(ByteOrder.LITTLE_ENDIAN)
-        // // .asIntBuffer();
-
-        // Runnable r = () -> {
-
-        //     NativeBinding.lock(key);
-        //     boolean dirty = NativeBinding.isDirty(key);
-        //     boolean isReady = NativeBinding.isBufferReady(key);
-
-        //     if(!isReady) {
-        //         System.out.println("["+key+"]> WARNING: buffer ready: " + isReady);
-        //     }
-
-        //     if (!dirty || !isReady) {
-        //         NativeBinding.unlock(key);
-        //         return;
-        //     }
-
-        //     int currentW = NativeBinding.getW(key);
-        //     int currentH = NativeBinding.getH(key);
-
-        //     // create new image instance if the image doesn't exist or
-        //     // if the dimensions do not match
-        //     if (img == null || Double.compare(currentW, img.getWidth()) != 0
-        //             || Double.compare(currentH, img.getHeight()) != 0) {
-
-        //         System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
-
-        //         buffer = NativeBinding.getBuffer(key);
-        //         intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-
-        //         img = new WritableImage(currentW, currentH);
-        //         view.setImage(img);
-        //     }
-
-        //     img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), format, intBuf,
-        //             (int) img.getWidth());
-
-        //         // we updated the image, not dirty anymore
-        //         // NativeBinding.lock(key);
-        //         NativeBinding.setDirty(key, false);
-
-        //         int w = (int)getWidth();
-        //         int h = (int)getHeight();
-
-        //         if((w != NativeBinding.getW(key) || h != NativeBinding.getH(key)) && w > 0 && h > 0) {
-        //             System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
-        //             NativeBinding.resize(key, w, h);
-        //             // buffer = null;
-        //             // intBuf = null;
-        //         }
-
-        //         NativeBinding.unlock(key);
-                
-        // };
-
-        // new AnimationTimer() {
-        //     @Override
-        //     public void handle(long now) {
-        //         r.run();
-        //     }
-        // }.start();
-
-        // getChildren().add(view);
     }
 
     @Override
