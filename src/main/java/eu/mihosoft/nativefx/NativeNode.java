@@ -83,6 +83,13 @@ public final class NativeNode extends Region {
 
     private boolean hidpiAware = false;
 
+    private int numValues = 10;
+    private double[] fpsValues = new double[numValues];
+    private long frameTimestamp;
+    private int fpsCounter = 0;
+
+    private boolean verbose;
+
     /**
      * Constructor. Creates a new instance of this class without hidpi-awareness.
      */
@@ -214,7 +221,7 @@ public final class NativeNode extends Region {
 
         addEventHandler(KeyEvent.KEY_PRESSED, (ev)-> {
 
-            System.out.println("KEY: pressed " + ev.getText() + " : " + ev.getCode());
+            // System.out.println("KEY: pressed " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
@@ -227,7 +234,7 @@ public final class NativeNode extends Region {
         });
         addEventHandler(KeyEvent.KEY_RELEASED, (ev)-> {
 
-            System.out.println("KEY: released " + ev.getText() + " : " + ev.getCode());
+            // System.out.println("KEY: released " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
@@ -240,7 +247,7 @@ public final class NativeNode extends Region {
         });
         addEventHandler(KeyEvent.KEY_TYPED, (ev)-> {
 
-            System.out.println("KEY: typed    " + ev.getText() + " : " + ev.getCode());
+            // System.out.println("KEY: typed    " + ev.getText() + " : " + ev.getCode());
             
             long timestamp = System.nanoTime();
 
@@ -285,6 +292,8 @@ public final class NativeNode extends Region {
         view.fitHeightProperty().bind(heightProperty());
 
         Runnable r = () -> {
+
+            long currentTimeStamp = System.nanoTime();
 
             // try to lock the shared resource
             lockingError = !NativeBinding.lock(key);
@@ -341,12 +350,40 @@ public final class NativeNode extends Region {
                 double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
 
                 if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
-                    System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
+                    if(isVerbose()) {
+                        System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
+                    }
                     NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
                 }
 
                 NativeBinding.unlock(key);
-                
+
+                if(isVerbose()) {
+                    long duration = currentTimeStamp - frameTimestamp;
+
+                    double fps = 1e9 / duration;
+
+                    fpsValues[fpsCounter] = fps;
+
+                    if(fpsCounter == numValues -1) {
+                        double fpsAverage = 0;
+                        
+                        for(double fpsVal : fpsValues) {
+                            fpsAverage+=fpsVal;
+                        }
+
+                        fpsAverage/=numValues;
+
+                        System.out.println("["+key+"]> fps: " + fpsAverage );
+
+                        fpsCounter = 0;
+                    }
+
+                    fpsCounter++;
+
+                    frameTimestamp = currentTimeStamp;
+                } // end if verbose
+                                
         };
 
 
@@ -360,6 +397,20 @@ public final class NativeNode extends Region {
         timer.start();
 
         getChildren().add(view);
+    }
+
+    /**
+     * @return the verbose
+     */
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    /**
+     * @param verbose the verbose to set
+     */
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 
     /**
