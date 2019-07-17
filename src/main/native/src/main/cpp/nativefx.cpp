@@ -280,12 +280,14 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
                 timeout          // timeout
     );
 
-    return result;
+    //return result;
 
     names[key]          = ""; // NULL?
 
-    delete connections[key];
+    // already deleted because it's located in the shared memory location
+    // delete connections[key];
     // delete buffers[key];
+
     delete shm_infos[key];
     delete info_regions[key];
     delete shm_buffers[key];
