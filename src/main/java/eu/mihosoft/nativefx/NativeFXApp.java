@@ -75,7 +75,7 @@ public class NativeFXApp extends Application {
             root.getChildren().filtered(n->n instanceof NativeNode).
             forEach(n->{
                 NativeNode nn = (NativeNode) n;
-                nn.disconnect();
+                nn.terminate();
             });
             root.getChildren().removeIf(n->n instanceof NativeNode);
         });

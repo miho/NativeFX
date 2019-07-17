@@ -272,7 +272,7 @@ class shared_canvas final {
             return new shared_canvas(name, buffer_data, shm_info, info_data, evt_mq, evt_mq_msg_buff, evt_mq_native, W, H, NFX_SUCCESS);
         }
 
-        int terminate(std::string const &name) {
+        int terminate() {
             return delete_shared_mem(name);
         }
 
@@ -387,6 +387,14 @@ class shared_canvas final {
                 }
 
                 event* evt = static_cast<event*>(evt_mq_msg_buff);
+
+                // terminate if termination event was sent
+                if(evt->type & NFX_TERMINATION_EVENT) {
+                    std::cerr << "[" + name + "] termination requested." << std::endl; 
+                    this->terminate();
+                    std::cerr << "[" + name + "] done." << std::endl; 
+                    std::exit(0);
+                }
 
                 events(name, evt);
                 
@@ -552,6 +560,14 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
             }
 
             event* evt = static_cast<event*>(evt_mq_msg_buff);
+
+            // terminate if termination event was sent
+            if(evt->type & NFX_TERMINATION_EVENT) {
+                std::cerr << "[" + name + "] termination requested." << std::endl; 
+                delete_shared_mem(name);
+                std::cerr << "[" + name + "] done." << std::endl; 
+                std::exit(0);
+            }
 
             events(name, evt);
             

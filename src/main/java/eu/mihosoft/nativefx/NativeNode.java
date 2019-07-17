@@ -362,6 +362,25 @@ public final class NativeNode extends Region {
         timer = null;
     }
 
+    public void terminate() {
+        if (key < 0) return;
+
+        if(timer!=null) timer.stop();
+
+        NativeBinding.terminate(key);
+        NativeBinding.removeEventListeners(key);
+
+        getChildren().clear();
+
+        img = null;
+        view = null;
+    
+        buffer = null;
+        intBuf = null;
+    
+        timer = null;
+    }
+
     private void showErrorText() {
         getChildren().clear();
         Label label = new Label("ERROR, cannot connect to server '"+serverName+"'.");

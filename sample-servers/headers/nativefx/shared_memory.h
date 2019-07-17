@@ -102,7 +102,8 @@ enum EVENT_TYPE {
    NFX_KEY_RELEASED   = 2048,
    NFX_KEY_TYPED      = 4096,
 
-   NFX_REDRAW_EVENT   = 8192
+   NFX_REDRAW_EVENT   = 8192,
+   NFX_TERMINATION_EVENT = 16384
 };
 
 struct event {
@@ -139,6 +140,11 @@ struct redraw_event : event {
    double y       = 0;
    double w       = 0;
    double h       = 0;
+};
+
+struct termination_event {
+   int type       = NFX_TERMINATION_EVENT;
+   long timestamp = 0;
 };
 
 /**

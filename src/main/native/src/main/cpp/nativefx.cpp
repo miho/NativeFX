@@ -260,8 +260,27 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_terminate
       return false;
     }
 
-    ipc::shared_memory_object::remove(get_info_name  (key, names[key]).c_str());
-    ipc::shared_memory_object::remove(get_buffer_name(key, names[key]).c_str());
+    if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return boolC2J(false);
+    }
+
+    termination_event evt;
+    evt.type |= NFX_TERMINATION_EVENT;
+    evt.timestamp = 0;
+
+    // timed locking of resources
+    boost::system_time const timeout=
+      boost::get_system_time() + boost::posix_time::milliseconds(LOCK_TIMEOUT);
+
+    bool result = evt_msg_queues[key]->timed_send(
+                &evt,            // data to send
+                sizeof(evt),     // size of the data (check it fits into max_size)
+                0,               // msg priority
+                timeout          // timeout
+    );
+
+    return result;
 
     names[key]          = ""; // NULL?
 
