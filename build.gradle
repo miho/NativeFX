@@ -4,7 +4,7 @@ plugins {
 
     id 'application'
 
-    id 'org.openjfx.javafxplugin' version '0.0.7'
+    id 'org.openjfx.javafxplugin' version '0.0.8-SNAPSHOT'//'0.0.7'
     id "de.undercouch.download" version "3.4.3"
 
     id 'com.github.hierynomus.license' version '0.15.0'
@@ -42,9 +42,33 @@ dependencies {
 
 javafx {
     modules = [ 'javafx.controls']
+    sdk = "$projectDir/deps/javafx-sdk/sdk/javafx-sdk-13/"
 }
 
 mainClassName = 'eu.mihosoft.nativefx.NativeFXApp'
+
+
+task downloadJFX13(type: Download) {
+
+    if(isWindows) {
+        src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_windows-x64_bin-sdk.zip'
+    } else if(isLinux) {
+        src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_linux-x64_bin-sdk.zip'
+    } else if(isMacOs) {
+        src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_osx-x64_bin-sdk.zip'
+    }
+    
+    dest "$projectDir/deps/javafx-sdk/sdk.zip"
+    
+    onlyIfNewer true
+}
+
+task downloadAndUnzipJFX13(dependsOn: downloadJFX13, type: Copy) {
+    
+    from zipTree(downloadJFX13.dest)
+    into "$projectDir/deps/javafx-sdk/sdk/"
+    
+}
 
 task downloadBoostHeaders(type: Download) {
     
@@ -255,6 +279,7 @@ jar {
 clean.dependsOn += "cleanNativeResources"
 compileNative.dependsOn += "compileJava"
 assemble.dependsOn += "copyNativeToResources"
+compileJava.dependsOn += "downloadAndUnzipJFX13"
 
 
 license {
