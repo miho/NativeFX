@@ -6,9 +6,16 @@ int main(int argc, char *argv[]) {
 
     int counter = 0;
 
-    auto redraw = [&counter](std::string const& name, uchar* buffer_data, int W, int H) {
+    int numValues = 10;
+    double fpsValues[10];
+    auto frameTimeStamp = std::chrono::high_resolution_clock::now();
+    int fpsCounter = 0;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto redraw = [&counter, numValues, &fpsValues, &frameTimeStamp, &fpsCounter](std::string const& name, uchar* buffer_data, int W, int H) {
+
+        auto currentTimeStamp = std::chrono::high_resolution_clock::now();
+
+        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         for(int y = 0; y < H; ++y) {
             for(int x = 0; x < W;++x) {
@@ -56,6 +63,30 @@ int main(int argc, char *argv[]) {
         );
     }
 
+    long durationNano = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeStamp-frameTimeStamp).count();
+
+    double fps = 1e9 / durationNano;
+
+    fpsValues[fpsCounter] = fps;
+
+    if(fpsCounter == numValues -1) {
+        double fpsAverage = 0;
+                        
+        for(double fpsVal : fpsValues) {
+            fpsAverage+=fpsVal;
+        }
+
+        fpsAverage/=numValues;
+
+        std::cout << "[" << name << "]> fps: " << fpsAverage << std::endl;
+
+        fpsCounter = 0;
+    }
+
+    fpsCounter++;
+
+    frameTimeStamp = currentTimeStamp;
+    
 
     };
 
