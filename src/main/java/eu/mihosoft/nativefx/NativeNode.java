@@ -41,10 +41,12 @@ import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
@@ -55,6 +57,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Callback;
 
 /**
  * This node renders native buffers. It handles the connection to a
@@ -65,14 +68,17 @@ public final class NativeNode extends Region {
 
     private String serverName;
 
-    private final WritablePixelFormat<IntBuffer> format 
+    private final WritablePixelFormat<IntBuffer> formatInt 
         = PixelFormat.getIntArgbPreInstance();
+        private final WritablePixelFormat<ByteBuffer> formatByte 
+        = PixelFormat.getByteBgraPreInstance();
 
     private WritableImage img;
     private ImageView view;
 
     private ByteBuffer buffer;
     private IntBuffer intBuf;
+    private PixelBuffer<ByteBuffer> pixelBuffer;
 
     private AnimationTimer timer;
     private int key = -1;
@@ -89,21 +95,23 @@ public final class NativeNode extends Region {
     private int fpsCounter = 0;
 
     private boolean verbose;
+    private boolean pixelBufferEnabled;
 
     /**
      * Constructor. Creates a new instance of this class without hidpi-awareness.
      */
     public NativeNode() {
-        this(false);
+        this(false, false);
     }
 
     /**
      * Constructor. Creates a new instance of this class.
      * @param hidpiAware determines whether this node should be hidpi-aware
      */
-    public NativeNode(boolean hidpiAware) {
+    public NativeNode(boolean hidpiAware, boolean pixelBufferEnabled) {
 
         this.hidpiAware = hidpiAware;
+        this.pixelBufferEnabled = pixelBufferEnabled;
         
         addEventHandler(MouseEvent.MOUSE_MOVED, (ev)-> {
 
@@ -329,15 +337,26 @@ public final class NativeNode extends Region {
 
                 // System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
 
+                
                 buffer = NativeBinding.getBuffer(key);
                 intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
 
-                img = new WritableImage(currentW, currentH);
+                if(pixelBufferEnabled) {
+                    pixelBuffer = new PixelBuffer<>(currentW, currentH, buffer, formatByte);
+                    img = new WritableImage(pixelBuffer);
+                } else {
+                    img = new WritableImage(currentW, currentH);
+                }
+
                 view.setImage(img);
             }
 
-            img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), format, intBuf,
-                    (int) img.getWidth());
+            if(pixelBufferEnabled) {
+                pixelBuffer.updateBuffer(b->new Rectangle2D(0,0,currentW, currentH));
+            } else {
+                img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), formatInt, intBuf,
+                        (int) img.getWidth());
+            }
 
                 // we updated the image, not dirty anymore
                 // NativeBinding.lock(key);
