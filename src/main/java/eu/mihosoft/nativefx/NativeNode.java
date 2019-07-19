@@ -79,6 +79,7 @@ public final class NativeNode extends Region {
     private ByteBuffer buffer;
     private IntBuffer intBuf;
     private PixelBuffer<ByteBuffer> pixelBuffer;
+    private Rectangle2D dimensions;
 
     private AnimationTimer timer;
     private int key = -1;
@@ -96,6 +97,7 @@ public final class NativeNode extends Region {
 
     private boolean verbose;
     private boolean pixelBufferEnabled;
+    
 
     /**
      * Constructor. Creates a new instance of this class without hidpi-awareness.
@@ -290,7 +292,7 @@ public final class NativeNode extends Region {
 
         if(key <0) {
             showErrorText();
-            throw new RuntimeException("Cannot connect to shared memory " + key + ".");
+            throw new RuntimeException("["+key+"]> cannot connect to shared memory ''" + name + "''.");
         }
 
         view = new ImageView();
@@ -335,27 +337,30 @@ public final class NativeNode extends Region {
             if (img == null || Double.compare(currentW, img.getWidth()) != 0
                     || Double.compare(currentH, img.getHeight()) != 0) {
 
-                // System.out.println("  -> resize W: " + currentW + ", H: " + currentH);
-
+                if(isVerbose()) {       
+                    System.out.println("["+key+"]> -> new img instance, resize W: " + currentW + ", H: " + currentH);
+                }
                 
                 buffer = NativeBinding.getBuffer(key);
-                intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
 
                 if(pixelBufferEnabled) {
                     pixelBuffer = new PixelBuffer<>(currentW, currentH, buffer, formatByte);
                     img = new WritableImage(pixelBuffer);
                 } else {
+                    intBuf = buffer.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
                     img = new WritableImage(currentW, currentH);
                 }
+
+                dimensions = new Rectangle2D(0,0,currentW, currentH);
 
                 view.setImage(img);
             }
 
             if(pixelBufferEnabled) {
-                pixelBuffer.updateBuffer(b->new Rectangle2D(0,0,currentW, currentH));
+                pixelBuffer.updateBuffer(b->null);      
             } else {
                 img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), formatInt, intBuf,
-                        (int) img.getWidth());
+                        (int) img.getWidth());    
             }
 
                 // we updated the image, not dirty anymore
