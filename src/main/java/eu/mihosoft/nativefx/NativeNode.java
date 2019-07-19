@@ -308,9 +308,9 @@ public final class NativeNode extends Region {
             // try to lock the shared resource
             lockingError = !NativeBinding.lock(key);
             if(lockingError) {
-                showErrorText();
-                timer.stop();
-                return;
+                 showErrorText();
+                 timer.stop();
+                 return;
             }
 
             boolean dirty = NativeBinding.isDirty(key);
