@@ -5,6 +5,8 @@
 build
 build_me
 
+/deps/
+
 .gradle
 .vscode
 .project

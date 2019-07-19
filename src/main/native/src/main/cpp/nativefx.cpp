@@ -403,7 +403,7 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_hasBufferChan
   return false;
 }
 
-JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock__I
   (JNIEnv *env, jclass cls, jint key) {
   if(key >= connections.size() || connections[key] == NULL) {
       std::cerr << "ERROR: key not available: " << key << std::endl;
@@ -413,6 +413,20 @@ JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock
     // within the specified LOCK_TIMEOUT)
     boost::system_time const timeout=
       boost::get_system_time()+ boost::posix_time::milliseconds(LOCK_TIMEOUT);
+    return boolC2J(connections[key]->mutex.timed_lock(timeout));
+  }
+}
+
+JNIEXPORT jboolean JNICALL Java_eu_mihosoft_nativefx_NativeBinding_lock__IJ
+  (JNIEnv *env, jclass cls, jint key, jlong jtimeout) {
+  if(key >= connections.size() || connections[key] == NULL) {
+      std::cerr << "ERROR: key not available: " << key << std::endl;
+      return false;
+  } else {
+    // try to lock (returns true if successful, false if wasn't successful
+    // within the specified LOCK_TIMEOUT)
+    boost::system_time const timeout=
+      boost::get_system_time()+ boost::posix_time::milliseconds(jtimeout);
     return boolC2J(connections[key]->mutex.timed_lock(timeout));
   }
 }

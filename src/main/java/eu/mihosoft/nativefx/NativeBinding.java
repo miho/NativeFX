@@ -361,6 +361,13 @@ public final class NativeBinding {
     static native ByteBuffer getBuffer(int key);
 
     static native boolean    lock     (int key);
+    /**
+     * 
+     * @param key
+     * @param timeout milliseconds
+     * @return
+     */
+    static native boolean    lock     (int key, long timeout);
     static native void       unlock   (int key);
 
     static native void       waitForBufferChanges(int key);
