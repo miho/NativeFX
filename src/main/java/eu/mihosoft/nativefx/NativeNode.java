@@ -357,7 +357,7 @@ public final class NativeNode extends Region {
             }
 
             if(pixelBufferEnabled) {
-                pixelBuffer.updateBuffer(b->null);      
+                pixelBuffer.updateBuffer(b->dimensions);      
             } else {
                 img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), formatInt, intBuf,
                         (int) img.getWidth());    
