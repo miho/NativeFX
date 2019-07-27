@@ -107,7 +107,7 @@ That's it!
 
 ### Step 1 (compile and run the sample-server)
 
-Make sure Qt is installed properly (libs must be on the PATH). To compile and run the sample-server, do the following (releatrive to the previous project folder):
+Make sure Qt is installed properly (libs must be on the PATH). To compile and run the sample-server, do the following (relative to the previous project folder):
 
 #### Bash (Linux/macOS/Cygwin/other Unix shell)
 
@@ -117,6 +117,10 @@ Make sure Qt is installed properly (libs must be on the PATH). To compile and ru
     cmake ..
     make
     ./nativefx-qt -n _mem_1
+    
+If you have problems finding Qt modules, maybe this command helps:
+
+    cmake .. -DCMAKE_PREFIX_PATH=/path/to/Qt/<version>/clang_64/
     
 #### Windows (CMD)
 
