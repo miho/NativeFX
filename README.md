@@ -21,7 +21,7 @@ Many features are still missing. We are working on stabilizing the API in the up
 
 There have been efforts to do this before. Why should this approach be any better? 
 
-Good question! For now, we use a direct buffer and use the PixelWriter interface to update a WritableImage that displays the content. There's a new [PR](https://github.com/javafxports/openjdk-jfx/pull/472) for the upcoming version of JavaFX (JavaFX 13) which will highly improve the performance of NativeFX once it's released. Early tests show that twe can expect a performance boost of around 50%. For our use cases this is a game changer!
+Good question! For now, we use a direct buffer and use the PixelWriter interface to update a WritableImage that displays the content. There's a new [PR](https://github.com/javafxports/openjdk-jfx/pull/472) for the upcoming version of JavaFX (JavaFX 13) which will highly improve the performance of NativeFX once it's released. Early tests show that we can expect a performance boost of around 50%. For our use cases this is a game changer!
 
 If you are willing to use internal APIs you can try [DriftFX](https://github.com/eclipse-efx/efxclipse-drift). Which will work with direct texture sharing instead of slow CPU based buffers. NativeFX is a more conservative approach.
 
@@ -117,11 +117,7 @@ Make sure Qt is installed properly (libs must be on the PATH). To compile and ru
     cmake ..
     make
     ./nativefx-qt -n _mem_1
-    
-If you have problems finding Qt modules, maybe this command helps:
-
-    cmake .. -DCMAKE_PREFIX_PATH=/path/to/Qt/<version>/clang_64/
-    
+  
 #### Windows (CMD)
 
     cd sample-servers/nativefx-qt/
@@ -134,6 +130,8 @@ If you have problems finding Qt modules, maybe this command helps:
 If Qt5 cannot be found, let CMake know where to search for Qt, e.g.,
 
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64 -DQt5_DIR=C:\Qt\5.13.0\msvc2017_64\lib\cmake\Qt5\
+
+Hint: Qt5_Dir has to point to a directory containing 'Qt5Config.cmake' or 'qt5-config.cmake'.
     
 If the last command doesn't work, then check whether the executable is located in `Release\nativefx-qt.exe` without `x64`.     
     
