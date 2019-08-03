@@ -48,6 +48,9 @@ public class NativeFXApp extends Application {
     public void start(Stage primaryStage) {
 
         VBox root = new VBox();
+
+        CheckBox hidpiCB = new CheckBox("HiDPI Mode");
+        CheckBox pbAPICB = new CheckBox("PixelBuffer API");
         
         TextField tf = new TextField("_mem_1");
         Button btn = new Button("Connect");
@@ -81,7 +84,7 @@ public class NativeFXApp extends Application {
         });
 
         btn.setOnAction((ae)-> {
-            NativeNode nativeN = new NativeNode(false, true);
+            NativeNode nativeN = new NativeNode(hidpiCB.isSelected(), pbAPICB.isSelected());
             nativeN.setVerbose(true);
             VBox.setVgrow(nativeN,Priority.SOMETIMES);
             try {
@@ -95,7 +98,7 @@ public class NativeFXApp extends Application {
             root.getChildren().add(nativeN);
         });
 
-        ToolBar bar = new ToolBar(tf, btn, delBtn, effect1Btn, effectDisableBtn);
+        ToolBar bar = new ToolBar(hidpiCB, pbAPICB, tf, btn, delBtn, effect1Btn, effectDisableBtn);
         root.getChildren().add(bar);
 
         Scene scene = new Scene(root, 1024,768);

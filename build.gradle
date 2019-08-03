@@ -20,7 +20,7 @@ boolean runsOn(String osName) {
 } 
 ext.isWindows = runsOn('windows')
 ext.isLinux = runsOn('linux')
-ext.isMacOs = runsOn('mac')
+ext.isMacOS = runsOn('mac')
 
 wrapper {
     gradleVersion = '5.4'
@@ -54,7 +54,7 @@ task downloadJFX13(type: Download) {
         src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_windows-x64_bin-sdk.zip'
     } else if(isLinux) {
         src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_linux-x64_bin-sdk.zip'
-    } else if(isMacOs) {
+    } else if(isMacOS) {
         src 'https://download2.gluonhq.com/openjfx/forks/pixelbuffer/openjfx-13-pixelbuffer-ea+10_osx-x64_bin-sdk.zip'
     }
     
@@ -199,7 +199,7 @@ task cleanNativeResources() {
             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/")
             def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.so")
             java.nio.file.Files.deleteIfExists(destFile);
-        } else if(isMacOs) {
+        } else if(isMacOS) {
             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/")
             def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.dylib")
             java.nio.file.Files.deleteIfExists(destFile);
@@ -221,7 +221,7 @@ task cleanNativeResources() {
 //             def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.so")
 //             if(!dest.toFile().exists()) java.nio.file.Files.createDirectories(dest);
 //             java.nio.file.Files.copy(src, destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-//         } else if(isMacOs) {
+//         } else if(isMacOS) {
 //             def src = java.nio.file.Paths.get("$projectDir/build/native/libnativefx.dylib")
 //             def dest = java.nio.file.Paths.get("$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/")
 //             def destFile = java.nio.file.Paths.get(dest.toString()+"/libnativefx.dylib")
@@ -250,7 +250,7 @@ task copyNativeToResources(dependsOn: compileNative) {
             from "$projectDir/build/native/libnativefx.so"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/linux/x64/"
         }
-    } else if(isMacOs) {
+    } else if(isMacOS) {
         copy {
             from "$projectDir/build/native/libnativefx.dylib"
             into "$projectDir/src/main/resources/eu/mihosoft/nativefx/nativelibs/macos/x64/"
