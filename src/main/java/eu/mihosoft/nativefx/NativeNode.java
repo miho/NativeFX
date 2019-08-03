@@ -46,7 +46,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.image.ImageView;
+
 import javafx.scene.image.PixelBuffer;
+
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
@@ -78,6 +80,7 @@ public final class NativeNode extends Region {
 
     private ByteBuffer buffer;
     private IntBuffer intBuf;
+
     private PixelBuffer<ByteBuffer> pixelBuffer;
     private Rectangle2D dimensions;
 

@@ -84,7 +84,9 @@ public class NativeFXApp extends Application {
         });
 
         btn.setOnAction((ae)-> {
+
             NativeNode nativeN = new NativeNode(hidpiCB.isSelected(), pbAPICB.isSelected());
+
             nativeN.setVerbose(true);
             VBox.setVgrow(nativeN,Priority.SOMETIMES);
             try {

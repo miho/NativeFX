@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
         auto currentTimeStamp = std::chrono::high_resolution_clock::now();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         for(int y = 0; y < H; ++y) {
             for(int x = 0; x < W;++x) {
