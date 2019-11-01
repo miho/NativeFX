@@ -21,10 +21,9 @@ Many features are still missing. But this project is already compatible with JDK
 
 There have been efforts to do this before. Why should this approach be any better? 
 
-Good question! For now, we use a direct buffer and use the PixelWriter interface to update a WritableImage that displays the content. There's a new [PR](https://github.com/javafxports/openjdk-jfx/pull/472) for the upcoming version of JavaFX (JavaFX 13) which will highly improve the performance of NativeFX once it's released. Early tests show that we can expect a performance boost of around 50%. For our use cases this is a game changer!
+Good question! We started with a direct buffer and used the PixelWriter interface to update a WritableImage that displays the content. With JavaFX 13 we added support for the new PixelBuffer API. Early tests show that we can expect a performance boost of around 50%. For our use cases this is a game changer!
 
 If you are willing to use internal APIs you can try [DriftFX](https://github.com/eclipse-efx/efxclipse-drift). Which will work with direct texture sharing instead of slow CPU based buffers. NativeFX is a more conservative approach.
-
 
 ## Building NativeFX
 
