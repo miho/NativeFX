@@ -80,8 +80,19 @@ int main(int argc, char *argv[])
     __macos__disable_app_nap();
 #endif // __APPLE__    
 
+    // allow webgl even if support is disabled for some reason
+    int qArgC = 3;
+    char* qArgs[] = {
+        "nativeqt",                                  // app name
+        "--ignore-gpu-blacklist",                    // ignore blacklist 
+        "--disable_chromium_framebuffer_multisample" // see https://bugreports.qt.io/browse/QTBUG-55604
+     };
+
+    // if configured with OpenGL dynamic
+    //QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+
     // create qapplication before touching any other qobject/class
-    QApplication app(argc, argv, false);
+    QApplication app(qArgC, qArgs, false);
 
     QImage* img = NULL;
 
