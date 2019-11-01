@@ -18,8 +18,8 @@ jobs:
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: ${{ parameters.jdkVersion }}
         jdkArchitectureOption: 'x64'
-        publishJUnitResults: true
-        testResultsFiles: '**/TEST-*.xml'
+        #publishJUnitResults: true
+        #testResultsFiles: '**/TEST-*.xml'
         tasks: 'clean assemble'
     - task: Gradle@2
       inputs:
