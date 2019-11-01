@@ -15,7 +15,7 @@ Why should you use it? Ever wanted to integrate native applications into the sce
 
 Got curious? This project is still WIP. But it comes with a sample server that shows how to use it. We run it on Linux, macOS and Windows (on x64). There's a good chance it will work for you as well. If not, create an issue and let us know!
 
-Many features are still missing. We are working on stabilizing the API in the upcoming months so that we are ready when JavaFX 13 will be released.
+Many features are still missing. But this project is already compatible with JDK13 and JavaFX 13.
 
 ## Performance
 
@@ -102,7 +102,7 @@ That's it!
 
 ### Requirements
 
-- Qt 5.x (tested with 5.12 and 5.13)
+- Qt 5.x (tested with 5.12 and 5.13.1)
 - Internet connection
 
 ### Step 1 (compile and run the sample-server)
@@ -129,7 +129,7 @@ Make sure Qt is installed properly (libs must be on the PATH). To compile and ru
     
 If Qt5 cannot be found, let CMake know where to search for Qt, e.g.,
 
-    cmake .. -DCMAKE_GENERATOR_PLATFORM=x64 -DQt5_DIR=C:\Qt\5.13.0\msvc2017_64\lib\cmake\Qt5\
+    cmake .. -DCMAKE_GENERATOR_PLATFORM=x64 -DQt5_DIR=C:\Qt\5.13.1\msvc2017_64\lib\cmake\Qt5\
 
 Hint: Qt5_Dir has to point to a directory containing 'Qt5Config.cmake' or 'qt5-config.cmake'.
     
