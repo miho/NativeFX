@@ -316,11 +316,11 @@ int main(int argc, char *argv[])
     // TODO find out whether these guru settings actually affect
     //      the resize performance or whether it's only caused  
     //      by debug vs. release 
-    //webView.setAttribute( Qt::WA_OpaquePaintEvent, true );
-    //webView.setAttribute( Qt::WA_DontCreateNativeAncestors, true );
-    //webView.setAttribute( Qt::WA_NativeWindow, true );
-    //webView.setAttribute( Qt::WA_NoSystemBackground, true );
-    //webView.setAutoFillBackground( false );
+    webView.setAttribute( Qt::WA_OpaquePaintEvent, true );
+    webView.setAttribute( Qt::WA_DontCreateNativeAncestors, true );
+    webView.setAttribute( Qt::WA_NativeWindow, true );
+    webView.setAttribute( Qt::WA_NoSystemBackground, true );
+    webView.setAutoFillBackground( false );
 
     // don't show the native window
     // we could reuse this to offer optional fullscreen mode
