@@ -50,7 +50,7 @@ mainClassName = 'eu.mihosoft.nativefx.NativeFXApp'
 
 task downloadBoostHeaders(type: Download) {
     
-    src 'http://deps.mihosoft.eu/boost/1.58.0/headers/boost.zip'
+    src 'http://deps.mihosoft.eu/boost/1.71.0/headers/boost.zip'
     dest "$projectDir/src/main/native/ext/headers/boost.zip"
     
     onlyIfNewer true   
