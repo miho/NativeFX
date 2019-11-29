@@ -1,0 +1,25 @@
+// -----------------------------------------------------------------------------
+// publishing information
+// -----------------------------------------------------------------------------
+ext.publishing.artifactId =  project.name.toLowerCase()
+ext.publishing.groupId    =  'eu.mihosoft.nativefx'
+ext.publishing.versionId  =  '0.2.0'
+
+ext.publishing.developerName         = 'Michael Hoffer'
+ext.publishing.developerAlias        = 'miho'
+ext.publishing.developerEmail        = 'info@michaelhoffer.de'
+ext.publishing.inceptionYear         = '2019'
+
+ext.publishing.bintray.repo          = 'NativeFX'
+ext.publishing.bintray.userOrg       = 'miho'
+ext.publishing.bintray.name          = project.name
+
+ext.publishing.desc                  = 'Native rendering for JavaFX via shared memory.'
+ext.publishing.license               = 'Apache-2.0'
+ext.publishing.licenseUrl            = 'https://github.com/miho/NativeFX/blob/master/LICENSE'
+ext.publishing.labels                = ['nativefx', 'javafx', 'native rendering', 'shared memory']
+ext.publishing.websiteUrl            = 'https://github.com/miho/NativeFX'
+ext.publishing.issueTrackerUrl       = 'https://github.com/miho/NativeFX/issues'
+ext.publishing.vcsUrl                = 'https://github.com/miho/NativeFX.git'
+
+ext.publishing.pomName               =  ext.publishing.artifactId
