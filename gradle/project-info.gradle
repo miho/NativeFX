@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------
 ext.publishing.artifactId =  project.name.toLowerCase()
 ext.publishing.groupId    =  'eu.mihosoft.nativefx'
-ext.publishing.versionId  =  '0.2.0'
+ext.publishing.versionId  =  '0.2.1'
 
 ext.publishing.developerName         = 'Michael Hoffer'
 ext.publishing.developerAlias        = 'miho'
