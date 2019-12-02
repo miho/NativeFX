@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
     QImage* img = NULL;
 
     QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::WebGLEnabled, true);
+    QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
+    QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::PdfViewerEnabled, true);
     // http://stackoverflow.com/questions/29773047/using-qwebengine-to-render-an-image
     //std::cout << "QT_VERSION: " << QT_VERSION << std::endl;
     
