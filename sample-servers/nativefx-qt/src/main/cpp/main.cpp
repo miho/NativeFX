@@ -89,7 +89,10 @@ int main(int argc, char *argv[])
      };
 
     // if configured with OpenGL dynamic
-    //QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+    // QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+
+    // enable high-dpi scaling
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     // create qapplication before touching any other qobject/class
     QApplication app(qArgC, qArgs, false);

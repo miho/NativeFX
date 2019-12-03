@@ -362,54 +362,58 @@ public final class NativeNode extends Region {
             if(pixelBufferEnabled) {
                 pixelBuffer.updateBuffer(b->dimensions);      
             } else {
-                img.getPixelWriter().setPixels(0, 0, (int) img.getWidth(), (int) img.getHeight(), formatInt, intBuf,
-                        (int) img.getWidth());    
+                img.getPixelWriter().setPixels(0, 0,
+                    (int) img.getWidth(),
+                    (int) img.getHeight(),
+                    formatInt, intBuf,
+                    (int) img.getWidth()
+                );    
             }
 
-                // we updated the image, not dirty anymore
-                // NativeBinding.lock(key);
-                NativeBinding.setDirty(key, false);
+            // we updated the image, not dirty anymore
+            // NativeBinding.lock(key);
+            NativeBinding.setDirty(key, false);
 
-                int w = (int)getWidth();
-                int h = (int)getHeight();
+            int w = (int)getWidth();
+            int h = (int)getHeight();
 
-                double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
-                double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
 
-                if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
-                    if(isVerbose()) {
-                        System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
-                    }
-                    NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
-                }
-
-                NativeBinding.unlock(key);
-
+            if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
                 if(isVerbose()) {
-                    long duration = currentTimeStamp - frameTimestamp;
+                    System.out.println("["+key+"]> requesting buffer resize W: " + w + ", H: " + h);
+                }
+                NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
+            }
 
-                    double fps = 1e9 / duration;
+            NativeBinding.unlock(key);
 
-                    fpsValues[fpsCounter] = fps;
+            if(isVerbose()) {
+                long duration = currentTimeStamp - frameTimestamp;
 
-                    if(fpsCounter == numValues -1) {
-                        double fpsAverage = 0;
+                double fps = 1e9 / duration;
+
+                fpsValues[fpsCounter] = fps;
+
+                if(fpsCounter == numValues -1) {
+                    double fpsAverage = 0;
                         
-                        for(double fpsVal : fpsValues) {
-                            fpsAverage+=fpsVal;
-                        }
-
-                        fpsAverage/=numValues;
-
-                        System.out.println("["+key+"]> fps: " + fpsAverage );
-
-                        fpsCounter = 0;
+                    for(double fpsVal : fpsValues) {
+                        fpsAverage+=fpsVal;
                     }
+
+                    fpsAverage/=numValues;
+
+                    System.out.println("["+key+"]> fps: " + fpsAverage );
+
+                    fpsCounter = 0;
+                }
 
                     fpsCounter++;
 
                     frameTimestamp = currentTimeStamp;
-                } // end if verbose
+            } // end if verbose
                                 
         };
 

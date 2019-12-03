@@ -24,6 +24,7 @@ package eu.mihosoft.nativefx;
 
 import java.nio.ByteBuffer;
 
+import animatefx.animation.FlipInY;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -49,10 +50,10 @@ public class NativeFXApp extends Application {
 
         VBox root = new VBox();
 
-        CheckBox hidpiCB = new CheckBox("HiDPI Mode");
+        //CheckBox hidpiCB = new CheckBox("HiDPI Mode");
         CheckBox pbAPICB = new CheckBox("PixelBuffer API");
         
-        TextField tf = new TextField("_mem_1");
+        TextField tf = new TextField("mem1");
         Button btn = new Button("Connect");
         Button delBtn = new Button("Delete All");
         Button effect1Btn = new Button("Blur Effect");
@@ -74,6 +75,18 @@ public class NativeFXApp extends Application {
             });
         });
 
+        Button animateBtn = new Button("Animate Nodes");
+
+        animateBtn.setOnAction((ae)-> {
+            root.getChildren().filtered(n->n instanceof NativeNode).
+            forEach(n->{
+                FlipInY flipInY = new FlipInY(n);
+                flipInY.setSpeed(0.1);
+                flipInY.setCycleCount(1);
+                flipInY.play();
+            });
+        });
+
         delBtn.setOnAction((ae)-> {
             root.getChildren().filtered(n->n instanceof NativeNode).
             forEach(n->{
@@ -85,7 +98,7 @@ public class NativeFXApp extends Application {
 
         btn.setOnAction((ae)-> {
 
-            NativeNode nativeN = new NativeNode(hidpiCB.isSelected(), pbAPICB.isSelected());
+            NativeNode nativeN = new NativeNode(false/*hidpiCB.isSelected()*/, pbAPICB.isSelected());
 
             nativeN.setVerbose(true);
             VBox.setVgrow(nativeN,Priority.SOMETIMES);
@@ -100,7 +113,7 @@ public class NativeFXApp extends Application {
             root.getChildren().add(nativeN);
         });
 
-        ToolBar bar = new ToolBar(hidpiCB, pbAPICB, tf, btn, delBtn, effect1Btn, effectDisableBtn);
+        ToolBar bar = new ToolBar(/*hidpiCB, */pbAPICB, tf, btn, delBtn, effect1Btn, effectDisableBtn, animateBtn);
         root.getChildren().add(bar);
 
         Scene scene = new Scene(root, 1024,768);

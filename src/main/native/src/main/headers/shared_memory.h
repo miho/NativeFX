@@ -70,6 +70,9 @@ enum STATUS {
     NFX_ARGS_ERROR       = 8
 };
 
+/**
+ * Mouse Button
+ */
 enum MOUSE_BTN {
    NFX_NO_BTN        = 0,
    NFX_PRIMARY_BTN   = 1,
@@ -77,6 +80,9 @@ enum MOUSE_BTN {
    NFX_MIDDLE_BTN    = 4
 };
 
+/**
+ * Modifier
+ */
 enum MODIFIER {
    NFX_NO_KEY      = 0,
    NFX_SHIFT_KEY   = 1,
@@ -85,6 +91,9 @@ enum MODIFIER {
    NFX_CONTROL_KEY = 8
 };
 
+/**
+ * Event type, e.g., mouse-moved-event or key-pressed-event
+ */
 enum EVENT_TYPE {
    NFX_NO_EVENT       = 0,
    NFX_EVENT          = 1,
@@ -106,43 +115,74 @@ enum EVENT_TYPE {
    NFX_TERMINATION_EVENT = 16384
 };
 
+/**
+ * Every event has a type and a timestamp.
+ */  
 struct event {
+
+   // event info (provided by every event)
    int type       = 0;
    long timestamp = 0;
+
 };
 
+/**
+ * A mouse event provides information about button clicks and coordinates etc.
+ */ 
 struct mouse_event {
+
+   // event info
    int type       = NFX_MOUSE_EVENT;
    long timestamp = 0;
 
+   // buttons, clicks and number of 
+   // occurrences
    int buttons    = NFX_NO_BTN;
    int modifiers  = NFX_NO_KEY;
    int click_count= 0;
    double amount  = 0;
+
+   // cursor coordinates
    double x       = 0;
    double y       = 0;
 };
 
+/**
+ * A key event has 
+ */
 struct key_event {
+
+   // event info 
    int type       = NFX_KEY_EVENT;
    long timestamp = 0;
 
-   int modifiers  = NFX_NO_KEY;
+   // key information (key character, key_code and modifiers)
+   int modifiers  = NFX_NO_KEY
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
    int key_code   = 0;                    // 0 is defined as "unknown key"
 };
 
+/**
+ * A redraw event provides information about dirty areas.
+ */ 
 struct redraw_event : event {
+
+   // event info
    int type = NFX_REDRAW_EVENT;
    long timestamp = 0; 
 
+   // rectangular region in the rendered buffer (buffer coordinates)
    double x       = 0;
    double y       = 0;
    double w       = 0;
    double h       = 0;
 };
 
+/**
+ * A termination-event requests termination. 
+ */
 struct termination_event {
+   // event info
    int type       = NFX_TERMINATION_EVENT;
    long timestamp = 0;
 };
@@ -157,6 +197,14 @@ struct native_event {
     char evt_msg[IPC_NUM_NATIVE_EVT_MSG_SIZE + 1]; // not initialized since it is not allowed
 };
 
+/**
+ * Stores a shared c-style string from a std::string (adds terminating '\0's)
+ * to the specified destination.
+ * 
+ * @param str string to convert
+ * @param str_to_store_to string to store the string to
+ * @size number of chars to copy
+ */
 void store_shared_string(std::string str, char* str_to_store_to, size_t size) {
       // copy client_to_server_msg
       for(size_t idx = 0; idx < str.size();++idx) {
@@ -168,6 +216,13 @@ void store_shared_string(std::string str, char* str_to_store_to, size_t size) {
       }
 }
 
+/**
+ * Stores a shared string from a std::string (adds terminating '\0's)
+ * to the specified destination.
+ * 
+ * @param str string to convert
+ * @param str_to_store_to string to store the string to
+ */
 void store_shared_string(std::string str, char* str_to_store_to) {
       // copy client_to_server_msg
       for(size_t idx = 0; idx < str.size();++idx) {
@@ -179,6 +234,10 @@ void store_shared_string(std::string str, char* str_to_store_to) {
       }
 }
 
+/**
+ * Stores a key stroke from a std::string (adds terminating '\0's)
+ * to the specified destination.
+ */
 void store_key_codes(std::string str, char* str_to_store_to) {
       // copy client_to_server_msg
       for(size_t idx = 0; idx < str.size();++idx) {
@@ -190,6 +249,9 @@ void store_key_codes(std::string str, char* str_to_store_to) {
       }
 }
 
+/**
+ * A shared memory info is used for inter-process-communication.
+ */
 struct shared_memory_info {
    shared_memory_info()
       : img_buffer_size(0),
@@ -233,6 +295,10 @@ struct shared_memory_info {
 };
 
 
+/**
+ * A shared memory buffer is used to store natively rendered content and share
+ * it among multiple processes.
+ */
 struct shared_memory_buffer
 {
 
