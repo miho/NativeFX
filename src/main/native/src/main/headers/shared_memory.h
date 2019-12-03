@@ -157,7 +157,7 @@ struct key_event {
    long timestamp = 0;
 
    // key information (key character, key_code and modifiers)
-   int modifiers  = NFX_NO_KEY
+   int modifiers  = NFX_NO_KEY;
    char chars[IPC_KEY_EVT_NUM_CHARS + 1]; // not initialized since it is not allowed
    int key_code   = 0;                    // 0 is defined as "unknown key"
 };
