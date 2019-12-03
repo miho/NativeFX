@@ -1,6 +1,6 @@
 # NativeFX (WIP)
 
-[![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
+[ ![Download](https://api.bintray.com/packages/miho/NativeFX/NativeFX/images/download.svg) ](https://bintray.com/miho/NativeFX/NativeFX/_latestVersion) [![Build Status](https://mihosoft.visualstudio.com/VRL/_apis/build/status/miho.NativeFX?branchName=master)](https://mihosoft.visualstudio.com/VRL/_build/latest?definitionId=8&branchName=master)
 
 Native Rendering integration for JavaFX (13 and beyond)
 
