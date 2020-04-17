@@ -67,7 +67,7 @@ To compile and run the sample-server, do the following (relative to the previous
     cd build
     cmake ..
     make
-    ./sample-server -n _mem_1
+    ./sample-server -n mem1
     
 #### Windows (CMD)
 
@@ -76,7 +76,7 @@ To compile and run the sample-server, do the following (relative to the previous
     cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
     MSBuild.exe sample-server.sln, /property:Configuration=Release /property:Platform=x64
-    Release\x64\sample-server.exe -n _mem_1
+    Release\x64\sample-server.exe -n mem1
     
 If the last command doesn't work, then check whether the executable is located in `Release\sample-server.exe` without `x64`.    
 
