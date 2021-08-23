@@ -123,7 +123,7 @@ Make sure Qt is installed properly (libs must be on the PATH). To compile and ru
     mkdir build
     cd build
     cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
-    MSBuild.exe nativefx-qt.sln, /property:Configuration=Release /property:Platform=x64
+    MSBuild.exe nativefx-qt.sln /property:Configuration=Release /property:Platform=x64
     Release\nativefx-qt.exe -n _mem_1
     
 If Qt5 cannot be found, let CMake know where to search for Qt, e.g.,
