@@ -67,7 +67,8 @@ public final class NativeBinding {
             return "x64";
         } else if(osArch.toLowerCase().contains("x86")) {
             return "x86";
-        } else if(osArch.toLowerCase().contains("aarch64")) {
+        } else if(osArch.toLowerCase().contains("aarch64")
+        ||osArch.toLowerCase().contains("arm64")) {
             return "aarch64";
         }
 

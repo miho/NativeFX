@@ -519,6 +519,7 @@ int start_server(std::string const &name, redraw_callback redraw, event_callback
             info_data->mutex.unlock();
             // continue; we still might want to process events
         } else {
+
             redraw(name, buffer_data, W, H);
 
             info_data->dirty = true;

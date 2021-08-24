@@ -374,10 +374,11 @@ JNIEXPORT void JNICALL Java_eu_mihosoft_nativefx_NativeBinding_waitForBufferChan
     // connections[key]->buffer_semaphore.wait();
 
     // try at least every second 
-    // boost::system_time const timeout=
-    //   boost::get_system_time()+ boost::posix_time::milliseconds(1000);
-    // while(!connections[key]->buffer_semaphore.timed_wait(timeout)) {
-    while(!connections[key]->buffer_semaphore.try_wait()) {  
+    boost::system_time const timeout=
+      boost::get_system_time()+ boost::posix_time::milliseconds(1000);
+    while(!connections[key]->buffer_semaphore.timed_wait(timeout)) {
+      std::cout << "WARNING: frame-timeout!" << std::endl;
+    // while(!connections[key]->buffer_semaphore.try_wait()) {  
       //
     }
   }

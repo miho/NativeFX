@@ -37,6 +37,8 @@ import javax.swing.border.StrokeBorder;
 import eu.mihosoft.nativefx.NativeBinding.IntEnum;
 import eu.mihosoft.nativefx.NativeBinding.MODIFIER;
 import eu.mihosoft.nativefx.NativeBinding.MOUSE_BTN;
+import java.time.zone.ZoneOffsetTransitionRule.TimeDefinition;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -100,7 +102,6 @@ public final class NativeNode extends Region {
 
     private boolean verbose;
     private boolean pixelBufferEnabled;
-    
 
     /**
      * Constructor. Creates a new instance of this class without hidpi-awareness.
@@ -360,7 +361,7 @@ public final class NativeNode extends Region {
             }
 
             if(pixelBufferEnabled) {
-                pixelBuffer.updateBuffer(b->dimensions);      
+                pixelBuffer.updateBuffer(b->dimensions);   
             } else {
                 img.getPixelWriter().setPixels(0, 0,
                     (int) img.getWidth(),
@@ -370,15 +371,11 @@ public final class NativeNode extends Region {
                 );    
             }
 
-            // we updated the image, not dirty anymore
-            // NativeBinding.lock(key);
-            NativeBinding.setDirty(key, false);
-
             int w = (int)getWidth();
             int h = (int)getHeight();
 
             double sx = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
-            double sy = hidpiAware?getScene().getWindow().getRenderScaleX():1.0;
+            double sy = hidpiAware?getScene().getWindow().getRenderScaleY():1.0;
 
             if((w != NativeBinding.getW(key)/sx || h != NativeBinding.getH(key)/sy) && w > 0 && h > 0) {
                 if(isVerbose()) {
@@ -386,6 +383,9 @@ public final class NativeNode extends Region {
                 }
                 NativeBinding.resize(key, (int)(w*sx), (int)(h*sy));
             }
+
+            // we updated the image, not dirty anymore
+            NativeBinding.setDirty(key, false);
 
             NativeBinding.unlock(key);
 
@@ -410,9 +410,9 @@ public final class NativeNode extends Region {
                     fpsCounter = 0;
                 }
 
-                    fpsCounter++;
+                fpsCounter++;
 
-                    frameTimestamp = currentTimeStamp;
+                frameTimestamp = currentTimeStamp;
             } // end if verbose
                                 
         };
